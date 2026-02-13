@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, Link } from "react-router-dom";
 import {
   Gamepad2,
   Package,
@@ -42,7 +42,10 @@ function NavItem({ to, icon: Icon, label }: NavItemProps): ReactNode {
 
 function PlayerBadge(): ReactNode {
   return (
-    <div className="flex items-center gap-3 rounded-lg px-3 py-2">
+    <Link
+      to="/auth"
+      className="flex items-center gap-3 rounded-lg px-3 py-2 transition-colors hover:bg-surface-600"
+    >
       <div className="flex h-8 w-8 items-center justify-center rounded-md bg-surface-600">
         <User size={16} className="text-zinc-400" />
       </div>
@@ -50,7 +53,7 @@ function PlayerBadge(): ReactNode {
         <span className="text-xs font-medium text-zinc-300">Player</span>
         <span className="text-[10px] text-zinc-600">Not signed in</span>
       </div>
-    </div>
+    </Link>
   );
 }
 

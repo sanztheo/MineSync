@@ -90,23 +90,34 @@ impl std::str::FromStr for SyncAction {
     }
 }
 
-/// Manifest used for P2P sync protocol (not stored in DB directly)
+/// Manifest used for P2P sync protocol (not stored in DB directly).
+///
+/// Contains everything needed to recreate a modpack on a peer.
+/// `manifest_version` is incremented on every change for diffing.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SyncManifest {
+    pub id: String,
+    pub name: String,
     pub instance_id: String,
     pub minecraft_version: String,
-    pub loader: String,
+    pub loader_type: Option<String>,
     pub loader_version: Option<String>,
     pub mods: Vec<SyncModEntry>,
+    pub manifest_version: u32,
     pub created_at: DateTime<Utc>,
 }
 
-/// Single mod entry within a sync manifest
+/// Single mod entry within a sync manifest.
+///
+/// Contains all info needed to locate and download the mod
+/// from CurseForge or Modrinth without needing the actual file.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SyncModEntry {
-    pub name: String,
-    pub version: String,
-    pub source: String,
-    pub source_id: Option<String>,
+    pub mod_name: String,
+    pub mod_version: String,
+    pub file_name: String,
     pub file_hash: Option<String>,
+    pub source: String,
+    pub source_project_id: Option<String>,
+    pub source_version_id: Option<String>,
 }

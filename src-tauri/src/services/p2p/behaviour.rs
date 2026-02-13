@@ -3,12 +3,15 @@ use libp2p::{autonat, dcutr, identify, ping, relay, request_response};
 use serde::{Deserialize, Serialize};
 
 use crate::models::sync::SyncManifest;
+use crate::services::sync_protocol::ManifestDiff;
 
 /// Protocol messages exchanged between peers for manifest sync.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum ManifestRequest {
     /// Request the host's current manifest.
     GetManifest,
+    /// Request the host's current status (online peers, manifest version).
+    GetStatus,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -17,6 +20,16 @@ pub enum ManifestResponse {
     Manifest(SyncManifest),
     /// Host has no active manifest to share.
     NoManifest,
+    /// Host status info.
+    Status {
+        online_peers: u32,
+        manifest_version: u32,
+    },
+    /// Notification that a new manifest version is available.
+    UpdateAvailable {
+        manifest_version: u32,
+        changes: ManifestDiff,
+    },
 }
 
 /// Composite NetworkBehaviour for MineSync P2P.

@@ -12,9 +12,39 @@ export interface MinecraftInstance {
   minecraft_version: string;
   loader: ModLoader;
   loader_version: string | undefined;
-  path: string;
+  instance_path: string;
+  icon_path: string | undefined;
+  last_played_at: string | undefined;
+  total_play_time: number;
+  is_active: boolean;
   created_at: string;
   updated_at: string;
+}
+
+// Minecraft versions — mirrors services/minecraft.rs
+
+export interface VersionEntry {
+  id: string;
+  version_type: string;
+  url: string;
+  release_time: string;
+}
+
+// Download — mirrors services/download.rs
+
+export type DownloadState =
+  | "idle"
+  | "downloading"
+  | "completed"
+  | { failed: { message: string } };
+
+export interface DownloadProgress {
+  total_files: number;
+  completed_files: number;
+  total_bytes: number;
+  downloaded_bytes: number;
+  failed_files: string[];
+  state: DownloadState;
 }
 
 export interface ModInfo {
@@ -74,4 +104,40 @@ export type AuthPollResult =
 export interface MinecraftProfile {
   username: string;
   uuid: string;
+}
+
+// Mod Platform — mirrors Rust models/mod_platform.rs
+
+export type SearchSort = "relevance" | "downloads" | "updated" | "newest";
+
+export interface SearchFilters {
+  query: string;
+  game_version: string | undefined;
+  loader: string | undefined;
+  category: string | undefined;
+  sort: SearchSort;
+  offset: number;
+  limit: number;
+}
+
+export interface SearchResponse {
+  hits: ModSearchResult[];
+  total_hits: number;
+  offset: number;
+  limit: number;
+}
+
+export interface ModSearchResult {
+  id: string;
+  slug: string;
+  name: string;
+  description: string;
+  author: string;
+  downloads: number;
+  icon_url: string | undefined;
+  source: ModSource;
+  game_versions: string[];
+  loaders: string[];
+  date_updated: string;
+  date_created: string;
 }

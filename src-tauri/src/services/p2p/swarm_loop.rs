@@ -113,6 +113,7 @@ pub async fn run(
 
     // Active manifests being shared, keyed by share code
     let mut shared_manifests: HashMap<String, SyncManifest> = HashMap::new();
+    let mut connected_peers: u32 = 0;
 
     loop {
         if !is_running.load(Ordering::SeqCst) {
@@ -135,7 +136,7 @@ pub async fn run(
             }
             // Process swarm events
             event = swarm.select_next_some() => {
-                handle_swarm_event(event, &mut swarm, &shared_manifests, &events);
+                handle_swarm_event(event, &mut swarm, &shared_manifests, &mut connected_peers, &events);
             }
         }
     }
@@ -177,6 +178,7 @@ fn handle_swarm_event(
     event: SwarmEvent<MineSyncBehaviourEvent>,
     swarm: &mut Swarm<MineSyncBehaviour>,
     shared_manifests: &HashMap<String, SyncManifest>,
+    connected_peers: &mut u32,
     events: &broadcast::Sender<P2pEvent>,
 ) {
     match event {
@@ -184,19 +186,21 @@ fn handle_swarm_event(
             log::info!("Listening on {address}");
         }
         SwarmEvent::ConnectionEstablished { peer_id, .. } => {
-            log::info!("Connected to peer: {peer_id}");
+            *connected_peers = connected_peers.saturating_add(1);
+            log::info!("Connected to peer: {peer_id} (total: {connected_peers})");
             let _ = events.send(P2pEvent::PeerConnected {
                 peer_id: peer_id.to_string(),
             });
         }
         SwarmEvent::ConnectionClosed { peer_id, .. } => {
-            log::info!("Disconnected from peer: {peer_id}");
+            *connected_peers = connected_peers.saturating_sub(1);
+            log::info!("Disconnected from peer: {peer_id} (total: {connected_peers})");
             let _ = events.send(P2pEvent::PeerDisconnected {
                 peer_id: peer_id.to_string(),
             });
         }
         SwarmEvent::Behaviour(behaviour_event) => {
-            handle_behaviour_event(behaviour_event, swarm, shared_manifests, events);
+            handle_behaviour_event(behaviour_event, swarm, shared_manifests, *connected_peers, events);
         }
         _ => {}
     }
@@ -206,6 +210,7 @@ fn handle_behaviour_event(
     event: MineSyncBehaviourEvent,
     swarm: &mut Swarm<MineSyncBehaviour>,
     shared_manifests: &HashMap<String, SyncManifest>,
+    connected_peers: u32,
     events: &broadcast::Sender<P2pEvent>,
 ) {
     match event {
@@ -224,7 +229,7 @@ fn handle_behaviour_event(
         MineSyncBehaviourEvent::ManifestExchange(
             request_response::Event::Message { peer, message }
         ) => {
-            handle_manifest_message(peer, message, swarm, shared_manifests, events);
+            handle_manifest_message(peer, message, swarm, shared_manifests, connected_peers, events);
         }
         _ => {}
     }
@@ -235,15 +240,31 @@ fn handle_manifest_message(
     message: request_response::Message<ManifestRequest, ManifestResponse>,
     swarm: &mut Swarm<MineSyncBehaviour>,
     shared_manifests: &HashMap<String, SyncManifest>,
+    connected_peers: u32,
     events: &broadcast::Sender<P2pEvent>,
 ) {
     match message {
         request_response::Message::Request { request, channel, .. } => {
-            handle_incoming_request(peer, request, channel, swarm, shared_manifests);
+            handle_incoming_request(peer, request, channel, swarm, shared_manifests, connected_peers);
         }
         request_response::Message::Response { response, .. } => {
             handle_incoming_response(peer, response, events);
         }
+    }
+}
+
+fn send_response(
+    swarm: &mut Swarm<MineSyncBehaviour>,
+    peer: &PeerId,
+    channel: request_response::ResponseChannel<ManifestResponse>,
+    response: ManifestResponse,
+) {
+    if let Err(resp) = swarm
+        .behaviour_mut()
+        .manifest_exchange
+        .send_response(channel, response)
+    {
+        log::error!("Failed to send response to {peer}: {resp:?}");
     }
 }
 
@@ -253,6 +274,7 @@ fn handle_incoming_request(
     channel: request_response::ResponseChannel<ManifestResponse>,
     swarm: &mut Swarm<MineSyncBehaviour>,
     shared_manifests: &HashMap<String, SyncManifest>,
+    connected_peers: u32,
 ) {
     match request {
         ManifestRequest::GetManifest => {
@@ -263,14 +285,20 @@ fn handle_incoming_request(
                 .unwrap_or(ManifestResponse::NoManifest);
 
             log::info!("Manifest requested by {peer}, responding");
+            send_response(swarm, &peer, channel, response);
+        }
+        ManifestRequest::GetStatus => {
+            let manifest_version = shared_manifests
+                .values()
+                .next()
+                .map(|m| m.manifest_version)
+                .unwrap_or(0);
 
-            if let Err(resp) = swarm
-                .behaviour_mut()
-                .manifest_exchange
-                .send_response(channel, response)
-            {
-                log::error!("Failed to send manifest response to {peer}: {resp:?}");
-            }
+            log::info!("Status requested by {peer}");
+            send_response(swarm, &peer, channel, ManifestResponse::Status {
+                online_peers: connected_peers,
+                manifest_version,
+            });
         }
     }
 }
@@ -290,6 +318,19 @@ fn handle_incoming_response(
         }
         ManifestResponse::NoManifest => {
             log::info!("Peer {peer} has no manifest to share");
+        }
+        ManifestResponse::Status { online_peers, manifest_version } => {
+            log::info!(
+                "Status from {peer}: peers={online_peers}, version={manifest_version}"
+            );
+        }
+        ManifestResponse::UpdateAvailable { manifest_version, changes } => {
+            log::info!(
+                "Update available from {peer}: version={manifest_version}, +{} -{} ~{}",
+                changes.to_add.len(),
+                changes.to_remove.len(),
+                changes.to_update.len(),
+            );
         }
     }
 }

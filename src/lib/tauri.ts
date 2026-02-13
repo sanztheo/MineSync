@@ -5,6 +5,10 @@ import type {
   DeviceCodeInfo,
   AuthPollResult,
   MinecraftProfile,
+  SearchFilters,
+  SearchResponse,
+  VersionEntry,
+  DownloadProgress,
 } from "./types";
 
 export async function listInstances(): Promise<MinecraftInstance[]> {
@@ -51,4 +55,42 @@ export async function logout(): Promise<void> {
 
 export async function refreshAuth(): Promise<MinecraftProfile> {
   return invoke<MinecraftProfile>("refresh_auth");
+}
+
+// Mod platform commands — mirrors src-tauri/src/commands/mods.rs
+
+export async function searchMods(
+  filters: SearchFilters,
+): Promise<SearchResponse> {
+  return invoke<SearchResponse>("search_mods", { filters });
+}
+
+// Instance commands — mirrors src-tauri/src/commands/instance.rs
+
+export async function createInstance(params: {
+  name: string;
+  minecraft_version: string;
+  loader: string | undefined;
+  loader_version: string | undefined;
+  instance_path: string;
+}): Promise<MinecraftInstance> {
+  return invoke<MinecraftInstance>("create_instance", params);
+}
+
+export async function deleteInstance(id: string): Promise<void> {
+  return invoke<void>("delete_instance", { id });
+}
+
+// Minecraft commands — mirrors src-tauri/src/commands/minecraft.rs
+
+export async function listMcVersions(): Promise<VersionEntry[]> {
+  return invoke<VersionEntry[]>("list_mc_versions");
+}
+
+export async function downloadVersion(versionId: string): Promise<void> {
+  return invoke<void>("download_version", { versionId });
+}
+
+export async function getDownloadProgress(): Promise<DownloadProgress> {
+  return invoke<DownloadProgress>("get_download_progress");
 }

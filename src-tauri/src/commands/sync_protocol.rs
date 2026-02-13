@@ -1,6 +1,8 @@
 use crate::errors::{AppError, AppResult};
 use crate::models::sync::SyncManifest;
-use crate::services::sync_protocol::{ManifestDiff, PendingSync, SyncProtocolService};
+use crate::services::sync_protocol::{
+    apply_diff, ApplyResult, ManifestDiff, PendingSync, SyncProtocolService,
+};
 
 /// Preview a diff between a local instance and a received remote manifest.
 ///
@@ -21,20 +23,28 @@ pub fn preview_sync(
     let mods = db.list_instance_mods(&instance_id)?;
 
     let local_manifest = SyncManifest {
+        id: uuid::Uuid::new_v4().to_string(),
+        name: instance.name.clone(),
         instance_id: instance.id,
         minecraft_version: instance.minecraft_version,
-        loader: instance.loader.to_string(),
+        loader_type: match instance.loader {
+            crate::models::instance::ModLoader::Vanilla => None,
+            ref l => Some(l.to_string()),
+        },
         loader_version: instance.loader_version,
         mods: mods
             .into_iter()
             .map(|m| crate::models::sync::SyncModEntry {
-                name: m.name,
-                version: m.version,
-                source: m.source.to_string(),
-                source_id: m.source_project_id,
+                mod_name: m.name,
+                mod_version: m.version,
+                file_name: m.file_name,
                 file_hash: m.file_hash,
+                source: m.source.to_string(),
+                source_project_id: m.source_project_id,
+                source_version_id: m.source_version_id,
             })
             .collect(),
+        manifest_version: 1,
         created_at: chrono::Utc::now(),
     };
 
@@ -91,6 +101,30 @@ pub fn complete_sync(
     session_id: String,
 ) -> AppResult<()> {
     sync_service.complete_sync(&session_id)
+}
+
+/// Apply a confirmed sync: updates the local DB to match the remote manifest.
+///
+/// Confirms the pending sync, applies additions/removals/updates to the DB,
+/// then marks the sync as completed. File downloads are handled separately
+/// by the frontend using the source IDs in the returned ApplyResult.
+#[tauri::command]
+pub fn apply_sync(
+    sync_service: tauri::State<'_, SyncProtocolService>,
+    db: tauri::State<'_, crate::services::database::DatabaseService>,
+    session_id: String,
+) -> AppResult<ApplyResult> {
+    let pending = sync_service
+        .get_pending_sync(&session_id)?
+        .ok_or_else(|| AppError::Custom(format!("No pending sync found: {session_id}")))?;
+
+    let diff = sync_service.confirm_sync(&session_id)?;
+
+    let result = apply_diff(&db, &pending.local_manifest.instance_id, &diff)?;
+
+    sync_service.complete_sync(&session_id)?;
+
+    Ok(result)
 }
 
 /// Compute a diff between two manifests without creating a pending sync.

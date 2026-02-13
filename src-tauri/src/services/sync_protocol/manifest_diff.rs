@@ -19,11 +19,13 @@ pub struct ManifestDiff {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ModUpdate {
-    pub name: String,
+    pub mod_name: String,
     pub local_version: String,
     pub remote_version: String,
     pub source: String,
-    pub source_id: Option<String>,
+    pub source_project_id: Option<String>,
+    pub source_version_id: Option<String>,
+    pub remote_file_name: String,
     pub remote_hash: Option<String>,
 }
 
@@ -31,8 +33,8 @@ pub struct ModUpdate {
 pub struct VersionMismatch {
     pub local_mc_version: String,
     pub remote_mc_version: String,
-    pub local_loader: String,
-    pub remote_loader: String,
+    pub local_loader: Option<String>,
+    pub remote_loader: Option<String>,
 }
 
 impl ManifestDiff {
@@ -71,13 +73,13 @@ pub fn compute_diff(local: &SyncManifest, remote: &SyncManifest) -> ManifestDiff
     let local_by_name: HashMap<&str, &SyncModEntry> = local
         .mods
         .iter()
-        .map(|m| (m.name.as_str(), m))
+        .map(|m| (m.mod_name.as_str(), m))
         .collect();
 
     let remote_by_name: HashMap<&str, &SyncModEntry> = remote
         .mods
         .iter()
-        .map(|m| (m.name.as_str(), m))
+        .map(|m| (m.mod_name.as_str(), m))
         .collect();
 
     let to_add = find_additions(&local_by_name, &remote_by_name);
@@ -97,21 +99,21 @@ fn detect_version_mismatch(
     remote: &SyncManifest,
 ) -> Option<VersionMismatch> {
     let mc_differs = local.minecraft_version != remote.minecraft_version;
-    let loader_differs = local.loader != remote.loader;
+    let loader_differs = local.loader_type != remote.loader_type;
 
     if mc_differs || loader_differs {
         return Some(VersionMismatch {
             local_mc_version: local.minecraft_version.clone(),
             remote_mc_version: remote.minecraft_version.clone(),
-            local_loader: local.loader.clone(),
-            remote_loader: remote.loader.clone(),
+            local_loader: local.loader_type.clone(),
+            remote_loader: remote.loader_type.clone(),
         });
     }
 
     None
 }
 
-/// Mods in remote but not in local → need to add.
+/// Mods in remote but not in local -> need to add.
 fn find_additions(
     local: &HashMap<&str, &SyncModEntry>,
     remote: &HashMap<&str, &SyncModEntry>,
@@ -123,7 +125,7 @@ fn find_additions(
         .collect()
 }
 
-/// Mods in local but not in remote → need to remove.
+/// Mods in local but not in remote -> need to remove.
 fn find_removals(
     local: &HashMap<&str, &SyncModEntry>,
     remote: &HashMap<&str, &SyncModEntry>,
@@ -135,7 +137,7 @@ fn find_removals(
         .collect()
 }
 
-/// Mods in both but with different version or hash → need to update.
+/// Mods in both but with different version or hash -> need to update.
 fn find_updates(
     local: &HashMap<&str, &SyncModEntry>,
     remote: &HashMap<&str, &SyncModEntry>,
@@ -146,11 +148,13 @@ fn find_updates(
             let remote_entry = remote.get(name)?;
             if mod_needs_update(local_entry, remote_entry) {
                 Some(ModUpdate {
-                    name: name.to_string(),
-                    local_version: local_entry.version.clone(),
-                    remote_version: remote_entry.version.clone(),
+                    mod_name: name.to_string(),
+                    local_version: local_entry.mod_version.clone(),
+                    remote_version: remote_entry.mod_version.clone(),
                     source: remote_entry.source.clone(),
-                    source_id: remote_entry.source_id.clone(),
+                    source_project_id: remote_entry.source_project_id.clone(),
+                    source_version_id: remote_entry.source_version_id.clone(),
+                    remote_file_name: remote_entry.file_name.clone(),
                     remote_hash: remote_entry.file_hash.clone(),
                 })
             } else {
@@ -168,7 +172,7 @@ fn mod_needs_update(local: &SyncModEntry, remote: &SyncModEntry) -> bool {
     }
 
     // Fall back to version string comparison
-    local.version != remote.version
+    local.mod_version != remote.mod_version
 }
 
 #[cfg(test)]
@@ -178,22 +182,27 @@ mod tests {
 
     fn make_manifest(mods: Vec<SyncModEntry>) -> SyncManifest {
         SyncManifest {
+            id: "test-manifest-id".to_string(),
+            name: "Test Modpack".to_string(),
             instance_id: "test-instance".to_string(),
             minecraft_version: "1.21.1".to_string(),
-            loader: "fabric".to_string(),
+            loader_type: Some("fabric".to_string()),
             loader_version: Some("0.16.0".to_string()),
             mods,
+            manifest_version: 1,
             created_at: Utc::now(),
         }
     }
 
     fn make_mod(name: &str, version: &str, hash: Option<&str>) -> SyncModEntry {
         SyncModEntry {
-            name: name.to_string(),
-            version: version.to_string(),
-            source: "modrinth".to_string(),
-            source_id: Some(format!("{name}-id")),
+            mod_name: name.to_string(),
+            mod_version: version.to_string(),
+            file_name: format!("{name}-{version}.jar"),
             file_hash: hash.map(String::from),
+            source: "modrinth".to_string(),
+            source_project_id: Some(format!("{name}-id")),
+            source_version_id: Some(format!("{name}-ver-{version}")),
         }
     }
 
@@ -217,7 +226,7 @@ mod tests {
         let diff = compute_diff(&local, &remote);
 
         assert_eq!(diff.to_add.len(), 1);
-        assert_eq!(diff.to_add[0].name, "lithium");
+        assert_eq!(diff.to_add[0].mod_name, "lithium");
         assert!(diff.to_remove.is_empty());
         assert!(diff.to_update.is_empty());
     }
@@ -234,7 +243,7 @@ mod tests {
 
         assert!(diff.to_add.is_empty());
         assert_eq!(diff.to_remove.len(), 1);
-        assert_eq!(diff.to_remove[0].name, "old-mod");
+        assert_eq!(diff.to_remove[0].mod_name, "old-mod");
     }
 
     #[test]

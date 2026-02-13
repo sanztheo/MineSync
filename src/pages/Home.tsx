@@ -1,42 +1,30 @@
-import type { ReactNode } from "react";
+import { type ReactNode, useState, useCallback, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
-import { Plus, Play, RefreshCw } from "lucide-react";
-import type { ModLoader } from "@/lib/types";
+import { Input } from "@/components/ui/Input";
+import { Modal } from "@/components/ui/Modal";
+import {
+  Plus,
+  Play,
+  RefreshCw,
+  Loader2,
+  AlertCircle,
+  Gamepad2,
+  Trash2,
+  MoreVertical,
+} from "lucide-react";
+import { useTauriCommand } from "@/hooks/use-tauri";
+import {
+  listInstances,
+  listMcVersions,
+  createInstance,
+  deleteInstance,
+} from "@/lib/tauri";
+import type { MinecraftInstance, ModLoader, VersionEntry } from "@/lib/types";
 
-interface MockInstance {
-  id: string;
-  name: string;
-  version: string;
-  loader: ModLoader;
-  modCount: number;
-}
-
-const MOCK_INSTANCES: readonly MockInstance[] = [
-  {
-    id: "1",
-    name: "Survival SMP",
-    version: "1.21.5",
-    loader: "fabric",
-    modCount: 42,
-  },
-  {
-    id: "2",
-    name: "Creative Build",
-    version: "1.20.4",
-    loader: "forge",
-    modCount: 18,
-  },
-  {
-    id: "3",
-    name: "Vanilla Friends",
-    version: "1.21.5",
-    loader: "vanilla",
-    modCount: 0,
-  },
-];
+// --- Constants ---
 
 const LOADER_BADGE_VARIANT: Record<
   ModLoader,
@@ -49,57 +37,292 @@ const LOADER_BADGE_VARIANT: Record<
   vanilla: "default",
 };
 
-function InstanceCard({ instance }: { instance: MockInstance }): ReactNode {
+const LOADER_OPTIONS: readonly { value: string; label: string }[] = [
+  { value: "vanilla", label: "Vanilla" },
+  { value: "fabric", label: "Fabric" },
+  { value: "forge", label: "Forge" },
+  { value: "neoforge", label: "NeoForge" },
+  { value: "quilt", label: "Quilt" },
+];
+
+// --- Helpers ---
+
+function formatPlayTime(seconds: number): string {
+  if (seconds <= 0) return "Never played";
+  const hours = Math.floor(seconds / 3600);
+  if (hours > 0) return `${String(hours)}h played`;
+  const mins = Math.floor(seconds / 60);
+  return `${String(mins)}m played`;
+}
+
+// --- Sub-components ---
+
+function InstanceCard({
+  instance,
+  onDelete,
+}: {
+  instance: MinecraftInstance;
+  onDelete: (id: string) => void;
+}): ReactNode {
+  const [menuOpen, setMenuOpen] = useState(false);
+
   return (
-    <Link to={`/instance/${instance.id}`} className="block">
-      <Card hoverable className="flex flex-col gap-3">
-        {/* Instance icon placeholder */}
-        <div className="flex h-24 items-center justify-center rounded-lg bg-surface-600">
-          <span className="text-3xl">🟩</span>
-        </div>
-
-        <div className="flex flex-col gap-1">
-          <h3 className="font-semibold text-zinc-100">{instance.name}</h3>
-          <div className="flex items-center gap-2">
-            <Badge variant={LOADER_BADGE_VARIANT[instance.loader]}>
-              {instance.loader}
-            </Badge>
-            <span className="text-xs text-zinc-500">{instance.version}</span>
-            {instance.modCount > 0 && (
-              <span className="text-xs text-zinc-600">
-                {instance.modCount} mods
-              </span>
-            )}
+    <div className="group relative">
+      <Link to={`/instance/${instance.id}`} className="block">
+        <Card hoverable className="flex flex-col gap-3">
+          {/* Icon area */}
+          <div className="flex h-24 items-center justify-center rounded-lg bg-surface-600">
+            <Gamepad2 size={32} className="text-zinc-600" />
           </div>
-        </div>
 
-        <div className="flex items-center gap-2 pt-1">
-          <Button
-            size="sm"
-            icon={<Play size={12} />}
-            onClick={(e) => {
-              e.preventDefault();
-            }}
-          >
-            Play
-          </Button>
-          <Button
-            size="sm"
-            variant="ghost"
-            icon={<RefreshCw size={12} />}
-            onClick={(e) => {
-              e.preventDefault();
-            }}
-          >
-            Sync
-          </Button>
-        </div>
-      </Card>
-    </Link>
+          {/* Info */}
+          <div className="flex flex-col gap-1">
+            <h3 className="truncate font-semibold text-zinc-100">
+              {instance.name}
+            </h3>
+            <div className="flex items-center gap-2">
+              <Badge variant={LOADER_BADGE_VARIANT[instance.loader]}>
+                {instance.loader}
+              </Badge>
+              <span className="text-xs text-zinc-500">
+                {instance.minecraft_version}
+              </span>
+            </div>
+            <span className="text-[10px] text-zinc-600">
+              {formatPlayTime(instance.total_play_time)}
+            </span>
+          </div>
+
+          {/* Actions */}
+          <div className="flex items-center gap-2 pt-1">
+            <Button
+              size="sm"
+              icon={<Play size={12} />}
+              onClick={(e) => {
+                e.preventDefault();
+              }}
+            >
+              Play
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              icon={<RefreshCw size={12} />}
+              onClick={(e) => {
+                e.preventDefault();
+              }}
+            >
+              Sync
+            </Button>
+          </div>
+        </Card>
+      </Link>
+
+      {/* Context menu trigger */}
+      <div className="absolute right-2 top-2">
+        <button
+          onClick={() => {
+            setMenuOpen((prev) => !prev);
+          }}
+          className="rounded p-1 text-zinc-600 opacity-0 transition-all hover:bg-surface-500 hover:text-zinc-300 group-hover:opacity-100"
+        >
+          <MoreVertical size={14} />
+        </button>
+        {menuOpen && (
+          <div className="absolute right-0 top-8 z-10 w-36 rounded-lg border border-border-default bg-surface-700 py-1 shadow-xl">
+            <button
+              onClick={() => {
+                setMenuOpen(false);
+                onDelete(instance.id);
+              }}
+              className="flex w-full items-center gap-2 px-3 py-1.5 text-xs text-red-400 hover:bg-surface-600"
+            >
+              <Trash2 size={12} />
+              Delete
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }
 
+function CreateInstanceModal({
+  open,
+  onClose,
+  onCreated,
+}: {
+  open: boolean;
+  onClose: () => void;
+  onCreated: () => void;
+}): ReactNode {
+  const [name, setName] = useState("");
+  const [mcVersion, setMcVersion] = useState("");
+  const [loader, setLoader] = useState("vanilla");
+  const [creating, setCreating] = useState(false);
+  const [error, setError] = useState<string | undefined>(undefined);
+
+  const { data: versions, loading: versionsLoading } =
+    useTauriCommand<VersionEntry[]>(listMcVersions);
+
+  const releaseVersions = useMemo(
+    () => (versions ?? []).filter((v) => v.version_type === "release"),
+    [versions],
+  );
+
+  const canCreate = name.trim().length > 0 && mcVersion !== "";
+
+  const handleCreate = useCallback(async (): Promise<void> => {
+    if (!canCreate) return;
+    setCreating(true);
+    setError(undefined);
+    try {
+      await createInstance({
+        name: name.trim(),
+        minecraft_version: mcVersion,
+        loader: loader !== "vanilla" ? loader : undefined,
+        loader_version: undefined,
+        instance_path: `~/.minesync/instances/${name.trim().toLowerCase().replace(/\s+/g, "-")}`,
+      });
+      setName("");
+      setMcVersion("");
+      setLoader("vanilla");
+      onCreated();
+      onClose();
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      setError(message);
+    } finally {
+      setCreating(false);
+    }
+  }, [canCreate, name, mcVersion, loader, onCreated, onClose]);
+
+  return (
+    <Modal
+      open={open}
+      onClose={onClose}
+      title="New Instance"
+      footer={
+        <>
+          <Button variant="ghost" size="sm" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button
+            size="sm"
+            disabled={!canCreate || creating}
+            onClick={handleCreate}
+            icon={
+              creating ? (
+                <Loader2 size={14} className="animate-spin" />
+              ) : (
+                <Plus size={14} />
+              )
+            }
+          >
+            {creating ? "Creating..." : "Create"}
+          </Button>
+        </>
+      }
+    >
+      <div className="flex flex-col gap-4">
+        <Input
+          label="Instance name"
+          placeholder="My Modpack"
+          value={name}
+          onChange={(e) => {
+            setName(e.target.value);
+          }}
+        />
+
+        <div className="flex flex-col gap-1.5">
+          <span className="text-sm font-medium text-zinc-400">
+            Minecraft version
+          </span>
+          {versionsLoading ? (
+            <div className="flex items-center gap-2 py-2">
+              <Loader2 size={14} className="animate-spin text-zinc-500" />
+              <span className="text-xs text-zinc-500">Loading versions...</span>
+            </div>
+          ) : (
+            <select
+              value={mcVersion}
+              onChange={(e) => {
+                setMcVersion(e.target.value);
+              }}
+              className="rounded-lg border border-border-default bg-surface-700 px-3 py-2 text-sm text-zinc-200 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30"
+            >
+              <option value="">Select version</option>
+              {releaseVersions.map((v) => (
+                <option key={v.id} value={v.id}>
+                  {v.id}
+                </option>
+              ))}
+            </select>
+          )}
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <span className="text-sm font-medium text-zinc-400">Mod loader</span>
+          <select
+            value={loader}
+            onChange={(e) => {
+              setLoader(e.target.value);
+            }}
+            className="rounded-lg border border-border-default bg-surface-700 px-3 py-2 text-sm text-zinc-200 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30"
+          >
+            {LOADER_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {error !== undefined && (
+          <div className="flex items-center gap-2 rounded-lg bg-red-900/20 px-3 py-2">
+            <AlertCircle size={14} className="text-red-400" />
+            <span className="text-xs text-red-300">{error}</span>
+          </div>
+        )}
+      </div>
+    </Modal>
+  );
+}
+
+// --- Main ---
+
 export function Home(): ReactNode {
+  const {
+    data: instances,
+    loading,
+    error,
+    refetch,
+  } = useTauriCommand(listInstances);
+  const [createOpen, setCreateOpen] = useState(false);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | undefined>(
+    undefined,
+  );
+  const [deleting, setDeleting] = useState(false);
+
+  const handleDelete = useCallback(async (): Promise<void> => {
+    if (deleteConfirmId === undefined) return;
+    setDeleting(true);
+    try {
+      await deleteInstance(deleteConfirmId);
+      setDeleteConfirmId(undefined);
+      refetch();
+    } catch {
+      // Delete failed silently
+    } finally {
+      setDeleting(false);
+    }
+  }, [deleteConfirmId, refetch]);
+
+  const activeInstances = useMemo(
+    () => (instances ?? []).filter((i) => i.is_active),
+    [instances],
+  );
+
   return (
     <div className="flex flex-1 flex-col gap-6 p-6">
       {/* Header */}
@@ -110,26 +333,127 @@ export function Home(): ReactNode {
             Manage your Minecraft instances
           </p>
         </div>
-        <Button icon={<Plus size={16} />}>New Instance</Button>
+        <Button
+          icon={<Plus size={16} />}
+          onClick={() => {
+            setCreateOpen(true);
+          }}
+        >
+          New Instance
+        </Button>
       </div>
+
+      {/* Loading */}
+      {loading && (
+        <div className="flex items-center justify-center py-16">
+          <Loader2 size={24} className="animate-spin text-accent" />
+          <span className="ml-3 text-sm text-zinc-500">
+            Loading instances...
+          </span>
+        </div>
+      )}
+
+      {/* Error */}
+      {error !== undefined && !loading && (
+        <Card className="border-red-900/30">
+          <div className="flex items-center gap-3 p-4">
+            <AlertCircle size={18} className="shrink-0 text-red-400" />
+            <span className="text-sm text-red-300">{error}</span>
+            <Button size="sm" variant="secondary" onClick={refetch}>
+              Retry
+            </Button>
+          </div>
+        </Card>
+      )}
 
       {/* Instance grid */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {MOCK_INSTANCES.map((instance) => (
-          <InstanceCard key={instance.id} instance={instance} />
-        ))}
+      {!loading && error === undefined && (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {activeInstances.map((instance) => (
+            <InstanceCard
+              key={instance.id}
+              instance={instance}
+              onDelete={setDeleteConfirmId}
+            />
+          ))}
 
-        {/* New instance placeholder card */}
-        <button
-          type="button"
-          className="flex min-h-[200px] items-center justify-center rounded-xl border border-dashed border-border-hover bg-transparent text-zinc-600 transition-colors hover:border-accent hover:text-accent"
-        >
-          <div className="flex flex-col items-center gap-2">
-            <Plus size={24} />
-            <span className="text-sm font-medium">Add Instance</span>
-          </div>
-        </button>
-      </div>
+          {/* Add instance card */}
+          <button
+            type="button"
+            onClick={() => {
+              setCreateOpen(true);
+            }}
+            className="flex min-h-[200px] items-center justify-center rounded-xl border border-dashed border-border-hover bg-transparent text-zinc-600 transition-colors hover:border-accent hover:text-accent"
+          >
+            <div className="flex flex-col items-center gap-2">
+              <Plus size={24} />
+              <span className="text-sm font-medium">Add Instance</span>
+            </div>
+          </button>
+        </div>
+      )}
+
+      {/* Empty state */}
+      {!loading && error === undefined && activeInstances.length === 0 && (
+        <div className="flex flex-col items-center justify-center py-12 text-zinc-600">
+          <Gamepad2 size={48} className="mb-4 text-zinc-700" />
+          <p className="text-sm font-medium">No instances yet</p>
+          <p className="text-xs text-zinc-700">
+            Create your first modpack to get started!
+          </p>
+        </div>
+      )}
+
+      {/* Create modal */}
+      <CreateInstanceModal
+        open={createOpen}
+        onClose={() => {
+          setCreateOpen(false);
+        }}
+        onCreated={refetch}
+      />
+
+      {/* Delete confirmation */}
+      <Modal
+        open={deleteConfirmId !== undefined}
+        onClose={() => {
+          setDeleteConfirmId(undefined);
+        }}
+        title="Delete Instance"
+        footer={
+          <>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setDeleteConfirmId(undefined);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="danger"
+              size="sm"
+              disabled={deleting}
+              onClick={handleDelete}
+              icon={
+                deleting ? (
+                  <Loader2 size={14} className="animate-spin" />
+                ) : (
+                  <Trash2 size={14} />
+                )
+              }
+            >
+              {deleting ? "Deleting..." : "Delete"}
+            </Button>
+          </>
+        }
+      >
+        <p className="text-sm text-zinc-400">
+          Are you sure? This will permanently delete the instance and all its
+          data. This action cannot be undone.
+        </p>
+      </Modal>
     </div>
   );
 }

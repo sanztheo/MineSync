@@ -3,10 +3,12 @@ mod errors;
 mod models;
 mod services;
 
-use commands::{account, auth, instance, minecraft, mods, p2p, sync, sync_protocol};
+use commands::{account, auth, instance, launch, loader, minecraft, mods, p2p, sync, sync_protocol};
 use services::auth::AuthService;
 use services::database::DatabaseService;
 use services::download::DownloadService;
+use services::launch::LaunchService;
+use services::loader::LoaderService;
 use services::minecraft::MinecraftService;
 use services::mod_platform::UnifiedModClient;
 use services::sync_protocol::SyncProtocolService;
@@ -40,6 +42,12 @@ pub fn run() {
 
             // Download manager
             app.manage(DownloadService::new());
+
+            // Mod loader installer service
+            app.manage(LoaderService::new(app_dir.clone()));
+
+            // Game launcher
+            app.manage(LaunchService::new(app_dir.clone()));
 
             // Mod platform client (CurseForge + Modrinth)
             // CurseForge API key is optional — pass None to use Modrinth only
@@ -86,7 +94,12 @@ pub fn run() {
             sync_protocol::confirm_sync,
             sync_protocol::reject_sync,
             sync_protocol::complete_sync,
+            sync_protocol::apply_sync,
             sync_protocol::compute_manifest_diff,
+            loader::list_loader_versions,
+            loader::install_loader,
+            launch::launch_instance,
+            launch::get_game_status,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

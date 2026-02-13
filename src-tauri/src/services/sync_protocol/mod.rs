@@ -1,6 +1,8 @@
+pub mod apply_diff;
 pub mod manifest_diff;
 
-pub use manifest_diff::{compute_diff, DiffSummary, ManifestDiff, ModUpdate, VersionMismatch};
+pub use apply_diff::{apply_diff, ApplyResult};
+pub use manifest_diff::{compute_diff, ManifestDiff};
 
 use std::collections::HashMap;
 use std::sync::Mutex;

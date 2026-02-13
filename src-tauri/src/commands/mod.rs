@@ -1,6 +1,8 @@
 pub mod account;
 pub mod auth;
 pub mod instance;
+pub mod launch;
+pub mod loader;
 pub mod minecraft;
 pub mod mods;
 pub mod p2p;

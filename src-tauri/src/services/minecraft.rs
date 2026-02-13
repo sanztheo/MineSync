@@ -49,6 +49,13 @@ pub struct VersionDetail {
     pub java_version: Option<JavaVersion>,
     #[serde(rename = "mainClass")]
     pub main_class: String,
+    pub arguments: Option<VersionArguments>,
+}
+
+#[derive(Deserialize)]
+pub struct VersionArguments {
+    pub game: Option<Vec<serde_json::Value>>,
+    pub jvm: Option<Vec<serde_json::Value>>,
 }
 
 #[derive(Deserialize)]
