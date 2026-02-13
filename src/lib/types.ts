@@ -4,7 +4,7 @@ export type ModLoader = "vanilla" | "forge" | "fabric" | "neoforge" | "quilt";
 
 export type ModSource = "curseforge" | "modrinth" | "local";
 
-export type SyncStatus = "waiting" | "syncing" | "completed" | "failed";
+export type SyncStatus = "inactive" | "active" | "syncing";
 
 export interface MinecraftInstance {
   id: string;
