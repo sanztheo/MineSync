@@ -52,11 +52,14 @@ function DeviceCodeDisplay({ info }: { info: DeviceCodeInfo }): ReactNode {
   }, [info.user_code]);
 
   return (
-    <Card className="bg-white shadow-soft rounded-[20px]">
+    <Card className="rounded-lg bg-white">
       <CardHeader>
         <div className="flex items-center gap-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-50">
-            <LogIn size={18} className="text-emerald-600" />
+          <div
+            className="flex h-9 w-9 items-center justify-center rounded-md"
+            style={{ background: "rgba(55,53,47,0.08)" }}
+          >
+            <LogIn size={18} style={{ color: "rgba(55, 53, 47, 0.65)" }} />
           </div>
           <h3 className="font-medium text-gray-900">Enter this code</h3>
         </div>
@@ -65,17 +68,17 @@ function DeviceCodeDisplay({ info }: { info: DeviceCodeInfo }): ReactNode {
         {/* Code display */}
         <button
           onClick={copyCode}
-          className="group flex items-center gap-3 rounded-xl border border-gray-200 bg-gray-50 px-6 py-3 transition-colors hover:border-emerald-300"
+          className="group flex items-center gap-3 rounded-md border border-gray-200 bg-[rgba(55,53,47,0.04)] px-6 py-3 transition-colors hover:border-[rgba(55,53,47,0.24)]"
         >
           <span className="font-mono text-2xl font-bold tracking-[0.3em] text-gray-900">
             {info.user_code}
           </span>
           {copied ? (
-            <Check size={18} className="text-emerald-600" />
+            <Check size={18} style={{ color: "rgba(55, 53, 47, 0.65)" }} />
           ) : (
             <Copy
               size={18}
-              className="text-gray-500 group-hover:text-emerald-600"
+              className="text-gray-500 group-hover:text-[rgba(55,53,47,0.65)]"
             />
           )}
         </button>
@@ -85,13 +88,17 @@ function DeviceCodeDisplay({ info }: { info: DeviceCodeInfo }): ReactNode {
         <button
           type="button"
           onClick={() => openUrl(info.verification_uri)}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-gray-50 px-4 py-2 text-sm text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-[rgba(55,53,47,0.04)] px-4 py-2 text-sm text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900"
         >
           Open {info.verification_uri} <ExternalLink size={14} />
         </button>
 
         <div className="flex items-center gap-2 pt-2">
-          <Loader2 size={14} className="animate-spin text-emerald-600" />
+          <Loader2
+            size={14}
+            className="animate-spin"
+            style={{ color: "rgba(55, 53, 47, 0.45)" }}
+          />
           <span className="text-xs text-gray-500">
             Waiting for you to sign in on Microsoft\u2026
           </span>
@@ -109,12 +116,12 @@ function PlayerProfile({
   onLogout: () => void;
 }): ReactNode {
   return (
-    <Card className="bg-white shadow-soft rounded-[20px]">
+    <Card className="rounded-lg bg-white">
       <CardContent className="flex items-center gap-4">
         <img
           src={`${SKIN_BASE_URL}/${profile.uuid}/64`}
           alt={`${profile.username} skin`}
-          className="h-16 w-16 rounded-lg shadow-button"
+          className="h-16 w-16 rounded-lg"
           onError={(e) => {
             e.currentTarget.style.display = "none";
           }}
@@ -228,9 +235,9 @@ export function Auth(): ReactNode {
   }, []);
 
   return (
-    <div className="flex flex-1 flex-col gap-6 bg-surface-100 p-7">
+    <div className="flex flex-1 flex-col gap-6 p-7">
       <div>
-        <h1 className="text-2xl font-extrabold text-gray-900">Account</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Account</h1>
         <p className="text-sm text-gray-600">
           Sign in with your Microsoft account to play Minecraft
         </p>
@@ -243,10 +250,13 @@ export function Auth(): ReactNode {
 
       {/* Not connected — sign in */}
       {profile === undefined && phase.step === "idle" && (
-        <Card className="bg-white shadow-soft rounded-[20px]">
+        <Card className="rounded-lg bg-white">
           <CardContent className="flex flex-col items-center gap-4 py-8">
-            <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-emerald-50">
-              <User size={32} className="text-emerald-600" />
+            <div
+              className="flex h-16 w-16 items-center justify-center rounded-md"
+              style={{ background: "rgba(55,53,47,0.08)" }}
+            >
+              <User size={32} style={{ color: "rgba(55, 53, 47, 0.65)" }} />
             </div>
             <div className="text-center">
               <h3 className="font-semibold text-gray-900">Not signed in</h3>
@@ -263,9 +273,13 @@ export function Auth(): ReactNode {
 
       {/* Loading */}
       {phase.step === "loading" && (
-        <Card className="bg-white shadow-soft rounded-[20px]">
+        <Card className="rounded-lg bg-white">
           <CardContent className="flex items-center justify-center gap-3 py-8">
-            <Loader2 size={20} className="animate-spin text-emerald-600" />
+            <Loader2
+              size={20}
+              className="animate-spin"
+              style={{ color: "rgba(55, 53, 47, 0.45)" }}
+            />
             <span className="text-sm text-gray-500">
               Starting authentication\u2026
             </span>
@@ -278,9 +292,12 @@ export function Auth(): ReactNode {
 
       {/* Error */}
       {phase.step === "error" && (
-        <Card className="bg-white shadow-soft rounded-[20px] border-red-200">
+        <Card
+          className="rounded-lg bg-white"
+          style={{ border: "1px solid rgba(239, 68, 68, 0.5)" }}
+        >
           <CardContent className="flex items-center gap-3">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-red-50">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-red-50">
               <AlertCircle size={18} className="text-red-600" />
             </div>
             <div className="flex flex-1 flex-col gap-1">
@@ -297,32 +314,56 @@ export function Auth(): ReactNode {
       )}
 
       {/* How it works */}
-      <Card className="bg-white shadow-soft rounded-[20px]">
+      <Card className="rounded-lg bg-white">
         <CardHeader>
           <h3 className="text-sm font-medium text-gray-500">How it works</h3>
         </CardHeader>
         <CardContent>
           <ol className="flex flex-col gap-2 text-sm text-gray-600">
             <li className="flex items-start gap-2">
-              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-xs font-medium text-emerald-600">
+              <span
+                className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs font-medium"
+                style={{
+                  background: "rgba(55,53,47,0.08)",
+                  color: "rgba(55, 53, 47, 0.65)",
+                }}
+              >
                 1
               </span>
               <span>Click &quot;Sign in with Microsoft&quot;</span>
             </li>
             <li className="flex items-start gap-2">
-              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-xs font-medium text-emerald-600">
+              <span
+                className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs font-medium"
+                style={{
+                  background: "rgba(55,53,47,0.08)",
+                  color: "rgba(55, 53, 47, 0.65)",
+                }}
+              >
                 2
               </span>
               <span>Copy the code and enter it on the Microsoft page</span>
             </li>
             <li className="flex items-start gap-2">
-              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-xs font-medium text-emerald-600">
+              <span
+                className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs font-medium"
+                style={{
+                  background: "rgba(55,53,47,0.08)",
+                  color: "rgba(55, 53, 47, 0.65)",
+                }}
+              >
                 3
               </span>
               <span>Sign in with your Microsoft/Xbox account</span>
             </li>
             <li className="flex items-start gap-2">
-              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-xs font-medium text-emerald-600">
+              <span
+                className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs font-medium"
+                style={{
+                  background: "rgba(55,53,47,0.08)",
+                  color: "rgba(55, 53, 47, 0.65)",
+                }}
+              >
                 4
               </span>
               <span>

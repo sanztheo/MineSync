@@ -89,7 +89,11 @@ function FilterSelect({
         onChange={(e) => {
           onChange(e.target.value);
         }}
-        className="rounded-xl border border-gray-200 bg-white px-2.5 py-1.5 text-xs text-gray-900 shadow-inset focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
+        className="rounded-[5px] bg-white px-2.5 py-1.5 text-xs"
+        style={{
+          border: "1px solid rgba(55, 53, 47, 0.16)",
+          color: "rgba(55, 53, 47, 0.85)",
+        }}
       >
         <option value="">All</option>
         {options.map((opt) => (
@@ -116,11 +120,14 @@ function ModCard({
         <img
           src={mod.icon_url}
           alt={mod.name}
-          className="h-12 w-12 shrink-0 rounded-xl object-cover"
+          className="h-12 w-12 shrink-0 rounded-md object-cover"
           loading="lazy"
         />
       ) : (
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gray-100">
+        <div
+          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-md"
+          style={{ background: "rgba(55, 53, 47, 0.08)" }}
+        >
           <Package size={20} className="text-gray-500" />
         </div>
       )}
@@ -128,7 +135,10 @@ function ModCard({
       {/* Info */}
       <div className="flex flex-1 flex-col gap-1 overflow-hidden">
         <div className="flex items-center gap-2">
-          <h3 className="truncate text-sm font-semibold text-gray-900">
+          <h3
+            className="truncate text-sm font-semibold"
+            style={{ color: "rgba(55, 53, 47, 1)" }}
+          >
             {mod.name}
           </h3>
           <Badge variant={SOURCE_BADGE_VARIANT[mod.source]}>{mod.source}</Badge>
@@ -140,7 +150,11 @@ function ModCard({
             {mod.loaders.map((loader) => (
               <span
                 key={loader}
-                className="rounded-xl bg-gray-100 px-1.5 py-0.5 text-[10px] text-gray-500"
+                className="rounded px-1.5 py-0.5 text-[10px]"
+                style={{
+                  background: "rgba(55, 53, 47, 0.08)",
+                  color: "rgba(55, 53, 47, 0.45)",
+                }}
               >
                 {loader}
               </span>
@@ -280,10 +294,13 @@ export function BrowseMods(): ReactNode {
   );
 
   return (
-    <div className="flex flex-1 flex-col gap-6 bg-surface-100 p-7">
+    <div className="flex flex-1 flex-col gap-6 p-7">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900 text-pretty">
+        <h1
+          className="text-2xl font-semibold text-pretty"
+          style={{ color: "rgba(55, 53, 47, 1)" }}
+        >
           Browse Mods
         </h1>
         <p className="text-sm text-gray-600">Search CurseForge and Modrinth</p>
@@ -315,7 +332,10 @@ export function BrowseMods(): ReactNode {
 
       {/* Filters bar */}
       {showFilters && (
-        <div className="flex flex-wrap items-end gap-4 rounded-[20px] bg-white p-5 shadow-soft">
+        <div
+          className="flex flex-wrap items-end gap-4 rounded-lg bg-white p-4"
+          style={{ border: "1px solid rgba(55, 53, 47, 0.09)" }}
+        >
           <FilterSelect
             label="Sort by"
             value={sortBy}
@@ -354,7 +374,11 @@ export function BrowseMods(): ReactNode {
       {/* Loading */}
       {loading && (
         <div className="flex items-center justify-center py-12">
-          <Loader2 size={24} className="animate-spin text-emerald-500" />
+          <Loader2
+            size={24}
+            className="animate-spin"
+            style={{ color: "rgba(55, 53, 47, 0.45)" }}
+          />
           <span className="ml-3 text-sm text-gray-500">
             Searching mods\u2026
           </span>
@@ -363,7 +387,13 @@ export function BrowseMods(): ReactNode {
 
       {/* Error */}
       {error !== undefined && !loading && (
-        <Card className="rounded-xl border-red-200 bg-red-50">
+        <Card
+          className="rounded-lg"
+          style={{
+            background: "rgba(251, 236, 221, 1)",
+            border: "1px solid rgba(55, 53, 47, 0.09)",
+          }}
+        >
           <div className="flex items-center gap-3 p-4">
             <AlertCircle size={18} className="shrink-0 text-red-600" />
             <div className="flex flex-1 flex-col gap-0.5">
@@ -411,7 +441,10 @@ export function BrowseMods(): ReactNode {
           {/* Empty state */}
           {results.length === 0 && debouncedQuery !== "" && (
             <div className="flex flex-col items-center justify-center py-12">
-              <div className="mb-3 flex h-16 w-16 items-center justify-center rounded-3xl bg-gray-100">
+              <div
+                className="mb-3 flex h-16 w-16 items-center justify-center rounded-lg"
+                style={{ background: "rgba(55, 53, 47, 0.04)" }}
+              >
                 <Package size={40} className="text-gray-400" />
               </div>
               <p className="text-sm text-gray-600">
@@ -426,7 +459,10 @@ export function BrowseMods(): ReactNode {
           {/* Welcome state */}
           {results.length === 0 && debouncedQuery === "" && !loading && (
             <div className="flex flex-col items-center justify-center py-12">
-              <div className="mb-3 flex h-16 w-16 items-center justify-center rounded-3xl bg-gray-100">
+              <div
+                className="mb-3 flex h-16 w-16 items-center justify-center rounded-lg"
+                style={{ background: "rgba(55, 53, 47, 0.04)" }}
+              >
                 <Search size={40} className="text-gray-400" />
               </div>
               <p className="text-sm text-gray-600">

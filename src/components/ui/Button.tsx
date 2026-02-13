@@ -11,19 +11,18 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const VARIANT_CLASSES: Record<ButtonVariant, string> = {
-  primary:
-    "bg-gradient-to-b from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-white shadow-accent btn-press hover:shadow-accent-lg active:shadow-button",
+  primary: "bg-[#222222] hover:bg-[#333333] active:bg-[#1a1a1a] text-white",
   secondary:
-    "bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 shadow-button btn-press hover:shadow-elevated active:shadow-inset",
-  ghost: "bg-transparent hover:bg-gray-100 text-gray-500 hover:text-gray-700",
-  danger:
-    "bg-gradient-to-b from-red-500 to-red-600 hover:from-red-400 hover:to-red-500 text-white shadow-danger btn-press hover:shadow-danger-lg active:shadow-button",
+    "bg-transparent text-[rgba(55,53,47,0.85)] hover:bg-[rgba(55,53,47,0.04)]",
+  ghost:
+    "bg-transparent text-[rgba(55,53,47,0.65)] hover:bg-[rgba(55,53,47,0.06)]",
+  danger: "bg-[#E03E3E] hover:bg-[#cc3636] active:bg-[#b82e2e] text-white",
 };
 
 const SIZE_CLASSES: Record<ButtonSize, string> = {
-  sm: "px-3 py-1.5 text-xs gap-1.5",
-  md: "px-4 py-2.5 text-sm gap-2",
-  lg: "px-6 py-3 text-sm gap-2",
+  sm: "h-7 px-2.5 text-[13px] gap-1.5 rounded",
+  md: "h-8 px-3 text-sm gap-2 rounded-[5px]",
+  lg: "h-10 px-4 text-sm gap-2 rounded-[6px]",
 };
 
 export function Button({
@@ -34,9 +33,14 @@ export function Button({
   children,
   ...props
 }: ButtonProps): ReactNode {
+  const borderClass =
+    variant === "secondary"
+      ? "border border-[rgba(55,53,47,0.16)] hover:border-[rgba(55,53,47,0.32)]"
+      : "";
+
   return (
     <button
-      className={`inline-flex items-center justify-center rounded-xl font-semibold transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 focus-visible:ring-offset-2 focus-visible:ring-offset-surface-100 disabled:opacity-40 disabled:pointer-events-none disabled:transform-none ${VARIANT_CLASSES[variant]} ${SIZE_CLASSES[size]} ${className}`}
+      className={`inline-flex items-center justify-center font-medium transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(35,131,226,0.3)] focus-visible:ring-offset-2 disabled:opacity-60 disabled:pointer-events-none ${VARIANT_CLASSES[variant]} ${SIZE_CLASSES[size]} ${borderClass} ${className}`}
       {...props}
     >
       {icon !== undefined && <span className="shrink-0">{icon}</span>}

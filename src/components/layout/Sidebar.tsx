@@ -1,9 +1,9 @@
 import { type ReactNode, useState, useEffect } from "react";
 import { NavLink, Link } from "react-router-dom";
 import {
-  Gamepad2,
-  Package,
-  Boxes,
+  Home,
+  Search,
+  Layers,
   RefreshCw,
   Settings,
   type LucideIcon,
@@ -19,9 +19,9 @@ interface NavItemProps {
 }
 
 const NAV_ITEMS: readonly NavItemProps[] = [
-  { to: "/", icon: Gamepad2, label: "Home" },
-  { to: "/mods", icon: Package, label: "Browse Mods" },
-  { to: "/modpacks", icon: Boxes, label: "Modpacks" },
+  { to: "/", icon: Home, label: "Home" },
+  { to: "/mods", icon: Search, label: "Browse Mods" },
+  { to: "/modpacks", icon: Layers, label: "Modpacks" },
   { to: "/sync", icon: RefreshCw, label: "Sync Hub" },
 ] as const;
 
@@ -31,14 +31,14 @@ function NavItem({ to, icon: Icon, label }: NavItemProps): ReactNode {
       to={to}
       end={to === "/"}
       className={({ isActive }) =>
-        `flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-150 ${
+        `flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-sm transition-colors duration-150 ${
           isActive
-            ? "bg-emerald-50 text-emerald-700 shadow-sm"
-            : "text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+            ? "bg-[rgba(55,53,47,0.08)] font-medium text-[rgba(55,53,47,1)]"
+            : "font-normal text-[rgba(55,53,47,0.65)] hover:bg-[rgba(55,53,47,0.04)]"
         }`
       }
     >
-      <Icon size={18} />
+      <Icon size={18} strokeWidth={1.8} />
       <span>{label}</span>
     </NavLink>
   );
@@ -62,7 +62,6 @@ function PlayerBadge(): ReactNode {
     };
     load();
 
-    // Re-check profile periodically (picks up login/logout from Auth page)
     const interval = setInterval(load, 5000);
     return () => clearInterval(interval);
   }, []);
@@ -70,26 +69,35 @@ function PlayerBadge(): ReactNode {
   return (
     <Link
       to="/auth"
-      className="flex items-center gap-3 rounded-xl px-3 py-2.5 transition-all duration-150 hover:bg-gray-100"
+      className="flex items-center gap-2.5 rounded-md px-2.5 py-1.5 transition-colors duration-150 hover:bg-[rgba(55,53,47,0.04)]"
     >
       {profile !== undefined ? (
         <img
-          src={`${SKIN_BASE_URL}/${profile.uuid}/32`}
+          src={`${SKIN_BASE_URL}/${profile.uuid}/28`}
           alt={profile.username}
-          width={32}
-          height={32}
-          className="h-8 w-8 rounded-lg shadow-button"
+          width={28}
+          height={28}
+          className="h-7 w-7 rounded-md"
         />
       ) : (
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-100">
-          <User size={16} className="text-gray-400" />
+        <div
+          className="flex h-7 w-7 items-center justify-center rounded-md"
+          style={{ background: "rgba(55, 53, 47, 0.08)" }}
+        >
+          <User size={14} style={{ color: "rgba(55, 53, 47, 0.45)" }} />
         </div>
       )}
       <div className="flex flex-col">
-        <span className="text-xs font-semibold text-gray-700">
+        <span
+          className="text-sm font-medium"
+          style={{ color: "rgba(55, 53, 47, 0.85)" }}
+        >
           {profile !== undefined ? profile.username : "Player"}
         </span>
-        <span className="text-[10px] font-medium text-gray-400">
+        <span
+          className="text-[11px]"
+          style={{ color: "rgba(55, 53, 47, 0.45)" }}
+        >
           {profile !== undefined ? "Connected" : "Not signed in"}
         </span>
       </div>
@@ -99,9 +107,12 @@ function PlayerBadge(): ReactNode {
 
 export function Sidebar(): ReactNode {
   return (
-    <aside className="flex w-[230px] shrink-0 flex-col bg-white shadow-soft">
+    <aside
+      className="flex w-[240px] shrink-0 flex-col bg-[rgba(247,246,243,1)]"
+      style={{ borderRight: "1px solid rgba(55, 53, 47, 0.09)" }}
+    >
       {/* Main navigation */}
-      <nav className="flex flex-1 flex-col gap-1 p-4">
+      <nav className="flex flex-1 flex-col gap-0.5 px-2 py-3">
         {NAV_ITEMS.map((item) => (
           <NavItem
             key={item.to}
@@ -113,7 +124,10 @@ export function Sidebar(): ReactNode {
       </nav>
 
       {/* Bottom section */}
-      <div className="flex flex-col gap-1 border-t border-gray-100 p-4">
+      <div
+        className="flex flex-col gap-0.5 px-2 py-3"
+        style={{ borderTop: "1px solid rgba(55, 53, 47, 0.09)" }}
+      >
         <NavItem to="/settings" icon={Settings} label="Settings" />
         <PlayerBadge />
       </div>

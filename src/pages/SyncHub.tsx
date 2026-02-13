@@ -59,11 +59,11 @@ function P2pStatusBar({
       <CardContent className="flex items-center justify-between py-3">
         <div className="flex items-center gap-3">
           {isRunning ? (
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-50">
-              <Wifi size={16} className="text-emerald-500" />
+            <div className="flex h-9 w-9 items-center justify-center rounded-md bg-[rgba(221,237,234,1)]">
+              <Wifi size={16} className="text-[#0F7B6C]" />
             </div>
           ) : (
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gray-100">
+            <div className="flex h-9 w-9 items-center justify-center rounded-md bg-[rgba(55,53,47,0.04)]">
               <WifiOff size={16} className="text-gray-400" />
             </div>
           )}
@@ -145,8 +145,8 @@ function ShareSection({
     <Card>
       <CardHeader>
         <div className="flex items-center gap-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-50">
-            <Share2 size={16} className="text-emerald-500" />
+          <div className="flex h-9 w-9 items-center justify-center rounded-md bg-[rgba(221,237,234,1)]">
+            <Share2 size={16} className="text-[#0F7B6C]" />
           </div>
           <h3 className="font-semibold text-gray-800">Share Modpack</h3>
         </div>
@@ -166,7 +166,11 @@ function ShareSection({
               setShareCode(undefined);
             }}
             disabled={!p2pRunning}
-            className="rounded-xl border border-gray-200 bg-white px-3.5 py-2.5 text-sm text-gray-700 shadow-inset focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 disabled:opacity-50"
+            className="rounded-[5px] bg-white px-3.5 py-2.5 text-sm disabled:opacity-50"
+            style={{
+              border: "1px solid rgba(55, 53, 47, 0.16)",
+              color: "rgba(55, 53, 47, 0.85)",
+            }}
           >
             <option value="">Select an instance\u2026</option>
             {instances.map((inst) => (
@@ -178,14 +182,24 @@ function ShareSection({
         </div>
 
         {shareCode !== undefined ? (
-          <div className="flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3">
-            <span className="flex-1 text-center font-mono text-lg font-bold tracking-widest text-emerald-600">
+          <div
+            className="flex items-center gap-2 rounded-lg px-4 py-3"
+            style={{
+              border: "1px solid rgba(55, 53, 47, 0.16)",
+              background: "rgba(55, 53, 47, 0.04)",
+            }}
+          >
+            <span
+              className="flex-1 text-center font-mono text-lg font-bold tracking-widest"
+              style={{ color: "rgba(55, 53, 47, 1)" }}
+            >
               {shareCode}
             </span>
             <button
               onClick={handleCopy}
               aria-label="Copy share code"
-              className="rounded-lg p-1.5 text-emerald-500 transition-colors hover:bg-emerald-100"
+              className="rounded-lg p-1.5 transition-colors hover:bg-[rgba(55,53,47,0.08)]"
+              style={{ color: "rgba(55, 53, 47, 0.65)" }}
             >
               {copied ? <Check size={16} /> : <Copy size={16} />}
             </button>
@@ -208,7 +222,7 @@ function ShareSection({
         )}
 
         {error !== undefined && (
-          <div className="flex items-center gap-2 rounded-xl bg-red-50 px-3 py-2">
+          <div className="flex items-center gap-2 rounded-md bg-red-50 px-3 py-2">
             <AlertCircle size={14} className="text-red-500" />
             <span className="text-xs text-red-600">{error}</span>
           </div>
@@ -246,8 +260,8 @@ function JoinSection({ p2pRunning }: { p2pRunning: boolean }): ReactNode {
     <Card>
       <CardHeader>
         <div className="flex items-center gap-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50">
-            <ArrowDownToLine size={16} className="text-blue-500" />
+          <div className="flex h-9 w-9 items-center justify-center rounded-md bg-[rgba(55,53,47,0.04)]">
+            <ArrowDownToLine size={16} className="text-[#222222]" />
           </div>
           <h3 className="font-semibold text-gray-800">Join Session</h3>
         </div>
@@ -287,16 +301,16 @@ function JoinSection({ p2pRunning }: { p2pRunning: boolean }): ReactNode {
         </div>
 
         {success && (
-          <div className="flex items-center gap-2 rounded-xl bg-emerald-50 px-3 py-2">
-            <Check size={14} className="text-emerald-500" />
-            <span className="text-xs text-emerald-600">
+          <div className="flex items-center gap-2 rounded-md bg-[rgba(221,237,234,1)] px-3 py-2">
+            <Check size={14} className="text-[#0F7B6C]" />
+            <span className="text-xs text-[#0F7B6C]">
               Connected! Waiting for sync data\u2026
             </span>
           </div>
         )}
 
         {error !== undefined && (
-          <div className="flex items-center gap-2 rounded-xl bg-red-50 px-3 py-2">
+          <div className="flex items-center gap-2 rounded-md bg-red-50 px-3 py-2">
             <AlertCircle size={14} className="text-red-500" />
             <span className="text-xs text-red-600">{error}</span>
           </div>
@@ -357,7 +371,7 @@ function DiffPreviewModal({
     >
       <div className="flex flex-col gap-4">
         {diff.version_mismatch !== undefined && (
-          <div className="flex items-start gap-2 rounded-xl bg-amber-50 px-3 py-2">
+          <div className="flex items-start gap-2 rounded-md bg-amber-50 px-3 py-2">
             <AlertTriangle
               size={14}
               className="mt-0.5 shrink-0 text-amber-500"
@@ -387,7 +401,7 @@ function DiffPreviewModal({
         {addCount > 0 && (
           <DiffSection
             title={`${String(addCount)} mod${addCount > 1 ? "s" : ""} to add`}
-            icon={<Plus size={14} className="text-emerald-500" />}
+            icon={<Plus size={14} className="text-[#0F7B6C]" />}
             items={diff.to_add.map((m) => m.mod_name)}
             variant="add"
           />
@@ -419,14 +433,26 @@ function DiffSection({
   items: string[];
   variant: "add" | "remove";
 }): ReactNode {
-  const bgColor = variant === "add" ? "bg-emerald-50/70" : "bg-red-50/70";
-  const textColor = variant === "add" ? "text-emerald-600" : "text-red-600";
+  const addStyles = {
+    background: "rgba(221,237,234,0.7)",
+    color: "#0F7B6C",
+  };
+  const removeStyles = {
+    background: "rgba(253, 231, 233, 0.7)",
+    color: "#dc2626",
+  };
+  const style = variant === "add" ? addStyles : removeStyles;
 
   return (
-    <div className={`rounded-xl ${bgColor} px-3 py-2`}>
+    <div
+      className="rounded-md px-3 py-2"
+      style={{ background: style.background }}
+    >
       <div className="mb-1 flex items-center gap-1.5">
         {icon}
-        <span className={`text-xs font-semibold ${textColor}`}>{title}</span>
+        <span className="text-xs font-semibold" style={{ color: style.color }}>
+          {title}
+        </span>
       </div>
       <ul className="flex flex-col gap-0.5">
         {items.map((name) => (
@@ -441,7 +467,7 @@ function DiffSection({
 
 function UpdateSection({ updates }: { updates: ModUpdate[] }): ReactNode {
   return (
-    <div className="rounded-xl bg-amber-50/70 px-3 py-2">
+    <div className="rounded-md bg-amber-50/70 px-3 py-2">
       <div className="mb-1 flex items-center gap-1.5">
         <ArrowUpDown size={14} className="text-amber-500" />
         <span className="text-xs font-semibold text-amber-600">
@@ -469,8 +495,8 @@ function SyncHistoryPlaceholder(): ReactNode {
         <History size={16} className="text-gray-500" />
         <h2 className="text-lg font-bold text-gray-800">Sync History</h2>
       </div>
-      <div className="flex flex-col items-center justify-center rounded-[20px] border-2 border-dashed border-gray-200 py-10 text-gray-400">
-        <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-gray-100">
+      <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-200 py-10 text-gray-400">
+        <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-md bg-gray-100">
           <History size={24} className="text-gray-300" />
         </div>
         <p className="text-sm font-medium text-gray-500">No sync history yet</p>
@@ -557,7 +583,7 @@ export function SyncHub(): ReactNode {
     <div className="flex flex-1 flex-col gap-6 p-7">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-extrabold text-gray-900">Sync Hub</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Sync Hub</h1>
         <p className="mt-0.5 text-sm text-gray-500">
           Synchronize mods with friends via P2P
         </p>
@@ -573,7 +599,7 @@ export function SyncHub(): ReactNode {
 
       {/* P2P not running hint */}
       {!p2pRunning && !toggling && (
-        <div className="flex items-center gap-2 rounded-xl bg-amber-50 px-4 py-3">
+        <div className="flex items-center gap-2 rounded-md bg-amber-50 px-4 py-3">
           <AlertTriangle size={14} className="shrink-0 text-amber-500" />
           <span className="text-xs font-medium text-amber-700">
             Connect to P2P network to share or join sync sessions.

@@ -31,7 +31,7 @@ function SettingsSection({
   children: ReactNode;
 }): ReactNode {
   return (
-    <Card className="bg-white shadow-soft rounded-[20px]">
+    <Card className="bg-white">
       <CardHeader>
         <div className="flex items-center gap-2">
           {icon}
@@ -50,9 +50,9 @@ export function Settings(): ReactNode {
   const { status: javaStatus, installJava, isInstalling } = useJavaRuntime();
 
   return (
-    <div className="flex flex-1 flex-col gap-6 bg-surface-100 p-7">
+    <div className="flex flex-1 flex-col gap-6 p-7">
       <div>
-        <h1 className="text-2xl font-extrabold text-gray-900">Settings</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
         <p className="text-sm text-gray-600">Configure MineSync</p>
       </div>
 
@@ -60,8 +60,11 @@ export function Settings(): ReactNode {
         {/* Installation directory */}
         <SettingsSection
           icon={
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50">
-              <FolderOpen size={18} className="text-blue-500" />
+            <div
+              className="flex h-9 w-9 items-center justify-center rounded-md"
+              style={{ background: "rgba(35,131,226,0.1)" }}
+            >
+              <FolderOpen size={18} className="text-[#2383E2]" />
             </div>
           }
           title="Game Directory"
@@ -85,8 +88,11 @@ export function Settings(): ReactNode {
         {/* Java Runtime */}
         <SettingsSection
           icon={
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-50">
-              <HardDrive size={18} className="text-amber-500" />
+            <div
+              className="flex h-9 w-9 items-center justify-center rounded-md"
+              style={{ background: "rgba(251,243,219,1)" }}
+            >
+              <HardDrive size={18} className="text-[#DFAB01]" />
             </div>
           }
           title="Java Runtime"
@@ -128,8 +134,11 @@ export function Settings(): ReactNode {
         {/* Memory / RAM */}
         <SettingsSection
           icon={
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-50">
-              <Cpu size={18} className="text-emerald-600" />
+            <div
+              className="flex h-9 w-9 items-center justify-center rounded-md"
+              style={{ background: "rgba(221,237,234,1)" }}
+            >
+              <Cpu size={18} className="text-[#0F7B6C]" />
             </div>
           }
           title="Memory Allocation"
@@ -151,8 +160,11 @@ export function Settings(): ReactNode {
         {/* Network / P2P */}
         <SettingsSection
           icon={
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-purple-50">
-              <Wifi size={18} className="text-purple-500" />
+            <div
+              className="flex h-9 w-9 items-center justify-center rounded-md"
+              style={{ background: "rgba(232,222,238,1)" }}
+            >
+              <Wifi size={18} className="text-[#9065B0]" />
             </div>
           }
           title="Network"
@@ -174,7 +186,7 @@ export function Settings(): ReactNode {
         {/* About */}
         <SettingsSection
           icon={
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gray-100">
+            <div className="flex h-9 w-9 items-center justify-center rounded-md bg-gray-100">
               <Info size={18} className="text-gray-600" />
             </div>
           }
@@ -191,7 +203,7 @@ export function Settings(): ReactNode {
                 href="https://github.com/minesync"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-xs text-emerald-600 transition-colors hover:text-emerald-700"
+                className="inline-flex items-center gap-1 text-xs text-[#2383E2] transition-colors hover:underline"
               >
                 GitHub <ExternalLink size={10} />
               </a>

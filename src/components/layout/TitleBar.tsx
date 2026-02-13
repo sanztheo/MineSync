@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
-import { Minus, Square, X, Boxes } from "lucide-react";
+import { Minus, Square, X } from "lucide-react";
 import { getCurrentWindow } from "@tauri-apps/api/window";
+import logoSvg from "@/assets/logo.svg";
 
 function WindowButton({
   onClick,
@@ -17,7 +18,8 @@ function WindowButton({
     <button
       onClick={onClick}
       aria-label={ariaLabel}
-      className={`flex h-8 w-10 items-center justify-center text-gray-400 transition-colors ${hoverClass}`}
+      className={`flex h-[45px] w-11 items-center justify-center transition-colors duration-150 ${hoverClass}`}
+      style={{ color: "rgba(55, 53, 47, 0.45)" }}
     >
       {children}
     </button>
@@ -30,17 +32,19 @@ export function TitleBar(): ReactNode {
   return (
     <header
       data-tauri-drag-region
-      className="flex h-11 shrink-0 items-center justify-between bg-white/80 backdrop-blur-md select-none"
-      style={{ borderBottom: "1px solid rgba(0,0,0,0.06)" }}
+      className="flex shrink-0 items-center justify-between bg-white select-none"
+      style={{
+        height: "45px",
+        borderBottom: "1px solid rgba(55, 53, 47, 0.09)",
+      }}
     >
       {/* Brand */}
-      <div data-tauri-drag-region className="flex items-center gap-2.5 pl-5">
-        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-400 to-emerald-600 shadow-accent">
-          <Boxes size={14} className="text-white" />
-        </div>
+      <div data-tauri-drag-region className="flex items-center gap-2.5 pl-4">
+        <img src={logoSvg} alt="MineSync" className="h-6 w-6" />
         <span
           data-tauri-drag-region
-          className="text-sm font-bold tracking-tight text-gray-800"
+          className="text-sm font-semibold"
+          style={{ color: "rgba(55, 53, 47, 1)" }}
         >
           MineSync
         </span>
@@ -52,7 +56,7 @@ export function TitleBar(): ReactNode {
           onClick={() => {
             appWindow.minimize();
           }}
-          hoverClass="hover:bg-gray-100 hover:text-gray-600"
+          hoverClass="hover:bg-[rgba(55,53,47,0.06)]"
           ariaLabel="Minimize window"
         >
           <Minus size={14} />
@@ -61,10 +65,10 @@ export function TitleBar(): ReactNode {
           onClick={() => {
             appWindow.toggleMaximize();
           }}
-          hoverClass="hover:bg-gray-100 hover:text-gray-600"
+          hoverClass="hover:bg-[rgba(55,53,47,0.06)]"
           ariaLabel="Maximize window"
         >
-          <Square size={11} />
+          <Square size={10} />
         </WindowButton>
         <WindowButton
           onClick={() => {

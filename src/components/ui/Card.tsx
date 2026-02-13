@@ -11,11 +11,12 @@ export function Card({
   children,
   ...props
 }: CardProps): ReactNode {
-  const hoverStyles = hoverable ? "card-lift cursor-pointer" : "";
-
   return (
     <div
-      className={`rounded-[20px] bg-white p-5 shadow-soft ${hoverStyles} ${className}`}
+      className={`rounded-lg bg-white p-4 ${hoverable ? "cursor-pointer hover:bg-[rgba(55,53,47,0.02)]" : ""} ${className}`}
+      style={{
+        border: "1px solid rgba(55, 53, 47, 0.09)",
+      }}
       {...props}
     >
       {children}
@@ -33,7 +34,7 @@ export function CardHeader({
   ...props
 }: CardSectionProps): ReactNode {
   return (
-    <div className={`mb-4 ${className}`} {...props}>
+    <div className={`mb-3 ${className}`} {...props}>
       {children}
     </div>
   );
@@ -58,7 +59,8 @@ export function CardFooter({
 }: CardSectionProps): ReactNode {
   return (
     <div
-      className={`mt-4 flex items-center gap-2 border-t border-gray-100 pt-4 ${className}`}
+      className={`mt-3 flex items-center gap-2 pt-3 ${className}`}
+      style={{ borderTop: "1px solid rgba(55, 53, 47, 0.09)" }}
       {...props}
     >
       {children}

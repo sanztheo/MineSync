@@ -16,30 +16,55 @@ export function Input({
 }: InputProps): ReactNode {
   const hasError = error !== undefined;
 
-  const borderColor = hasError
-    ? "border-red-300 focus:border-red-400 focus:ring-red-200/50"
-    : "border-gray-200 focus:border-accent focus:ring-accent/20";
+  const borderStyle = hasError
+    ? "1px solid #E03E3E"
+    : "1px solid rgba(55, 53, 47, 0.16)";
+
+  const focusBorderColor = hasError ? "#E03E3E" : "rgba(35, 131, 226, 0.5)";
 
   return (
     <div className="flex flex-col gap-1.5">
       {label !== undefined && (
-        <label htmlFor={id} className="text-sm font-medium text-gray-700">
+        <label
+          htmlFor={id}
+          className="text-sm font-medium"
+          style={{ color: "rgba(55, 53, 47, 0.85)" }}
+        >
           {label}
         </label>
       )}
       <div className="relative">
         {icon !== undefined && (
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+          <span
+            className="absolute left-3 top-1/2 -translate-y-1/2"
+            style={{ color: "rgba(55, 53, 47, 0.45)" }}
+          >
             {icon}
           </span>
         )}
         <input
           id={id}
-          className={`w-full rounded-xl border bg-white px-3.5 py-2.5 text-sm text-gray-900 shadow-inset placeholder:text-gray-400 focus:outline-none focus:ring-2 transition-shadow duration-150 ${borderColor} ${icon !== undefined ? "pl-10" : ""} ${className}`}
+          className={`w-full rounded-[5px] bg-white px-3 py-2 text-sm transition-shadow duration-150 placeholder:text-[rgba(55,53,47,0.35)] focus:outline-none ${icon !== undefined ? "pl-10" : ""} ${className}`}
+          style={{
+            border: borderStyle,
+            color: "rgba(55, 53, 47, 1)",
+          }}
+          onFocus={(e) => {
+            e.currentTarget.style.border = `1px solid ${focusBorderColor}`;
+            e.currentTarget.style.boxShadow = `0 0 0 3px rgba(35, 131, 226, 0.1)`;
+          }}
+          onBlur={(e) => {
+            e.currentTarget.style.border = borderStyle;
+            e.currentTarget.style.boxShadow = "none";
+          }}
           {...props}
         />
       </div>
-      {hasError && <span className="text-xs text-red-500">{error}</span>}
+      {hasError && (
+        <span className="text-xs" style={{ color: "#E03E3E" }}>
+          {error}
+        </span>
+      )}
     </div>
   );
 }

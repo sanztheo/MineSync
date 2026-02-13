@@ -33,7 +33,11 @@ impl JavaService {
     pub fn status(&self) -> AppResult<JavaRuntimeStatus> {
         let current = self.lock_status()?.clone();
         if matches!(current, JavaRuntimeStatus::Installing { .. }) {
-            return Ok(current);
+            // "Installing" is only valid while install_runtime() holds the install lock.
+            // If the lock is free, we are stuck in a stale state and must recover.
+            if self.install_lock.try_lock().is_err() {
+                return Ok(current);
+            }
         }
 
         if let Some((java_path, major, source)) = self.resolve_existing_java()? {
@@ -48,7 +52,11 @@ impl JavaService {
 
         match current {
             JavaRuntimeStatus::Error { .. } => Ok(current),
-            _ => Ok(JavaRuntimeStatus::Missing),
+            _ => {
+                let missing = JavaRuntimeStatus::Missing;
+                self.set_status(missing.clone())?;
+                Ok(missing)
+            }
         }
     }
 
@@ -479,4 +487,59 @@ fn find_java_binary(root: &Path) -> Option<PathBuf> {
     }
 
     None
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn make_service() -> JavaService {
+        let app_dir = std::env::temp_dir().join(format!("minesync-java-test-{}", uuid::Uuid::new_v4()));
+        std::fs::create_dir_all(&app_dir).expect("create temp app dir");
+        JavaService::new(app_dir)
+    }
+
+    #[test]
+    fn status_does_not_keep_stale_installing() {
+        let service = make_service();
+
+        service
+            .set_status(JavaRuntimeStatus::Installing {
+                stage: "downloading".to_string(),
+                percent: 42.0,
+                downloaded_bytes: 10,
+                total_bytes: Some(100),
+            })
+            .expect("set status");
+
+        let status = service.status().expect("status");
+        assert!(
+            !matches!(status, JavaRuntimeStatus::Installing { .. }),
+            "expected stale installing state to recover from installing, got: {status:?}"
+        );
+    }
+
+    #[test]
+    fn status_keeps_installing_while_install_is_in_progress() {
+        let service = make_service();
+        let _install_guard = service
+            .install_lock
+            .try_lock()
+            .expect("acquire install lock");
+
+        service
+            .set_status(JavaRuntimeStatus::Installing {
+                stage: "downloading".to_string(),
+                percent: 42.0,
+                downloaded_bytes: 10,
+                total_bytes: Some(100),
+            })
+            .expect("set status");
+
+        let status = service.status().expect("status");
+        assert!(
+            matches!(status, JavaRuntimeStatus::Installing { .. }),
+            "expected installing while lock is held, got: {status:?}"
+        );
+    }
 }

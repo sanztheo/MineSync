@@ -24,11 +24,22 @@ export function Slider({
   const percentage = ((value - min) / (max - min)) * 100;
 
   return (
-    <div className={`flex flex-col gap-2.5 ${disabled ? "opacity-40" : ""}`}>
+    <div className={`flex flex-col gap-2 ${disabled ? "opacity-40" : ""}`}>
       {label !== undefined && (
         <div className="flex items-center justify-between">
-          <span className="text-sm font-medium text-gray-600">{label}</span>
-          <span className="rounded-lg bg-emerald-50 px-2.5 py-1 text-sm font-bold text-emerald-600">
+          <span
+            className="text-sm font-medium"
+            style={{ color: "rgba(55, 53, 47, 0.65)" }}
+          >
+            {label}
+          </span>
+          <span
+            className="rounded px-2 py-0.5 text-sm font-semibold"
+            style={{
+              background: "rgba(55, 53, 47, 0.08)",
+              color: "rgba(55, 53, 47, 1)",
+            }}
+          >
             {value}
             {unit}
           </span>
@@ -44,12 +55,15 @@ export function Slider({
         onChange={(e) => {
           onChange(Number(e.target.value));
         }}
-        className="h-2 w-full cursor-pointer appearance-none rounded-full"
+        className="h-1.5 w-full cursor-pointer appearance-none rounded-full"
         style={{
-          background: `linear-gradient(to right, #10b981 0%, #10b981 ${String(percentage)}%, #E5E7EB ${String(percentage)}%, #E5E7EB 100%)`,
+          background: `linear-gradient(to right, #222222 0%, #222222 ${String(percentage)}%, rgba(55,53,47,0.16) ${String(percentage)}%, rgba(55,53,47,0.16) 100%)`,
         }}
       />
-      <div className="flex justify-between text-[10px] font-medium text-gray-400">
+      <div
+        className="flex justify-between text-[11px]"
+        style={{ color: "rgba(55, 53, 47, 0.45)" }}
+      >
         <span>
           {min}
           {unit}

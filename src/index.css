@@ -1,43 +1,44 @@
 @import "tailwindcss";
 
 @theme {
-  /* ── Surfaces ── */
-  --color-surface-50: #FFFFFF;
-  --color-surface-100: #F3F4F6;
-  --color-surface-200: #E5E7EB;
-  --color-surface-300: #D1D5DB;
-  --color-surface-400: #9CA3AF;
+  /* ── Notion-inspired palette ── */
+  --color-notion-bg: #FFFFFF;
+  --color-notion-bg-secondary: rgba(247, 246, 243, 1);
+  --color-notion-bg-tertiary: rgba(242, 241, 238, 1);
+  --color-notion-bg-hover: rgba(55, 53, 47, 0.08);
+  --color-notion-bg-active: rgba(55, 53, 47, 0.12);
 
-  /* ── Accent (emerald) ── */
-  --color-accent: #10b981;
-  --color-accent-hover: #059669;
-  --color-accent-muted: rgba(16, 185, 129, 0.08);
+  --color-notion-text: rgba(55, 53, 47, 1);
+  --color-notion-text-secondary: rgba(55, 53, 47, 0.65);
+  --color-notion-text-tertiary: rgba(55, 53, 47, 0.45);
+  --color-notion-text-disabled: rgba(55, 53, 47, 0.3);
 
-  /* ── Borders ── */
-  --color-border-default: #E5E7EB;
-  --color-border-hover: #D1D5DB;
+  --color-notion-border: rgba(55, 53, 47, 0.16);
+  --color-notion-border-light: rgba(55, 53, 47, 0.09);
+  --color-notion-border-strong: rgba(55, 53, 47, 0.24);
 
-  /* ── Soft UI Shadows ── */
-  --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.03), 0 4px 16px rgba(0, 0, 0, 0.04);
-  --shadow-elevated: 0 4px 6px rgba(0, 0, 0, 0.03), 0 10px 24px rgba(0, 0, 0, 0.07);
-  --shadow-float: 0 8px 30px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04);
-  --shadow-button: 0 1px 2px rgba(0, 0, 0, 0.05), 0 2px 6px rgba(0, 0, 0, 0.06);
-  --shadow-accent: 0 4px 14px rgba(16, 185, 129, 0.35);
-  --shadow-accent-lg: 0 6px 20px rgba(16, 185, 129, 0.45);
-  --shadow-danger: 0 4px 14px rgba(239, 68, 68, 0.35);
-  --shadow-danger-lg: 0 6px 20px rgba(239, 68, 68, 0.45);
-  --shadow-blue: 0 4px 14px rgba(59, 130, 246, 0.35);
-  --shadow-inset: inset 0 2px 4px rgba(0, 0, 0, 0.04);
+  /* ── Accent colors ── */
+  --color-accent-blue: #2383E2;
+  --color-accent-red: #E03E3E;
+  --color-accent-green: #0F7B6C;
+  --color-accent-yellow: #DFAB01;
+  --color-accent-purple: #9065B0;
 
-  /* ── Border radius ── */
-  --radius-card: 20px;
-  --radius-button: 12px;
-  --radius-input: 12px;
-  --radius-modal: 24px;
+  /* ── Dark button palette ── */
+  --color-btn-primary: #222222;
+  --color-btn-primary-hover: #333333;
+  --color-btn-primary-active: #1a1a1a;
+
+  /* ── Notion shadows ── */
+  --shadow-sm: rgba(15, 15, 15, 0.05) 0px 0px 0px 1px, rgba(15, 15, 15, 0.1) 0px 3px 6px, rgba(15, 15, 15, 0.2) 0px 9px 24px;
+  --shadow-md: rgba(15, 15, 15, 0.05) 0px 0px 0px 1px, rgba(15, 15, 15, 0.1) 0px 5px 10px, rgba(15, 15, 15, 0.2) 0px 15px 40px;
+  --shadow-lg: rgba(15, 15, 15, 0.1) 0px 15px 35px, rgba(15, 15, 15, 0.05) 0px 5px 15px;
+  --shadow-soft: rgba(15, 15, 15, 0.04) 0px 0px 0px 1px, rgba(15, 15, 15, 0.06) 0px 2px 4px;
+  --shadow-elevated: rgba(15, 15, 15, 0.05) 0px 0px 0px 1px, rgba(15, 15, 15, 0.1) 0px 3px 6px, rgba(15, 15, 15, 0.15) 0px 6px 16px;
 }
 
 /*
- * Base styles — light background, Inter font, no scrollbar on root.
+ * Base — Notion system font stack, warm off-white background.
  */
 html,
 body,
@@ -46,14 +47,18 @@ body,
   margin: 0;
   padding: 0;
   overflow: hidden;
-  background-color: var(--color-surface-100);
-  color: #1f2937;
-  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  background-color: var(--color-notion-bg);
+  color: var(--color-notion-text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica,
+    "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji",
+    "Segoe UI Symbol";
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  font-size: 16px;
+  line-height: 1.5;
 }
 
-/* ── Custom scrollbar (light theme) ── */
+/* ── Scrollbar ── */
 ::-webkit-scrollbar {
   width: 6px;
 }
@@ -63,72 +68,43 @@ body,
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #D1D5DB;
+  background: rgba(55, 53, 47, 0.16);
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #9CA3AF;
+  background: rgba(55, 53, 47, 0.3);
 }
 
 /* ── Selection ── */
 ::selection {
-  background: rgba(16, 185, 129, 0.15);
-  color: #065f46;
+  background: rgba(35, 131, 226, 0.15);
 }
 
-/* ── Focus ring utility ── */
-.focus-ring {
-  @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 focus-visible:ring-offset-2 focus-visible:ring-offset-surface-100;
-}
-
-/* ── Button press transform ── */
-.btn-press {
-  transition: transform 150ms cubic-bezier(0.4, 0, 0.2, 1), box-shadow 150ms cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.btn-press:hover {
-  transform: translateY(-1px);
-}
-
-.btn-press:active {
-  transform: translateY(0.5px);
-}
-
-/* ── Card hover lift ── */
-.card-lift {
-  transition: transform 200ms cubic-bezier(0.4, 0, 0.2, 1), box-shadow 200ms cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.card-lift:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-elevated);
-}
-
-/* ── Select styling (light) ── */
+/* ── Select styling ── */
 select {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%236b7280' viewBox='0 0 16 16'%3E%3Cpath d='M4.646 6.646a.5.5 0 0 1 .708 0L8 9.293l2.646-2.647a.5.5 0 0 1 .708.708l-3 3a.5.5 0 0 1-.708 0l-3-3a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='rgba(55,53,47,0.45)' viewBox='0 0 16 16'%3E%3Cpath d='M4.646 6.646a.5.5 0 0 1 .708 0L8 9.293l2.646-2.647a.5.5 0 0 1 .708.708l-3 3a.5.5 0 0 1-.708 0l-3-3a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 12px center;
+  background-position: right 10px center;
   -webkit-appearance: none;
   appearance: none;
-  padding-right: 36px;
+  padding-right: 32px;
 }
 
-/* ── Range slider (light) ── */
+/* ── Range slider ── */
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
   background: white;
-  border: 2px solid var(--color-accent);
-  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3);
+  border: 2px solid var(--color-btn-primary);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
   cursor: pointer;
   margin-top: -5px;
 }
 
 input[type="range"]::-webkit-slider-runnable-track {
-  height: 8px;
-  border-radius: 4px;
+  height: 6px;
+  border-radius: 3px;
 }

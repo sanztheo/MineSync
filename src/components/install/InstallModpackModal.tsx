@@ -174,26 +174,43 @@ export function InstallModpackModal({
     <Modal open={open} onClose={handleClose} title={`Install ${modpack.name}`}>
       <div className="flex flex-col gap-4">
         {/* Modpack info header */}
-        <div className="flex items-start gap-3 rounded-xl border border-gray-200 bg-white p-3 shadow-sm">
+        <div
+          className="flex items-start gap-3 rounded-md bg-white p-3"
+          style={{ border: "1px solid rgba(55, 53, 47, 0.09)" }}
+        >
           {modpack.icon_url !== undefined ? (
             <img
               src={modpack.icon_url}
               alt={modpack.name}
-              className="h-12 w-12 shrink-0 rounded-xl object-cover"
+              className="h-12 w-12 shrink-0 rounded-md object-cover"
               loading="lazy"
             />
           ) : (
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gray-100">
-              <Boxes size={20} className="text-gray-400" />
+            <div
+              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-md"
+              style={{ background: "rgba(55, 53, 47, 0.08)" }}
+            >
+              <Boxes size={20} style={{ color: "rgba(55, 53, 47, 0.45)" }} />
             </div>
           )}
           <div className="flex flex-1 flex-col gap-0.5 overflow-hidden">
-            <h3 className="truncate text-sm font-bold text-gray-900">
+            <h3
+              className="truncate text-sm font-semibold"
+              style={{ color: "rgba(55, 53, 47, 1)" }}
+            >
               {modpack.name}
             </h3>
-            <span className="text-xs text-gray-500">by {modpack.author}</span>
+            <span
+              className="text-xs"
+              style={{ color: "rgba(55, 53, 47, 0.65)" }}
+            >
+              by {modpack.author}
+            </span>
             {modpack.description !== "" && (
-              <p className="line-clamp-2 text-xs text-gray-400">
+              <p
+                className="line-clamp-2 text-xs"
+                style={{ color: "rgba(55, 53, 47, 0.45)" }}
+              >
                 {modpack.description}
               </p>
             )}
@@ -203,14 +220,21 @@ export function InstallModpackModal({
         {/* Version selection */}
         {step === "select_version" && (
           <>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm" style={{ color: "rgba(55, 53, 47, 0.65)" }}>
               Select a version to install:
             </p>
 
             {loadingVersions && (
               <div className="flex items-center justify-center py-6">
-                <Loader2 size={20} className="animate-spin text-emerald-500" />
-                <span className="ml-2 text-sm text-gray-500">
+                <Loader2
+                  size={20}
+                  className="animate-spin"
+                  style={{ color: "rgba(55, 53, 47, 0.45)" }}
+                />
+                <span
+                  className="ml-2 text-sm"
+                  style={{ color: "rgba(55, 53, 47, 0.65)" }}
+                >
                   Loading versions\u2026
                 </span>
               </div>
@@ -218,17 +242,20 @@ export function InstallModpackModal({
 
             {!loadingVersions && versions.length > 0 && (
               <div className="max-h-64 overflow-y-auto">
-                <div className="flex flex-col gap-1">
+                <div className="flex flex-col gap-0.5">
                   {versions.slice(0, 20).map((v) => (
                     <button
                       key={v.id}
                       onClick={() => {
                         startInstall(v);
                       }}
-                      className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-all hover:bg-gray-50"
+                      className="flex items-center gap-3 rounded-md px-3 py-2.5 text-left transition-colors duration-150 hover:bg-[rgba(55,53,47,0.04)]"
                     >
                       <div className="flex flex-1 flex-col gap-0.5 overflow-hidden">
-                        <span className="truncate text-sm font-semibold text-gray-800">
+                        <span
+                          className="truncate text-sm font-medium"
+                          style={{ color: "rgba(55, 53, 47, 0.85)" }}
+                        >
                           {v.name}
                         </span>
                         <div className="flex flex-wrap gap-1">
@@ -244,7 +271,10 @@ export function InstallModpackModal({
                           ))}
                         </div>
                       </div>
-                      <ChevronRight size={16} className="text-gray-300" />
+                      <ChevronRight
+                        size={16}
+                        style={{ color: "rgba(55, 53, 47, 0.3)" }}
+                      />
                     </button>
                   ))}
                 </div>
@@ -252,15 +282,25 @@ export function InstallModpackModal({
             )}
 
             {!loadingVersions && versions.length === 0 && (
-              <p className="py-4 text-center text-sm text-gray-500">
+              <p
+                className="py-4 text-center text-sm"
+                style={{ color: "rgba(55, 53, 47, 0.65)" }}
+              >
                 No versions found
               </p>
             )}
 
             {errorMsg !== undefined && (
-              <div className="flex items-center gap-2 rounded-xl bg-red-50 p-3">
-                <AlertCircle size={16} className="text-red-500" />
-                <span className="text-xs text-red-600">{errorMsg}</span>
+              <div
+                className="flex items-center gap-2 rounded-md p-3"
+                style={{
+                  background: "rgba(251, 236, 221, 1)",
+                }}
+              >
+                <AlertCircle size={16} style={{ color: "#E03E3E" }} />
+                <span className="text-xs" style={{ color: "#E03E3E" }}>
+                  {errorMsg}
+                </span>
               </div>
             )}
           </>
@@ -269,29 +309,45 @@ export function InstallModpackModal({
         {/* Installing */}
         {step === "installing" && (
           <div className="flex flex-col items-center gap-4 py-6">
-            <Loader2 size={32} className="animate-spin text-emerald-500" />
-            <p className="text-sm font-semibold text-gray-800">
+            <Loader2
+              size={32}
+              className="animate-spin"
+              style={{ color: "rgba(55, 53, 47, 0.45)" }}
+            />
+            <p
+              className="text-sm font-semibold"
+              style={{ color: "rgba(55, 53, 47, 0.85)" }}
+            >
               Installing modpack\u2026
             </p>
             {progress !== undefined && (
               <>
-                <p className="text-xs text-gray-500">
+                <p
+                  className="text-xs"
+                  style={{ color: "rgba(55, 53, 47, 0.65)" }}
+                >
                   {stageLabel(progress.stage)}
                 </p>
-                <div className="h-2 w-full overflow-hidden rounded-full bg-gray-100">
+                <div
+                  className="h-1.5 w-full overflow-hidden rounded-full"
+                  style={{ background: "rgba(55, 53, 47, 0.08)" }}
+                >
                   <div
-                    className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-emerald-500 transition-all duration-300"
+                    className="h-full rounded-full bg-[#222222] transition-all duration-300"
                     style={{
                       width: `${String(Math.min(100, progress.overall_percent))}%`,
                     }}
                   />
                 </div>
-                <span className="text-xs font-medium text-gray-400">
+                <span
+                  className="text-xs font-medium"
+                  style={{ color: "rgba(55, 53, 47, 0.45)" }}
+                >
                   {progress.overall_percent.toFixed(0)}%
                 </span>
               </>
             )}
-            <p className="text-xs text-gray-400">
+            <p className="text-xs" style={{ color: "rgba(55, 53, 47, 0.45)" }}>
               You can close this dialog \u2014 installation continues in
               background.
             </p>
@@ -309,10 +365,16 @@ export function InstallModpackModal({
         {/* Done */}
         {step === "done" && (
           <div className="flex flex-col items-center gap-4 py-6">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50">
-              <CheckCircle2 size={28} className="text-emerald-500" />
+            <div
+              className="flex h-14 w-14 items-center justify-center rounded-md"
+              style={{ background: "rgba(221, 237, 234, 1)" }}
+            >
+              <CheckCircle2 size={28} style={{ color: "#0F7B6C" }} />
             </div>
-            <p className="text-sm font-semibold text-gray-800">
+            <p
+              className="text-sm font-semibold"
+              style={{ color: "rgba(55, 53, 47, 0.85)" }}
+            >
               Instance created successfully!
             </p>
             <Button size="sm" icon={<Download size={14} />} onClick={onClose}>
@@ -324,14 +386,20 @@ export function InstallModpackModal({
         {/* Error */}
         {step === "error" && (
           <div className="flex flex-col items-center gap-4 py-6">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-red-50">
-              <AlertCircle size={28} className="text-red-500" />
+            <div
+              className="flex h-14 w-14 items-center justify-center rounded-md"
+              style={{ background: "rgba(251, 236, 221, 1)" }}
+            >
+              <AlertCircle size={28} style={{ color: "#E03E3E" }} />
             </div>
-            <p className="text-sm font-semibold text-red-600">
+            <p className="text-sm font-semibold" style={{ color: "#E03E3E" }}>
               Installation failed
             </p>
             {errorMsg !== undefined && (
-              <p className="max-w-sm text-center text-xs text-gray-500">
+              <p
+                className="max-w-sm text-center text-xs"
+                style={{ color: "rgba(55, 53, 47, 0.65)" }}
+              >
                 {errorMsg}
               </p>
             )}

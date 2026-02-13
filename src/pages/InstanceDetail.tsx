@@ -115,18 +115,28 @@ function TabBar({
   onChange: (tab: Tab) => void;
 }): ReactNode {
   return (
-    <div className="flex gap-1 rounded-xl bg-gray-100 p-1">
+    <div
+      className="flex gap-1 rounded-md p-1"
+      style={{ background: "rgba(242, 241, 238, 1)" }}
+    >
       {TABS.map((tab) => (
         <button
           key={tab.id}
           onClick={() => {
             onChange(tab.id);
           }}
-          className={`rounded-lg px-4 py-2 text-sm font-semibold transition-all duration-150 ${
-            active === tab.id
-              ? "bg-white text-gray-900 shadow-soft"
-              : "text-gray-500 hover:text-gray-700"
+          className={`rounded-md px-4 py-2 text-sm font-semibold transition-all duration-150 ${
+            active === tab.id ? "bg-white" : "text-gray-500 hover:text-gray-700"
           }`}
+          style={
+            active === tab.id
+              ? {
+                  color: "rgba(55, 53, 47, 1)",
+                  boxShadow:
+                    "rgba(15,15,15,0.04) 0px 0px 0px 1px, rgba(15,15,15,0.06) 0px 2px 4px",
+                }
+              : undefined
+          }
         >
           {tab.label}
         </button>
@@ -203,14 +213,21 @@ function ModsTab({
 
       {loading && (
         <div className="flex items-center justify-center py-8">
-          <Loader2 size={20} className="animate-spin text-emerald-500" />
+          <Loader2
+            size={20}
+            className="animate-spin"
+            style={{ color: "rgba(55, 53, 47, 0.45)" }}
+          />
           <span className="ml-2 text-sm text-gray-500">Loading mods\u2026</span>
         </div>
       )}
 
       {!loading && mods.length === 0 && (
-        <div className="flex flex-col items-center justify-center rounded-[20px] border-2 border-dashed border-gray-200 py-10 text-gray-400">
-          <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-gray-100">
+        <div
+          className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed py-10 text-gray-400"
+          style={{ borderColor: "rgba(55, 53, 47, 0.16)" }}
+        >
+          <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-lg bg-gray-100">
             <Package size={24} className="text-gray-300" />
           </div>
           <p className="text-sm font-medium text-gray-500">No mods installed</p>
@@ -225,9 +242,13 @@ function ModsTab({
           {mods.map((mod) => (
             <div
               key={mod.id}
-              className="flex items-center gap-3 rounded-xl bg-white px-4 py-3 shadow-soft"
+              className="flex items-center gap-3 rounded-md bg-white px-3 py-2.5"
+              style={{ border: "1px solid rgba(55, 53, 47, 0.09)" }}
             >
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50">
+              <div
+                className="flex h-8 w-8 items-center justify-center rounded-md"
+                style={{ background: "rgba(35,131,226,0.1)" }}
+              >
                 <Package size={14} className="text-blue-500" />
               </div>
               <div className="flex flex-1 flex-col gap-0.5 overflow-hidden">
@@ -267,7 +288,10 @@ function FilesTab({ instancePath }: { instancePath: string }): ReactNode {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50">
+            <div
+              className="flex h-8 w-8 items-center justify-center rounded-md"
+              style={{ background: "rgba(35,131,226,0.1)" }}
+            >
               <FolderOpen size={14} className="text-blue-500" />
             </div>
             <h3 className="font-semibold text-gray-800">Instance Directory</h3>
@@ -298,7 +322,7 @@ function SettingsTab(): ReactNode {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-100">
+            <div className="flex h-8 w-8 items-center justify-center rounded-md bg-gray-100">
               <Settings size={14} className="text-gray-500" />
             </div>
             <h3 className="font-semibold text-gray-800">Instance Settings</h3>
@@ -380,7 +404,11 @@ export function InstanceDetail(): ReactNode {
   if (loading) {
     return (
       <div className="flex flex-1 items-center justify-center">
-        <Loader2 size={24} className="animate-spin text-emerald-500" />
+        <Loader2
+          size={24}
+          className="animate-spin"
+          style={{ color: "rgba(55, 53, 47, 0.45)" }}
+        />
         <span className="ml-3 text-sm text-gray-500">
           Loading instance\u2026
         </span>
@@ -392,7 +420,7 @@ export function InstanceDetail(): ReactNode {
   if (error !== undefined || instance === undefined) {
     return (
       <div className="flex flex-1 flex-col items-center justify-center gap-4">
-        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-red-50">
+        <div className="flex h-16 w-16 items-center justify-center rounded-lg bg-red-50">
           <AlertCircle size={32} className="text-red-500" />
         </div>
         <p className="text-sm text-gray-500">{error ?? "Instance not found"}</p>
@@ -411,7 +439,7 @@ export function InstanceDetail(): ReactNode {
       <div className="flex items-center gap-4">
         <Link
           to="/"
-          className="flex h-9 w-9 items-center justify-center rounded-xl text-gray-400 transition-all hover:bg-gray-100 hover:text-gray-600"
+          className="flex h-9 w-9 items-center justify-center rounded-md text-gray-400 transition-all hover:bg-gray-100 hover:text-gray-600"
         >
           <ArrowLeft size={18} />
         </Link>
@@ -421,15 +449,13 @@ export function InstanceDetail(): ReactNode {
           <img
             src={instance.icon_url}
             alt={instance.name}
-            className="h-11 w-11 shrink-0 rounded-xl object-cover shadow-button"
+            className="h-11 w-11 shrink-0 rounded-md object-cover"
             loading="lazy"
           />
         )}
 
         <div className="flex-1">
-          <h1 className="text-2xl font-extrabold text-gray-900">
-            {instance.name}
-          </h1>
+          <h1 className="text-2xl font-bold text-gray-900">{instance.name}</h1>
           <div className="flex items-center gap-2">
             <Badge variant={loaderVariant}>{instance.loader}</Badge>
             <span className="text-sm text-gray-500">
@@ -443,7 +469,11 @@ export function InstanceDetail(): ReactNode {
           <div className="flex items-center gap-3">
             <div className="flex flex-col items-end gap-1">
               <div className="flex items-center gap-2">
-                <Loader2 size={14} className="animate-spin text-emerald-500" />
+                <Loader2
+                  size={14}
+                  className="animate-spin"
+                  style={{ color: "rgba(55, 53, 47, 0.45)" }}
+                />
                 <span className="text-sm font-semibold text-gray-700">
                   Installing\u2026
                 </span>
@@ -453,7 +483,7 @@ export function InstanceDetail(): ReactNode {
               </span>
               <div className="h-2 w-48 overflow-hidden rounded-full bg-gray-100">
                 <div
-                  className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-emerald-500 transition-all duration-300"
+                  className="h-full rounded-full bg-[#222222] transition-all duration-300"
                   style={{
                     width: `${String(Math.min(100, installProgress.overall_percent))}%`,
                   }}
@@ -468,7 +498,11 @@ export function InstanceDetail(): ReactNode {
           <div className="flex flex-col items-end gap-2">
             {isPreparing && (
               <div className="flex items-center gap-2 text-xs text-gray-500">
-                <Loader2 size={12} className="animate-spin text-emerald-500" />
+                <Loader2
+                  size={12}
+                  className="animate-spin"
+                  style={{ color: "rgba(55, 53, 47, 0.45)" }}
+                />
                 <span>Preparing\u2026</span>
               </div>
             )}
@@ -495,7 +529,7 @@ export function InstanceDetail(): ReactNode {
                 </span>
                 <div className="h-2 w-full overflow-hidden rounded-full bg-gray-100">
                   <div
-                    className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-emerald-500 transition-all duration-300"
+                    className="h-full rounded-full bg-[#222222] transition-all duration-300"
                     style={{
                       width: `${String(getDownloadPercent(downloadProgress))}%`,
                     }}
@@ -549,14 +583,14 @@ export function InstanceDetail(): ReactNode {
       )}
 
       {launchError !== undefined && (
-        <div className="flex items-center gap-2 rounded-xl bg-red-50 px-3 py-2">
+        <div className="flex items-center gap-2 rounded-md bg-red-50 px-3 py-2">
           <AlertCircle size={14} className="text-red-500" />
           <span className="text-xs text-red-600">{launchError}</span>
         </div>
       )}
 
       {!isJavaReady && (
-        <div className="flex items-center gap-2 rounded-xl bg-amber-50 px-3 py-2">
+        <div className="flex items-center gap-2 rounded-md bg-amber-50 px-3 py-2">
           <AlertCircle size={14} className="text-amber-500" />
           <span className="text-xs text-amber-700">
             Java 21 n&apos;est pas pr\u00eat. Termine l&apos;installation via la
@@ -568,9 +602,16 @@ export function InstanceDetail(): ReactNode {
       {isDownloadingBeforeLaunch &&
         !isLaunchingThisInstance &&
         downloadProgress !== undefined && (
-          <div className="flex flex-col gap-1 rounded-xl bg-white p-3 shadow-soft">
+          <div
+            className="flex flex-col gap-1 rounded-md bg-white p-3"
+            style={{ border: "1px solid rgba(55, 53, 47, 0.09)" }}
+          >
             <div className="flex items-center gap-2 text-xs text-gray-600">
-              <Loader2 size={12} className="animate-spin text-emerald-500" />
+              <Loader2
+                size={12}
+                className="animate-spin"
+                style={{ color: "rgba(55, 53, 47, 0.45)" }}
+              />
               <span>
                 T\u00e9l\u00e9chargement Minecraft en cours avant
                 lancement\u2026
@@ -578,7 +619,7 @@ export function InstanceDetail(): ReactNode {
             </div>
             <div className="h-2 w-full overflow-hidden rounded-full bg-gray-100">
               <div
-                className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-emerald-500 transition-all duration-300"
+                className="h-full rounded-full bg-[#222222] transition-all duration-300"
                 style={{
                   width: `${String(getDownloadPercent(downloadProgress))}%`,
                 }}
@@ -591,7 +632,7 @@ export function InstanceDetail(): ReactNode {
         )}
 
       {isGameCrashedStatus(gameStatus) && crashInfo !== undefined && (
-        <div className="flex items-center gap-2 rounded-xl bg-red-50 px-3 py-2">
+        <div className="flex items-center gap-2 rounded-md bg-red-50 px-3 py-2">
           <AlertCircle size={14} className="text-red-500" />
           <span className="text-xs text-red-600">{crashInfo.message}</span>
         </div>

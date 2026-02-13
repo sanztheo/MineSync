@@ -22,10 +22,20 @@ export function Toggle({
       {(label !== undefined || description !== undefined) && (
         <div className="flex flex-col">
           {label !== undefined && (
-            <span className="text-sm font-medium text-gray-800">{label}</span>
+            <span
+              className="text-sm font-medium"
+              style={{ color: "rgba(55, 53, 47, 0.85)" }}
+            >
+              {label}
+            </span>
           )}
           {description !== undefined && (
-            <span className="text-xs text-gray-500">{description}</span>
+            <span
+              className="text-xs"
+              style={{ color: "rgba(55, 53, 47, 0.45)" }}
+            >
+              {description}
+            </span>
           )}
         </div>
       )}
@@ -37,14 +47,19 @@ export function Toggle({
         onClick={() => {
           onChange(!checked);
         }}
-        className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 focus-visible:ring-offset-2 ${
-          checked ? "bg-emerald-500 shadow-accent" : "bg-gray-200"
-        }`}
+        className="relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(35,131,226,0.3)] focus-visible:ring-offset-2"
+        style={{
+          background: checked ? "#222222" : "rgba(55, 53, 47, 0.16)",
+        }}
       >
         <span
-          className={`inline-block h-4 w-4 rounded-full bg-white shadow-button transition-transform duration-200 ${
-            checked ? "translate-x-6" : "translate-x-1"
+          className={`inline-block h-3.5 w-3.5 rounded-full bg-white transition-transform duration-200 ${
+            checked ? "translate-x-[18px]" : "translate-x-[3px]"
           }`}
+          style={{
+            boxShadow:
+              "0 1px 2px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.04)",
+          }}
         />
       </button>
     </label>

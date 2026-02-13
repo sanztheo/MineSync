@@ -153,7 +153,7 @@ function InstanceCard({
       <Link to={`/instance/${instance.id}`} className="block">
         <Card hoverable className="flex flex-col gap-3">
           {/* Icon area */}
-          <div className="relative flex h-28 items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-gray-50 to-gray-100">
+          <div className="relative flex h-28 items-center justify-center overflow-hidden rounded-lg bg-[rgba(242,241,238,1)]">
             {instance.icon_url !== undefined ? (
               <img
                 src={instance.icon_url}
@@ -167,14 +167,18 @@ function InstanceCard({
 
             {/* Installing overlay */}
             {isInstalling && installProgress !== undefined && (
-              <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 rounded-2xl bg-white/90 backdrop-blur-sm">
-                <Loader2 size={20} className="animate-spin text-emerald-500" />
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 rounded-lg bg-white/90 backdrop-blur-sm">
+                <Loader2
+                  size={20}
+                  className="animate-spin"
+                  style={{ color: "rgba(55, 53, 47, 0.45)" }}
+                />
                 <span className="text-[10px] font-semibold text-gray-700">
                   {shortStageLabel(installProgress.stage)}
                 </span>
                 <div className="mx-4 h-2 w-3/4 overflow-hidden rounded-full bg-gray-200">
                   <div
-                    className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-emerald-500 transition-all duration-300"
+                    className="h-full rounded-full bg-[#222222] transition-all duration-300"
                     style={{
                       width: `${String(Math.min(100, installProgress.overall_percent))}%`,
                     }}
@@ -231,7 +235,7 @@ function InstanceCard({
                 </Button>
                 <div className="h-2 w-full overflow-hidden rounded-full bg-gray-100">
                   <div
-                    className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-emerald-500 transition-all duration-300"
+                    className="h-full rounded-full bg-[#222222] transition-all duration-300"
                     style={{
                       width: `${String(getDownloadPercent(launchDownloadProgress))}%`,
                     }}
@@ -279,12 +283,18 @@ function InstanceCard({
               setMenuOpen((prev) => !prev);
             }}
             aria-label="Instance options"
-            className="rounded-xl p-1.5 text-gray-400 opacity-0 transition-all hover:bg-white hover:text-gray-600 hover:shadow-soft group-hover:opacity-100"
+            className="rounded-md p-1 text-gray-400 opacity-0 transition-all hover:bg-[rgba(55,53,47,0.06)] hover:text-gray-600 group-hover:opacity-100"
           >
             <MoreVertical size={14} />
           </button>
           {menuOpen && (
-            <div className="absolute right-0 top-9 z-10 w-36 rounded-xl bg-white py-1 shadow-elevated">
+            <div
+              className="absolute right-0 top-9 z-10 w-36 rounded-md bg-white py-1"
+              style={{
+                boxShadow:
+                  "rgba(15,15,15,0.05) 0px 0px 0px 1px, rgba(15,15,15,0.1) 0px 3px 6px, rgba(15,15,15,0.2) 0px 9px 24px",
+              }}
+            >
               <button
                 onClick={() => {
                   setMenuOpen(false);
@@ -406,13 +416,13 @@ function CreateInstanceModal({
               </span>
             </div>
           ) : versionsError !== undefined ? (
-            <div className="flex items-center gap-2 rounded-xl bg-red-50 px-3 py-2">
+            <div className="flex items-center gap-2 rounded-lg bg-red-50 px-3 py-2">
               <AlertCircle size={14} className="shrink-0 text-red-400" />
               <span className="text-xs text-red-600">{versionsError}</span>
               <button
                 type="button"
                 onClick={refetchVersions}
-                className="ml-auto text-xs font-medium text-emerald-600 hover:underline"
+                className="ml-auto text-xs font-medium text-[#2383E2] hover:underline"
               >
                 Retry
               </button>
@@ -423,7 +433,11 @@ function CreateInstanceModal({
               onChange={(e) => {
                 setMcVersion(e.target.value);
               }}
-              className="rounded-xl border border-gray-200 bg-white px-3.5 py-2.5 text-sm text-gray-700 shadow-inset focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
+              className="rounded-[5px] bg-white px-3 py-2 text-sm"
+              style={{
+                border: "1px solid rgba(55, 53, 47, 0.16)",
+                color: "rgba(55, 53, 47, 0.85)",
+              }}
             >
               <option value="">Select version\u2026</option>
               {releaseVersions.map((v) => (
@@ -442,7 +456,11 @@ function CreateInstanceModal({
             onChange={(e) => {
               setLoader(e.target.value);
             }}
-            className="rounded-xl border border-gray-200 bg-white px-3.5 py-2.5 text-sm text-gray-700 shadow-inset focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
+            className="rounded-[5px] bg-white px-3 py-2 text-sm"
+            style={{
+              border: "1px solid rgba(55, 53, 47, 0.16)",
+              color: "rgba(55, 53, 47, 0.85)",
+            }}
           >
             {LOADER_OPTIONS.map((opt) => (
               <option key={opt.value} value={opt.value}>
@@ -453,7 +471,7 @@ function CreateInstanceModal({
         </div>
 
         {error !== undefined && (
-          <div className="flex items-center gap-2 rounded-xl bg-red-50 px-3 py-2">
+          <div className="flex items-center gap-2 rounded-lg bg-red-50 px-3 py-2">
             <AlertCircle size={14} className="text-red-400" />
             <span className="text-xs text-red-600">{error}</span>
           </div>
@@ -516,9 +534,7 @@ export function Home(): ReactNode {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-extrabold text-gray-900">
-            My Instances
-          </h1>
+          <h1 className="text-2xl font-bold text-gray-900">My Instances</h1>
           <p className="mt-0.5 text-sm text-gray-500">
             Manage your Minecraft instances
           </p>
@@ -536,7 +552,11 @@ export function Home(): ReactNode {
       {/* Loading */}
       {loading && (
         <div className="flex items-center justify-center py-16">
-          <Loader2 size={24} className="animate-spin text-emerald-500" />
+          <Loader2
+            size={24}
+            className="animate-spin"
+            style={{ color: "rgba(55, 53, 47, 0.45)" }}
+          />
           <span className="ml-3 text-sm text-gray-500">
             Loading instances\u2026
           </span>
@@ -547,7 +567,7 @@ export function Home(): ReactNode {
       {error !== undefined && !loading && (
         <Card>
           <div className="flex items-center gap-3 p-1">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-red-50">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-red-50">
               <AlertCircle size={18} className="text-red-500" />
             </div>
             <span className="flex-1 text-sm text-red-600">{error}</span>
@@ -583,10 +603,10 @@ export function Home(): ReactNode {
             onClick={() => {
               setCreateOpen(true);
             }}
-            className="flex min-h-[220px] items-center justify-center rounded-[20px] border-2 border-dashed border-gray-200 bg-white/50 text-gray-400 transition-all duration-200 hover:border-emerald-300 hover:bg-emerald-50/50 hover:text-emerald-500 hover:shadow-soft"
+            className="flex min-h-[220px] items-center justify-center rounded-lg border-2 border-dashed border-gray-200 bg-white/50 text-gray-400 transition-all duration-200 hover:border-[rgba(55,53,47,0.24)] hover:bg-[rgba(55,53,47,0.04)] hover:text-[rgba(55,53,47,0.65)]"
           >
             <div className="flex flex-col items-center gap-2">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gray-100 transition-colors group-hover:bg-emerald-100">
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[rgba(242,241,238,1)] transition-colors">
                 <Plus size={24} />
               </div>
               <span className="text-sm font-semibold">Add Instance</span>
@@ -598,7 +618,7 @@ export function Home(): ReactNode {
       {launchError !== undefined && (
         <Card>
           <div className="flex items-center gap-3 p-1">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-red-50">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-red-50">
               <AlertCircle size={18} className="text-red-500" />
             </div>
             <span className="text-sm text-red-600">{launchError}</span>
@@ -609,7 +629,7 @@ export function Home(): ReactNode {
       {!isJavaReady && (
         <Card>
           <div className="flex items-center gap-3 p-1">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-50">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-50">
               <AlertCircle size={18} className="text-amber-500" />
             </div>
             <span className="text-sm text-amber-700">
@@ -624,7 +644,11 @@ export function Home(): ReactNode {
         <Card>
           <div className="flex flex-col gap-3 p-1">
             <div className="flex items-center gap-2">
-              <Loader2 size={16} className="animate-spin text-emerald-500" />
+              <Loader2
+                size={16}
+                className="animate-spin"
+                style={{ color: "rgba(55, 53, 47, 0.45)" }}
+              />
               <span className="text-sm font-medium text-gray-700">
                 T\u00e9l\u00e9chargement Minecraft en cours avant
                 lancement\u2026
@@ -632,7 +656,7 @@ export function Home(): ReactNode {
             </div>
             <div className="h-2 w-full overflow-hidden rounded-full bg-gray-100">
               <div
-                className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-emerald-500 transition-all duration-300"
+                className="h-full rounded-full bg-[#222222] transition-all duration-300"
                 style={{
                   width: `${String(getDownloadPercent(downloadProgress))}%`,
                 }}
@@ -648,7 +672,7 @@ export function Home(): ReactNode {
       {isGameCrashedStatus(gameStatus) && (
         <Card>
           <div className="flex items-center gap-3 p-1">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-red-50">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-red-50">
               <AlertCircle size={18} className="text-red-500" />
             </div>
             <span className="text-sm text-red-600">
@@ -665,7 +689,7 @@ export function Home(): ReactNode {
       {/* Empty state */}
       {!loading && error === undefined && activeInstances.length === 0 && (
         <div className="flex flex-col items-center justify-center py-16 text-gray-400">
-          <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-3xl bg-gray-100">
+          <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-lg bg-gray-100">
             <Gamepad2 size={36} className="text-gray-300" />
           </div>
           <p className="text-sm font-semibold text-gray-500">
