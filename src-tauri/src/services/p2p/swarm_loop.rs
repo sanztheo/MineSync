@@ -4,6 +4,7 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 use std::time::Duration;
 
+use libp2p::futures::StreamExt;
 use libp2p::identity::Keypair;
 use libp2p::request_response::{self, ProtocolSupport};
 use libp2p::swarm::SwarmEvent;
@@ -203,7 +204,7 @@ fn handle_behaviour_event(
     events: &broadcast::Sender<P2pEvent>,
 ) {
     match event {
-        MineSyncBehaviourEvent::Identify(identify::Event::Received { peer_id, info }) => {
+        MineSyncBehaviourEvent::Identify(identify::Event::Received { peer_id, info, .. }) => {
             log::info!(
                 "Identified peer {peer_id}: agent={}, protocols={:?}",
                 info.agent_version,

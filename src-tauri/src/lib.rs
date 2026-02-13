@@ -3,7 +3,7 @@ mod errors;
 mod models;
 mod services;
 
-use commands::{account, auth, instance, minecraft, sync};
+use commands::{account, auth, instance, minecraft, p2p, sync};
 use services::auth::AuthService;
 use services::database::DatabaseService;
 use services::download::DownloadService;
@@ -39,6 +39,10 @@ pub fn run() {
             // Download manager
             app.manage(DownloadService::new());
 
+            // P2P service (starts as None, activated via command)
+            let p2p_state: p2p::P2pState = std::sync::Arc::new(tokio::sync::Mutex::new(None));
+            app.manage(p2p_state);
+
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -58,6 +62,11 @@ pub fn run() {
             minecraft::list_mc_versions,
             minecraft::download_version,
             minecraft::get_download_progress,
+            p2p::start_p2p,
+            p2p::stop_p2p,
+            p2p::get_p2p_status,
+            p2p::share_modpack,
+            p2p::join_via_code,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
