@@ -521,6 +521,26 @@ export function InstanceDetail(): ReactNode {
         </div>
       )}
 
+      {isDownloadingBeforeLaunch &&
+        !isLaunchingThisInstance &&
+        downloadProgress !== undefined && (
+          <div className="flex flex-col gap-1 rounded-lg bg-surface-800 px-3 py-2">
+            <div className="flex items-center gap-2 text-xs text-zinc-300">
+              <Loader2 size={12} className="animate-spin text-accent" />
+              <span>Téléchargement Minecraft en cours avant lancement...</span>
+            </div>
+            <div className="h-1.5 w-full overflow-hidden rounded-full bg-surface-600">
+              <div
+                className="h-full rounded-full bg-accent transition-all duration-300"
+                style={{ width: `${String(getDownloadPercent(downloadProgress))}%` }}
+              />
+            </div>
+            <span className="text-[10px] text-zinc-600">
+              {getDownloadPercent(downloadProgress).toFixed(0)}%
+            </span>
+          </div>
+        )}
+
       {isGameCrashedStatus(gameStatus) && crashInfo !== undefined && (
         <div className="flex items-center gap-2 rounded-lg bg-red-900/20 px-3 py-2">
           <AlertCircle size={14} className="text-red-400" />

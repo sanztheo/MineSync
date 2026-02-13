@@ -587,6 +587,28 @@ export function Home(): ReactNode {
         </Card>
       )}
 
+      {isDownloadingBeforeLaunch && downloadProgress !== undefined && (
+        <Card>
+          <div className="flex flex-col gap-2 p-4">
+            <div className="flex items-center gap-2">
+              <Loader2 size={16} className="animate-spin text-accent" />
+              <span className="text-sm text-zinc-300">
+                Téléchargement Minecraft en cours avant lancement...
+              </span>
+            </div>
+            <div className="h-1.5 w-full overflow-hidden rounded-full bg-surface-600">
+              <div
+                className="h-full rounded-full bg-accent transition-all duration-300"
+                style={{ width: `${String(getDownloadPercent(downloadProgress))}%` }}
+              />
+            </div>
+            <span className="text-xs text-zinc-500">
+              {getDownloadPercent(downloadProgress).toFixed(0)}%
+            </span>
+          </div>
+        </Card>
+      )}
+
       {isGameCrashedStatus(gameStatus) && (
         <Card className="border-red-900/30">
           <div className="flex items-center gap-3 p-4">

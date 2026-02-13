@@ -13,6 +13,8 @@ import type { DownloadProgress, GameStatus } from "@/lib/types";
 const STATUS_POLL_INTERVAL_MS = 2000;
 const DOWNLOAD_POLL_INTERVAL_MS = 1000;
 const DOWNLOAD_TIMEOUT_MS = 10 * 60 * 1000;
+const ACTIVE_INSTANCE_STORAGE_KEY = "minesync.launch.active_instance_id";
+const PENDING_DOWNLOAD_STORAGE_KEY = "minesync.launch.pending_download";
 
 const IDLE_STATUS: GameStatus = "idle";
 
@@ -41,6 +43,33 @@ function mapLaunchError(message: string): string {
   }
 
   return message;
+}
+
+function readStorage(key: string): string | undefined {
+  if (typeof window === "undefined") return undefined;
+  try {
+    return window.localStorage.getItem(key) ?? undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+function writeStorage(key: string, value: string): void {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(key, value);
+  } catch {
+    // Ignore storage errors
+  }
+}
+
+function removeStorage(key: string): void {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.removeItem(key);
+  } catch {
+    // Ignore storage errors
+  }
 }
 
 function isDownloadFailed(
@@ -102,11 +131,33 @@ export function useGameStatus(): UseGameStatusResult {
   const [downloadProgress, setDownloadProgress] = useState<
     DownloadProgress | undefined
   >(undefined);
-  const [isDownloadingBeforeLaunch, setIsDownloadingBeforeLaunch] =
-    useState(false);
-  const [activeInstanceId, setActiveInstanceId] = useState<string | undefined>(
-    undefined,
+  const [isDownloadingBeforeLaunch, setIsDownloadingBeforeLaunch] = useState(
+    () => readStorage(PENDING_DOWNLOAD_STORAGE_KEY) === "1",
   );
+  const [activeInstanceId, setActiveInstanceId] = useState<string | undefined>(
+    () => readStorage(ACTIVE_INSTANCE_STORAGE_KEY),
+  );
+
+  const setTrackedActiveInstanceId = useCallback(
+    (instanceId: string | undefined): void => {
+      setActiveInstanceId(instanceId);
+      if (instanceId === undefined) {
+        removeStorage(ACTIVE_INSTANCE_STORAGE_KEY);
+      } else {
+        writeStorage(ACTIVE_INSTANCE_STORAGE_KEY, instanceId);
+      }
+    },
+    [],
+  );
+
+  const setPendingDownload = useCallback((isPending: boolean): void => {
+    setIsDownloadingBeforeLaunch(isPending);
+    if (isPending) {
+      writeStorage(PENDING_DOWNLOAD_STORAGE_KEY, "1");
+    } else {
+      removeStorage(PENDING_DOWNLOAD_STORAGE_KEY);
+    }
+  }, []);
 
   const refreshStatus = useCallback(async (): Promise<void> => {
     try {
@@ -133,11 +184,46 @@ export function useGameStatus(): UseGameStatusResult {
     };
   }, [status, refreshStatus]);
 
+  const refreshDownloadState = useCallback(async (): Promise<void> => {
+    try {
+      const progress = await getDownloadProgress();
+
+      if (progress.state === "downloading") {
+        setPendingDownload(true);
+        setDownloadProgress(progress);
+        return;
+      }
+
+      if (isDownloadFailed(progress)) {
+        setLaunchError(
+          `Échec du téléchargement Minecraft: ${progress.state.failed.message}`,
+        );
+      }
+
+      setPendingDownload(false);
+      setDownloadProgress(undefined);
+    } catch {
+      // Ignore polling errors
+    }
+  }, [setPendingDownload]);
+
+  useEffect(() => {
+    void refreshDownloadState();
+    const interval = setInterval(() => {
+      void refreshDownloadState();
+    }, DOWNLOAD_POLL_INTERVAL_MS);
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, [refreshDownloadState]);
+
   const launch = useCallback(
     async (instanceId: string): Promise<void> => {
       setLaunchError(undefined);
-      setActiveInstanceId(instanceId);
+      setTrackedActiveInstanceId(instanceId);
       setStatus("preparing");
+      setPendingDownload(true);
 
       try {
         const instance = await getInstance(instanceId);
@@ -150,7 +236,6 @@ export function useGameStatus(): UseGameStatusResult {
 
         await downloadVersion(instance.minecraft_version);
 
-        setIsDownloadingBeforeLaunch(true);
         const startedAt = Date.now();
 
         while (true) {
@@ -172,13 +257,13 @@ export function useGameStatus(): UseGameStatusResult {
           await sleep(DOWNLOAD_POLL_INTERVAL_MS);
         }
 
-        setIsDownloadingBeforeLaunch(false);
+        setPendingDownload(false);
         setDownloadProgress(undefined);
 
         await launchInstance(instanceId);
         await refreshStatus();
       } catch (err: unknown) {
-        setIsDownloadingBeforeLaunch(false);
+        setPendingDownload(false);
         setDownloadProgress(undefined);
 
         const message = mapLaunchError(toErrorMessage(err));
@@ -186,7 +271,7 @@ export function useGameStatus(): UseGameStatusResult {
         await refreshStatus();
       }
     },
-    [refreshStatus],
+    [refreshStatus, setPendingDownload, setTrackedActiveInstanceId],
   );
 
   const kill = useCallback(async (): Promise<void> => {
