@@ -27,7 +27,7 @@ MineSync is built with a modern, performant architecture using Tauri v2 for the 
 │  │                  Backend (Rust)                              │   │
 │  │                         │                                    │   │
 │  │              ┌──────────┴──────────┐                        │   │
-│  │              │     Commands (38)    │                        │   │
+│  │              │     Commands (48)    │                        │   │
 │  │              └──────────┬──────────┘                        │   │
 │  │                         │                                    │   │
 │  │  ┌──────────────────────┼──────────────────────┐            │   │
@@ -85,8 +85,10 @@ MineSync/
 │   │   ├── Settings.tsx         # App configuration
 │   │   └── Auth.tsx             # Microsoft sign-in
 │   ├── hooks/
-│   │   ├── useTauriCommand.ts   # Generic Tauri fetch hook
-│   │   └── useDebounce.ts       # Debounce utility
+│   │   ├── use-tauri.ts         # Generic Tauri fetch hook
+│   │   ├── use-game-status.ts   # Launch orchestration + game polling
+│   │   ├── use-java-runtime.ts  # Global Java runtime status
+│   │   └── use-debounce.ts      # Debounce utility
 │   └── lib/
 │       ├── types.ts             # TypeScript types (mirrors Rust)
 │       └── tauri.ts             # IPC wrapper functions
@@ -102,6 +104,7 @@ MineSync/
 │       │   ├── instance.rs      # Minecraft instance
 │       │   ├── mod_info.rs      # Mod metadata
 │       │   ├── mod_platform.rs  # CF/Modrinth types
+│       │   ├── java.rs          # Java runtime status/install types
 │       │   ├── loader.rs        # Mod loader profiles
 │       │   ├── launch.rs        # Launch configuration
 │       │   └── sync.rs          # Sync session/manifest
@@ -109,6 +112,7 @@ MineSync/
 │       │   ├── auth.rs          # Microsoft OAuth
 │       │   ├── database.rs      # SQLite operations
 │       │   ├── download.rs      # File downloads
+│       │   ├── java.rs          # Java runtime manager (Temurin 21)
 │       │   ├── minecraft.rs     # Mojang API
 │       │   ├── launch.rs        # Game launcher
 │       │   ├── loader/          # Mod loader installers
@@ -117,11 +121,15 @@ MineSync/
 │       │   └── sync_protocol/   # Sync logic
 │       └── commands/            # Tauri IPC handlers
 │           ├── auth.rs
-│           ├── instances.rs
+│           ├── instance.rs
+│           ├── java.rs
 │           ├── minecraft.rs
 │           ├── mods.rs
 │           ├── p2p.rs
 │           ├── sync.rs
+│           ├── sync_protocol.rs
+│           ├── account.rs
+│           ├── install.rs
 │           ├── loader.rs
 │           └── launch.rs
 │
@@ -182,6 +190,22 @@ Parallel file downloads with integrity verification:
 - **SHA1 verification** for all downloaded files
 - **Progress tracking** via broadcast channels
 - **Resume support** for interrupted downloads
+
+### Java Runtime Service (`services/java.rs`)
+
+Automatic Java setup for launch reliability:
+
+- **Single runtime policy**: Java 21
+- **Managed runtime** in app data directory (`java-runtime/temurin-21`)
+- **Auto-install workflow**:
+  - download from Adoptium API,
+  - checksum verification (`SHA-256`),
+  - archive extraction (`zip`/`tar.gz`),
+  - `java -version` validation.
+- **Startup UX**:
+  - frontend provider polls `get_java_status`,
+  - blocking modal prompts install when Java is missing,
+  - Launch buttons stay disabled until Java is ready.
 
 ### P2P Service (`services/p2p/`)
 

@@ -22,8 +22,9 @@ Le frontend est une application **React 19** avec **TypeScript**, stylisee avec 
 Page principale affichant la grille d'instances. Fonctionnalites :
 - Liste des instances actives avec carte visuelle
 - Badge du loader (couleur par type)
-- Temps de jeu affiche
-- Boutons Play et Sync par instance
+- Statut jeu global (Running / Preparing / Crashed)
+- Progression pre-download visible et persistante
+- Boutons Play et Sync par instance (Play desactive si Java non pret)
 - Modal de creation d'instance (nom, version MC, loader)
 - Modal de confirmation de suppression
 - Carte "Add Instance" en pointilles
@@ -52,7 +53,9 @@ Gestion d'une instance specifique :
 - Infos de l'instance (version, loader, chemin)
 - Liste des mods installes
 - Ajout/suppression de mods
-- Lancement du jeu
+- Lancement du jeu (avec verification Java)
+- Bouton Kill pendant l'execution
+- Statut live (Preparing, Running avec PID, Crashed)
 
 ### SyncHub (`src/pages/SyncHub.tsx`)
 
@@ -70,7 +73,16 @@ Hub de synchronisation P2P :
 Parametres de l'application :
 - Allocation RAM (slider)
 - Options reseau
-- Chemin Java
+- Statut Java 21
+- Bouton Install / Reinstall Java 21
+
+### JavaSetupModal (`src/components/java/JavaSetupModal.tsx`)
+
+Popup globale affichee au demarrage si Java 21 n'est pas disponible :
+- Message bloquant
+- Bouton d'installation automatique
+- Barre de progression (download / verification / extraction)
+- Retry en cas d'erreur
 
 ## Composants UI
 
@@ -129,6 +141,22 @@ const [search, setSearch] = useState("");
 const debouncedSearch = useDebounce(search, 300);
 ```
 
+### useGameStatus
+
+Hook de lancement et de monitoring :
+
+- pre-download Minecraft avant launch,
+- polling `get_game_status`,
+- action `kill`,
+- persistance de progression download entre pages.
+
+### useJavaRuntime
+
+Hook global (provider) pour Java 21 :
+- polling `get_java_status` / `get_java_install_progress`,
+- action `installJava`,
+- flags `isReady`, `isBlocking`, `isInstalling`.
+
 ## Types TypeScript
 
 Les types dans `src/lib/types.ts` sont le miroir exact des structs Rust serialisees. Exemples :
@@ -171,8 +199,19 @@ export function searchMods(filters: SearchFilters): Promise<SearchResponse> {
   return invoke("search_mods", { filters });
 }
 
-export function launchInstance(instanceId: string): Promise<void> {
-  return invoke("launch_instance", { instanceId });
+export function launchInstance(
+  instanceId: string,
+  javaPath: string
+): Promise<LaunchInfo> {
+  return invoke("launch_instance", { instanceId, javaPath });
+}
+
+export function getJavaStatus(): Promise<JavaRuntimeStatus> {
+  return invoke("get_java_status");
+}
+
+export function installJavaRuntime(): Promise<JavaInstallResult> {
+  return invoke("install_java_runtime");
 }
 ```
 

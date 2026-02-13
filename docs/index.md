@@ -40,6 +40,7 @@ MineSync/
 │           ├── auth.rs
 │           ├── database.rs
 │           ├── download.rs
+│           ├── java.rs
 │           ├── launch.rs
 │           ├── minecraft.rs
 │           ├── loader/           # Fabric, Quilt, Forge, NeoForge
@@ -51,7 +52,7 @@ MineSync/
 │   ├── App.tsx
 │   ├── pages/                    # Home, Auth, BrowseMods, SyncHub, Settings
 │   ├── components/               # UI library + layout
-│   ├── hooks/                    # useTauriCommand, useDebounce
+│   ├── hooks/                    # useTauriCommand, useDebounce, useGameStatus, useJavaRuntime
 │   └── lib/                      # types.ts, tauri.ts (IPC wrappers)
 ├── docs/                         # Cette documentation
 └── package.json

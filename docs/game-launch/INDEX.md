@@ -13,11 +13,15 @@
 | [Authentication](../authentication/DOC.md) | Access token et UUID pour les arguments de jeu |
 | [P2P Network](../p2p-network/DOC.md) | Arrete/redemarre autour du lancement |
 | [Database](../database/DOC.md) | Enregistre le temps de jeu et lit les tokens du compte |
+| [Frontend](../frontend/DOC.md) | Affiche modal Java, statuts de jeu et actions Play/Kill |
 
 ## Fichiers cles
 
 | Fichier | Role |
 |---------|------|
+| `src-tauri/src/services/java.rs` | JavaService (Java 21 portable: detect/install/status) |
+| `src-tauri/src/commands/java.rs` | get_java_status, install_java_runtime, get_java_path |
 | `src-tauri/src/services/launch.rs` | LaunchService (config, spawn, monitor, kill) |
 | `src-tauri/src/commands/launch.rs` | launch_instance, get_game_status, kill_game |
 | `src/pages/Home.tsx` | Bouton Play sur les cartes d'instance |
+| `src/components/java/JavaSetupModal.tsx` | Popup bloquante d'installation Java |

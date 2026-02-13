@@ -60,6 +60,7 @@ MineSync is an open-source Minecraft launcher with peer-to-peer modpack synchron
 | **P2P Sync** | Share modpacks via code, no central server |
 | **Multi-Platform Mods** | Unified search across CurseForge & Modrinth |
 | **All Mod Loaders** | Fabric, Forge, NeoForge, Quilt support |
+| **Auto Java Runtime** | Java 21 portable auto-installé au démarrage si manquant |
 | **Microsoft Auth** | Secure Device Code Flow authentication |
 | **Native Performance** | Built with Tauri + Rust, ~15MB binary |
 | **Manual Sync** | Preview changes before applying |

@@ -11,7 +11,7 @@
 | [Database](../database/DOC.md) | Couche de persistence partagee par tous les services |
 | [Authentication](../authentication/DOC.md) | Service d'auth injecte dans les commands |
 | [Minecraft Engine](../minecraft-engine/DOC.md) | Service central pour les versions et telechargements |
-| [Game Launch](../game-launch/DOC.md) | Orchestre plusieurs services (DB, Minecraft, P2P) |
+| [Game Launch](../game-launch/DOC.md) | Orchestre Launch + gestion du runtime Java 21 portable |
 | [Frontend](../frontend/DOC.md) | Couche UI qui consomme les commands via IPC |
 | [Download Manager](../download-manager/DOC.md) | Service de telechargement utilise par Minecraft et Sync |
 

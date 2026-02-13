@@ -32,6 +32,7 @@ commands/
 ├── auth.rs           # start_auth, poll_auth, get_profile, logout
 ├── account.rs        # get_active_account, save_account
 ├── instance.rs       # list_instances, create_instance, delete_instance
+├── java.rs           # get_java_status, install_java_runtime, get_java_path
 ├── minecraft.rs      # list_mc_versions, download_version, get_download_progress
 ├── loader.rs         # list_loader_versions, install_loader
 ├── launch.rs         # launch_instance, get_game_status, kill_game
@@ -50,6 +51,7 @@ services/
 ├── auth.rs           # AuthService : Microsoft OAuth
 ├── database.rs       # DatabaseService : SQLite CRUD
 ├── download.rs       # DownloadService : telechargements paralleles
+├── java.rs           # JavaService : runtime Java 21 portable
 ├── launch.rs         # LaunchService : lancement du jeu
 ├── minecraft.rs      # MinecraftService : versions Mojang
 ├── loader/           # LoaderService : Fabric, Quilt, Forge, NeoForge
@@ -73,9 +75,12 @@ src/
 │   └── Settings.tsx  # Parametres (RAM, reseau, Java)
 ├── components/
 │   ├── layout/       # TitleBar, Sidebar
+│   ├── java/         # JavaSetupModal
 │   └── ui/           # Button, Card, Badge, Input, Modal, etc.
 ├── hooks/
 │   ├── use-tauri.ts  # useTauriCommand<T> (fetch + state)
+│   ├── use-game-status.ts
+│   ├── use-java-runtime.ts
 │   └── use-debounce.ts
 └── lib/
     ├── types.ts      # Interfaces TypeScript (miroir des types Rust)
@@ -143,6 +148,11 @@ LaunchService
 ├── DatabaseService    (play time, account tokens)
 ├── MinecraftService   (classpath, version detail)
 └── P2pService         (pause/resume autour du jeu)
+
+JavaService
+├── reqwest            (download Temurin 21)
+├── sha2               (verification checksum)
+└── zip/tar            (extraction runtime portable)
 
 SyncProtocolService
 └── DownloadService    (appliquer les diffs)
