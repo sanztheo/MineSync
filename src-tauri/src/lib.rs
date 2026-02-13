@@ -3,12 +3,13 @@ mod errors;
 mod models;
 mod services;
 
-use commands::{account, auth, instance, minecraft, mods, p2p, sync};
+use commands::{account, auth, instance, minecraft, mods, p2p, sync, sync_protocol};
 use services::auth::AuthService;
 use services::database::DatabaseService;
 use services::download::DownloadService;
 use services::minecraft::MinecraftService;
 use services::mod_platform::UnifiedModClient;
+use services::sync_protocol::SyncProtocolService;
 use tauri::Manager;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -49,6 +50,9 @@ pub fn run() {
             let p2p_state: p2p::P2pState = std::sync::Arc::new(tokio::sync::Mutex::new(None));
             app.manage(p2p_state);
 
+            // Sync protocol service (manages pending syncs)
+            app.manage(SyncProtocolService::new());
+
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -77,6 +81,12 @@ pub fn run() {
             mods::get_mod_details,
             mods::get_mod_versions,
             mods::resolve_mod_dependencies,
+            sync_protocol::preview_sync,
+            sync_protocol::get_pending_sync,
+            sync_protocol::confirm_sync,
+            sync_protocol::reject_sync,
+            sync_protocol::complete_sync,
+            sync_protocol::compute_manifest_diff,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

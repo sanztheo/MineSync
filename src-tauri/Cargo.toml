@@ -46,3 +46,4 @@ libp2p = { version = "0.54", features = [
 ] }
 rand = "0.8"
 sha1 = "0.10"
+zip = "2"

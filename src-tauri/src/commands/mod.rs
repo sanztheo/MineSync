@@ -5,3 +5,4 @@ pub mod minecraft;
 pub mod mods;
 pub mod p2p;
 pub mod sync;
+pub mod sync_protocol;
