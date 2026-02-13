@@ -18,6 +18,7 @@ import {
   Loader2,
   AlertCircle,
 } from "lucide-react";
+import { openUrl } from "@tauri-apps/plugin-opener";
 import { startAuth, pollAuth, getProfile, logout } from "@/lib/tauri";
 import type {
   DeviceCodeInfo,
@@ -76,14 +77,13 @@ function DeviceCodeDisplay({ info }: { info: DeviceCodeInfo }): ReactNode {
         <p className="text-xs text-zinc-500">Click to copy</p>
 
         {/* Link to verification */}
-        <a
-          href={info.verification_uri}
-          target="_blank"
-          rel="noopener noreferrer"
+        <button
+          type="button"
+          onClick={() => openUrl(info.verification_uri)}
           className="inline-flex items-center gap-1.5 rounded-lg bg-surface-600 px-4 py-2 text-sm text-zinc-300 transition-colors hover:bg-surface-500 hover:text-zinc-100"
         >
           Open {info.verification_uri} <ExternalLink size={14} />
-        </a>
+        </button>
 
         <div className="flex items-center gap-2 pt-2">
           <Loader2 size={14} className="animate-spin text-accent" />

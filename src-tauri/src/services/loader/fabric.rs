@@ -91,9 +91,8 @@ impl FabricInstaller {
         game_version: &str,
         loader_version: &str,
     ) -> AppResult<LoaderProfile> {
-        let url = format!(
-            "{META_URL}/versions/loader/{game_version}/{loader_version}/profile/json"
-        );
+        let url =
+            format!("{META_URL}/versions/loader/{game_version}/{loader_version}/profile/json");
 
         let response = self.client.get(&url).send().await?;
 
@@ -133,10 +132,7 @@ fn fabric_profile_to_loader_profile(profile: FabricProfileJson) -> LoaderProfile
         .collect();
 
     let (game_arguments, jvm_arguments) = match profile.arguments {
-        Some(args) => (
-            args.game.unwrap_or_default(),
-            args.jvm.unwrap_or_default(),
-        ),
+        Some(args) => (args.game.unwrap_or_default(), args.jvm.unwrap_or_default()),
         None => (Vec::new(), Vec::new()),
     };
 

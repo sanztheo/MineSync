@@ -37,8 +37,6 @@ pub async fn download_version(
 }
 
 #[tauri::command]
-pub fn get_download_progress(
-    dl: tauri::State<'_, DownloadService>,
-) -> AppResult<DownloadProgress> {
+pub fn get_download_progress(dl: tauri::State<'_, DownloadService>) -> AppResult<DownloadProgress> {
     dl.get_progress()
 }

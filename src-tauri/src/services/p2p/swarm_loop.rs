@@ -11,7 +11,9 @@ use libp2p::swarm::SwarmEvent;
 use libp2p::{autonat, identify, noise, tcp, yamux, Multiaddr, PeerId, Swarm, SwarmBuilder};
 use tokio::sync::{broadcast, mpsc};
 
-use super::behaviour::{ManifestRequest, ManifestResponse, MineSyncBehaviour, MineSyncBehaviourEvent};
+use super::behaviour::{
+    ManifestRequest, ManifestResponse, MineSyncBehaviour, MineSyncBehaviourEvent,
+};
 use super::types::{P2pCommand, P2pEvent};
 use crate::errors::{AppError, AppResult};
 use crate::models::sync::SyncManifest;
@@ -38,9 +40,7 @@ pub fn build_swarm(app_data_dir: &Path) -> AppResult<(PeerId, Swarm<MineSyncBeha
         .map_err(|e| AppError::P2p(format!("TCP transport setup failed: {e}")))?
         .with_relay_client(noise::Config::new, yamux::Config::default)
         .map_err(|e| AppError::P2p(format!("Relay client setup failed: {e}")))?
-        .with_behaviour(|key, relay_client| {
-            build_behaviour(key, relay_client, local_peer_id)
-        })
+        .with_behaviour(|key, relay_client| build_behaviour(key, relay_client, local_peer_id))
         .map_err(|e| AppError::P2p(format!("Behaviour setup failed: {e}")))?
         .with_swarm_config(|cfg| {
             cfg.with_idle_connection_timeout(Duration::from_secs(IDLE_TIMEOUT_SECS))
@@ -55,10 +55,10 @@ fn build_behaviour(
     relay_client: libp2p::relay::client::Behaviour,
     local_peer_id: PeerId,
 ) -> MineSyncBehaviour {
-    let identify = identify::Behaviour::new(identify::Config::new(
-        PROTOCOL_VERSION.to_string(),
-        key.public(),
-    ).with_agent_version(IDENTIFY_AGENT.to_string()));
+    let identify = identify::Behaviour::new(
+        identify::Config::new(PROTOCOL_VERSION.to_string(), key.public())
+            .with_agent_version(IDENTIFY_AGENT.to_string()),
+    );
 
     let ping = libp2p::ping::Behaviour::default();
 
@@ -200,7 +200,13 @@ fn handle_swarm_event(
             });
         }
         SwarmEvent::Behaviour(behaviour_event) => {
-            handle_behaviour_event(behaviour_event, swarm, shared_manifests, *connected_peers, events);
+            handle_behaviour_event(
+                behaviour_event,
+                swarm,
+                shared_manifests,
+                *connected_peers,
+                events,
+            );
         }
         _ => {}
     }
@@ -226,10 +232,18 @@ fn handle_behaviour_event(
             let is_public = matches!(new, autonat::NatStatus::Public(_));
             let _ = events.send(P2pEvent::NatStatusDetected { is_public });
         }
-        MineSyncBehaviourEvent::ManifestExchange(
-            request_response::Event::Message { peer, message }
-        ) => {
-            handle_manifest_message(peer, message, swarm, shared_manifests, connected_peers, events);
+        MineSyncBehaviourEvent::ManifestExchange(request_response::Event::Message {
+            peer,
+            message,
+        }) => {
+            handle_manifest_message(
+                peer,
+                message,
+                swarm,
+                shared_manifests,
+                connected_peers,
+                events,
+            );
         }
         _ => {}
     }
@@ -244,8 +258,17 @@ fn handle_manifest_message(
     events: &broadcast::Sender<P2pEvent>,
 ) {
     match message {
-        request_response::Message::Request { request, channel, .. } => {
-            handle_incoming_request(peer, request, channel, swarm, shared_manifests, connected_peers);
+        request_response::Message::Request {
+            request, channel, ..
+        } => {
+            handle_incoming_request(
+                peer,
+                request,
+                channel,
+                swarm,
+                shared_manifests,
+                connected_peers,
+            );
         }
         request_response::Message::Response { response, .. } => {
             handle_incoming_response(peer, response, events);
@@ -295,10 +318,15 @@ fn handle_incoming_request(
                 .unwrap_or(0);
 
             log::info!("Status requested by {peer}");
-            send_response(swarm, &peer, channel, ManifestResponse::Status {
-                online_peers: connected_peers,
-                manifest_version,
-            });
+            send_response(
+                swarm,
+                &peer,
+                channel,
+                ManifestResponse::Status {
+                    online_peers: connected_peers,
+                    manifest_version,
+                },
+            );
         }
     }
 }
@@ -319,12 +347,16 @@ fn handle_incoming_response(
         ManifestResponse::NoManifest => {
             log::info!("Peer {peer} has no manifest to share");
         }
-        ManifestResponse::Status { online_peers, manifest_version } => {
-            log::info!(
-                "Status from {peer}: peers={online_peers}, version={manifest_version}"
-            );
+        ManifestResponse::Status {
+            online_peers,
+            manifest_version,
+        } => {
+            log::info!("Status from {peer}: peers={online_peers}, version={manifest_version}");
         }
-        ManifestResponse::UpdateAvailable { manifest_version, changes } => {
+        ManifestResponse::UpdateAvailable {
+            manifest_version,
+            changes,
+        } => {
             log::info!(
                 "Update available from {peer}: version={manifest_version}, +{} -{} ~{}",
                 changes.to_add.len(),
@@ -353,8 +385,12 @@ fn load_or_generate_keypair(app_data_dir: &Path) -> AppResult<Keypair> {
 
 fn load_keypair(path: &Path) -> AppResult<Keypair> {
     let bytes = std::fs::read(path)?;
-    Keypair::from_protobuf_encoding(&bytes)
-        .map_err(|e| AppError::P2p(format!("Failed to decode keypair from {}: {e}", path.display())))
+    Keypair::from_protobuf_encoding(&bytes).map_err(|e| {
+        AppError::P2p(format!(
+            "Failed to decode keypair from {}: {e}",
+            path.display()
+        ))
+    })
 }
 
 fn save_keypair(keypair: &Keypair, path: &Path) -> AppResult<()> {

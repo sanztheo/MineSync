@@ -48,11 +48,8 @@ pub fn preview_sync(
         created_at: chrono::Utc::now(),
     };
 
-    let (session_id, diff) = sync_service.create_pending_sync(
-        remote_peer_id,
-        local_manifest,
-        remote_manifest,
-    )?;
+    let (session_id, diff) =
+        sync_service.create_pending_sync(remote_peer_id, local_manifest, remote_manifest)?;
 
     Ok(PreviewSyncResponse { session_id, diff })
 }

@@ -134,14 +134,9 @@ impl UnifiedModClient {
     pub async fn get_mod(&self, source: &ModSource, project_id: &str) -> AppResult<ModDetails> {
         match source {
             ModSource::CurseForge => {
-                let cf = self
-                    .curseforge
-                    .as_ref()
-                    .ok_or_else(|| {
-                        crate::errors::AppError::Custom(
-                            "CurseForge API key not configured".to_string(),
-                        )
-                    })?;
+                let cf = self.curseforge.as_ref().ok_or_else(|| {
+                    crate::errors::AppError::Custom("CurseForge API key not configured".to_string())
+                })?;
                 cf.get_mod(project_id).await
             }
             ModSource::Modrinth => self.modrinth.get_mod(project_id).await,
@@ -161,14 +156,9 @@ impl UnifiedModClient {
     ) -> AppResult<Vec<ModVersionInfo>> {
         match source {
             ModSource::CurseForge => {
-                let cf = self
-                    .curseforge
-                    .as_ref()
-                    .ok_or_else(|| {
-                        crate::errors::AppError::Custom(
-                            "CurseForge API key not configured".to_string(),
-                        )
-                    })?;
+                let cf = self.curseforge.as_ref().ok_or_else(|| {
+                    crate::errors::AppError::Custom("CurseForge API key not configured".to_string())
+                })?;
                 cf.get_versions(project_id, game_version, loader).await
             }
             ModSource::Modrinth => {

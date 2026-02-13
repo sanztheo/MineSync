@@ -23,12 +23,25 @@ pub enum P2pCommand {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum P2pEvent {
-    PeerConnected { peer_id: String },
-    PeerDisconnected { peer_id: String },
-    ManifestReceived { peer_id: String, manifest: SyncManifest },
-    ShareCodeReady { code: String },
-    NatStatusDetected { is_public: bool },
-    Error { message: String },
+    PeerConnected {
+        peer_id: String,
+    },
+    PeerDisconnected {
+        peer_id: String,
+    },
+    ManifestReceived {
+        peer_id: String,
+        manifest: SyncManifest,
+    },
+    ShareCodeReady {
+        code: String,
+    },
+    NatStatusDetected {
+        is_public: bool,
+    },
+    Error {
+        message: String,
+    },
 }
 
 /// Lightweight status for frontend display.

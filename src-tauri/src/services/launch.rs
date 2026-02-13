@@ -158,9 +158,7 @@ impl LaunchService {
         {
             let state = self.lock_state()?;
             if !matches!(*state, GameStatus::Running { .. }) {
-                return Err(AppError::Custom(
-                    "No game is currently running".to_string(),
-                ));
+                return Err(AppError::Custom("No game is currently running".to_string()));
             }
         }
 
@@ -170,9 +168,9 @@ impl LaunchService {
             .map_err(|e| AppError::Custom(format!("Kill channel lock poisoned: {e}")))?;
 
         match *tx_guard {
-            Some(ref tx) => tx.send(true).map_err(|e| {
-                AppError::Custom(format!("Game process already exited: {e}"))
-            }),
+            Some(ref tx) => tx
+                .send(true)
+                .map_err(|e| AppError::Custom(format!("Game process already exited: {e}"))),
             None => Err(AppError::Custom(
                 "No active game process to kill".to_string(),
             )),
@@ -206,11 +204,9 @@ impl LaunchService {
 
         let classpath = self.build_classpath(version_detail, loader_profile);
 
-        let jvm_args =
-            self.build_jvm_args(version_detail, loader_profile, &natives_dir);
+        let jvm_args = self.build_jvm_args(version_detail, loader_profile, &natives_dir);
 
-        let game_args =
-            self.build_game_args(version_detail, loader_profile, account, &game_dir);
+        let game_args = self.build_game_args(version_detail, loader_profile, account, &game_dir);
 
         Ok(LaunchConfig {
             java_path: java_path.to_string(),
@@ -237,8 +233,7 @@ impl LaunchService {
             if let Some(ref downloads) = lib.downloads {
                 if let Some(ref artifact) = downloads.artifact {
                     if let Some(ref path) = artifact.path {
-                        classpath
-                            .push(lib_dir.join(path).to_string_lossy().to_string());
+                        classpath.push(lib_dir.join(path).to_string_lossy().to_string());
                     }
                 }
             }
@@ -247,8 +242,7 @@ impl LaunchService {
         // Loader libraries
         if let Some(lp) = loader_profile {
             for lib in &lp.libraries {
-                classpath
-                    .push(lib_dir.join(&lib.path).to_string_lossy().to_string());
+                classpath.push(lib_dir.join(&lib.path).to_string_lossy().to_string());
             }
         }
 
@@ -310,11 +304,7 @@ impl LaunchService {
         game_dir: &str,
     ) -> Vec<String> {
         let version_id = &version_detail.id;
-        let assets_dir = self
-            .base_dir
-            .join("assets")
-            .to_string_lossy()
-            .to_string();
+        let assets_dir = self.base_dir.join("assets").to_string_lossy().to_string();
         let asset_index = &version_detail.asset_index.id;
 
         let access_token = account.access_token.as_deref().unwrap_or("0");
@@ -569,8 +559,7 @@ fn build_default_game_args(
 /// Deduplicate JVM args: for -D properties, keep only the last occurrence.
 /// For other args (like -Xmx), also keep the last occurrence.
 fn deduplicate_jvm_args(args: Vec<String>) -> Vec<String> {
-    let mut seen_keys: std::collections::HashMap<String, usize> =
-        std::collections::HashMap::new();
+    let mut seen_keys: std::collections::HashMap<String, usize> = std::collections::HashMap::new();
     let mut result: Vec<Option<String>> = Vec::new();
 
     for arg in args {
@@ -592,10 +581,7 @@ fn deduplicate_jvm_args(args: Vec<String>) -> Vec<String> {
 fn extract_jvm_arg_key(arg: &str) -> String {
     if arg.starts_with("-D") {
         arg.split('=').next().unwrap_or(arg).to_string()
-    } else if arg.starts_with("-Xmx")
-        || arg.starts_with("-Xms")
-        || arg.starts_with("-Xss")
-    {
+    } else if arg.starts_with("-Xmx") || arg.starts_with("-Xms") || arg.starts_with("-Xss") {
         arg[..4].to_string()
     } else {
         arg.to_string()

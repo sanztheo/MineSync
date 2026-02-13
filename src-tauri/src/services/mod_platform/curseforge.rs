@@ -398,9 +398,7 @@ fn cf_file_to_version(f: CfFile, project_id: &str) -> ModVersionInfo {
     }
 }
 
-fn extract_versions_and_loaders(
-    indexes: &Option<Vec<CfFileIndex>>,
-) -> (Vec<String>, Vec<String>) {
+fn extract_versions_and_loaders(indexes: &Option<Vec<CfFileIndex>>) -> (Vec<String>, Vec<String>) {
     let indexes = match indexes {
         Some(idx) => idx,
         None => return (Vec::new(), Vec::new()),

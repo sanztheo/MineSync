@@ -34,16 +34,17 @@ pub fn decode_share_code(code: &str) -> Result<PeerId, ShareCodeError> {
     let trimmed = code.trim().to_uppercase();
 
     if !trimmed.starts_with(SHARE_CODE_PREFIX) {
-        return Err(ShareCodeError::InvalidFormat(
-            format!("Share code must start with '{SHARE_CODE_PREFIX}', got: {trimmed}")
-        ));
+        return Err(ShareCodeError::InvalidFormat(format!(
+            "Share code must start with '{SHARE_CODE_PREFIX}', got: {trimmed}"
+        )));
     }
 
     let suffix = &trimmed[SHARE_CODE_PREFIX.len()..];
     if suffix.len() != CODE_LENGTH {
-        return Err(ShareCodeError::InvalidFormat(
-            format!("Share code suffix must be {CODE_LENGTH} characters, got: {}", suffix.len())
-        ));
+        return Err(ShareCodeError::InvalidFormat(format!(
+            "Share code suffix must be {CODE_LENGTH} characters, got: {}",
+            suffix.len()
+        )));
     }
 
     // Validate all characters are in the alphabet

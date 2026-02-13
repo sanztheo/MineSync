@@ -20,11 +20,7 @@ fn parse_dt(s: &str) -> rusqlite::Result<DateTime<Utc>> {
     NaiveDateTime::parse_from_str(s, "%Y-%m-%d %H:%M:%S")
         .map(|dt| dt.and_utc())
         .map_err(|e| {
-            rusqlite::Error::FromSqlConversionFailure(
-                0,
-                rusqlite::types::Type::Text,
-                Box::new(e),
-            )
+            rusqlite::Error::FromSqlConversionFailure(0, rusqlite::types::Type::Text, Box::new(e))
         })
 }
 
@@ -241,9 +237,7 @@ impl DatabaseService {
 
     pub fn get_instance(&self, id: &str) -> AppResult<Option<MinecraftInstance>> {
         let conn = self.conn()?;
-        let mut stmt = conn.prepare(
-            "SELECT * FROM instances WHERE id = ?1 AND is_active = 1",
-        )?;
+        let mut stmt = conn.prepare("SELECT * FROM instances WHERE id = ?1 AND is_active = 1")?;
         let mut rows = stmt.query_map(params![id], row_to_instance)?;
         match rows.next() {
             Some(row) => Ok(Some(row?)),
@@ -253,9 +247,8 @@ impl DatabaseService {
 
     pub fn list_instances(&self) -> AppResult<Vec<MinecraftInstance>> {
         let conn = self.conn()?;
-        let mut stmt = conn.prepare(
-            "SELECT * FROM instances WHERE is_active = 1 ORDER BY updated_at DESC",
-        )?;
+        let mut stmt =
+            conn.prepare("SELECT * FROM instances WHERE is_active = 1 ORDER BY updated_at DESC")?;
         let instances = stmt
             .query_map([], row_to_instance)?
             .collect::<Result<Vec<_>, _>>()?;
@@ -393,8 +386,7 @@ impl DatabaseService {
 
     pub fn get_sync_session_by_code(&self, share_code: &str) -> AppResult<Option<SyncSession>> {
         let conn = self.conn()?;
-        let mut stmt =
-            conn.prepare("SELECT * FROM sync_sessions WHERE share_code = ?1")?;
+        let mut stmt = conn.prepare("SELECT * FROM sync_sessions WHERE share_code = ?1")?;
         let mut rows = stmt.query_map(params![share_code], row_to_sync_session)?;
         match rows.next() {
             Some(row) => Ok(Some(row?)),

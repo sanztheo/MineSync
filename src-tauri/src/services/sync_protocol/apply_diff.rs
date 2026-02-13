@@ -1,8 +1,8 @@
 use crate::errors::AppResult;
 use crate::models::mod_info::{ModInfo, ModSource};
+use crate::models::sync::SyncModEntry;
 use crate::services::database::DatabaseService;
 use crate::services::sync_protocol::manifest_diff::{ManifestDiff, ModUpdate};
-use crate::models::sync::SyncModEntry;
 
 /// Result of applying a diff to an instance.
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
@@ -61,16 +61,14 @@ fn apply_removals(
     };
 
     for entry in to_remove {
-        let found = existing_mods
-            .iter()
-            .find(|m| m.name == entry.mod_name);
+        let found = existing_mods.iter().find(|m| m.name == entry.mod_name);
 
         if let Some(mod_info) = found {
             match db.remove_mod_from_instance(&mod_info.id) {
                 Ok(()) => result.mods_removed.push(entry.mod_name.clone()),
-                Err(e) => result.errors.push(
-                    format!("Failed to remove mod '{}': {e}", entry.mod_name)
-                ),
+                Err(e) => result
+                    .errors
+                    .push(format!("Failed to remove mod '{}': {e}", entry.mod_name)),
             }
         }
     }
@@ -83,7 +81,10 @@ fn apply_additions(
     result: &mut ApplyResult,
 ) {
     for entry in to_add {
-        let source = entry.source.parse::<ModSource>().unwrap_or(ModSource::Local);
+        let source = entry
+            .source
+            .parse::<ModSource>()
+            .unwrap_or(ModSource::Local);
 
         let mod_info = ModInfo {
             id: uuid::Uuid::new_v4().to_string(),
@@ -102,9 +103,9 @@ fn apply_additions(
 
         match db.add_mod_to_instance(&mod_info) {
             Ok(()) => result.mods_added.push(entry.mod_name.clone()),
-            Err(e) => result.errors.push(
-                format!("Failed to add mod '{}': {e}", entry.mod_name)
-            ),
+            Err(e) => result
+                .errors
+                .push(format!("Failed to add mod '{}': {e}", entry.mod_name)),
         }
     }
 }
@@ -118,28 +119,32 @@ fn apply_updates(
     let existing_mods = match db.list_instance_mods(instance_id) {
         Ok(mods) => mods,
         Err(e) => {
-            result.errors.push(format!("Failed to list mods for update: {e}"));
+            result
+                .errors
+                .push(format!("Failed to list mods for update: {e}"));
             return;
         }
     };
 
     for update in to_update {
         // Remove old version
-        let found = existing_mods
-            .iter()
-            .find(|m| m.name == update.mod_name);
+        let found = existing_mods.iter().find(|m| m.name == update.mod_name);
 
         if let Some(old_mod) = found {
             if let Err(e) = db.remove_mod_from_instance(&old_mod.id) {
-                result.errors.push(
-                    format!("Failed to remove old version of '{}': {e}", update.mod_name)
-                );
+                result.errors.push(format!(
+                    "Failed to remove old version of '{}': {e}",
+                    update.mod_name
+                ));
                 continue;
             }
         }
 
         // Add new version
-        let source = update.source.parse::<ModSource>().unwrap_or(ModSource::Local);
+        let source = update
+            .source
+            .parse::<ModSource>()
+            .unwrap_or(ModSource::Local);
 
         let mod_info = ModInfo {
             id: uuid::Uuid::new_v4().to_string(),
@@ -158,9 +163,10 @@ fn apply_updates(
 
         match db.add_mod_to_instance(&mod_info) {
             Ok(()) => result.mods_updated.push(update.mod_name.clone()),
-            Err(e) => result.errors.push(
-                format!("Failed to add updated mod '{}': {e}", update.mod_name)
-            ),
+            Err(e) => result.errors.push(format!(
+                "Failed to add updated mod '{}': {e}",
+                update.mod_name
+            )),
         }
     }
 }

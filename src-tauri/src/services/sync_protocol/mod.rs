@@ -76,9 +76,10 @@ impl SyncProtocolService {
             status: PendingSyncStatus::AwaitingConfirmation,
         };
 
-        let mut guard = self.pending_syncs.lock().map_err(|e| {
-            AppError::Custom(format!("Sync state lock poisoned: {e}"))
-        })?;
+        let mut guard = self
+            .pending_syncs
+            .lock()
+            .map_err(|e| AppError::Custom(format!("Sync state lock poisoned: {e}")))?;
 
         guard.insert(session_id.clone(), pending);
 
@@ -87,22 +88,24 @@ impl SyncProtocolService {
 
     /// Get a pending sync by session ID.
     pub fn get_pending_sync(&self, session_id: &str) -> AppResult<Option<PendingSync>> {
-        let guard = self.pending_syncs.lock().map_err(|e| {
-            AppError::Custom(format!("Sync state lock poisoned: {e}"))
-        })?;
+        let guard = self
+            .pending_syncs
+            .lock()
+            .map_err(|e| AppError::Custom(format!("Sync state lock poisoned: {e}")))?;
 
         Ok(guard.get(session_id).cloned())
     }
 
     /// User confirms the sync — mark as syncing and return the diff to apply.
     pub fn confirm_sync(&self, session_id: &str) -> AppResult<ManifestDiff> {
-        let mut guard = self.pending_syncs.lock().map_err(|e| {
-            AppError::Custom(format!("Sync state lock poisoned: {e}"))
-        })?;
+        let mut guard = self
+            .pending_syncs
+            .lock()
+            .map_err(|e| AppError::Custom(format!("Sync state lock poisoned: {e}")))?;
 
-        let pending = guard.get_mut(session_id).ok_or_else(|| {
-            AppError::Custom(format!("No pending sync found: {session_id}"))
-        })?;
+        let pending = guard
+            .get_mut(session_id)
+            .ok_or_else(|| AppError::Custom(format!("No pending sync found: {session_id}")))?;
 
         if pending.status != PendingSyncStatus::AwaitingConfirmation {
             return Err(AppError::Custom(format!(
@@ -117,13 +120,14 @@ impl SyncProtocolService {
 
     /// User rejects the sync.
     pub fn reject_sync(&self, session_id: &str) -> AppResult<()> {
-        let mut guard = self.pending_syncs.lock().map_err(|e| {
-            AppError::Custom(format!("Sync state lock poisoned: {e}"))
-        })?;
+        let mut guard = self
+            .pending_syncs
+            .lock()
+            .map_err(|e| AppError::Custom(format!("Sync state lock poisoned: {e}")))?;
 
-        let pending = guard.get_mut(session_id).ok_or_else(|| {
-            AppError::Custom(format!("No pending sync found: {session_id}"))
-        })?;
+        let pending = guard
+            .get_mut(session_id)
+            .ok_or_else(|| AppError::Custom(format!("No pending sync found: {session_id}")))?;
 
         pending.status = PendingSyncStatus::Rejected;
         Ok(())
@@ -131,13 +135,14 @@ impl SyncProtocolService {
 
     /// Mark a sync as completed after applying the diff.
     pub fn complete_sync(&self, session_id: &str) -> AppResult<()> {
-        let mut guard = self.pending_syncs.lock().map_err(|e| {
-            AppError::Custom(format!("Sync state lock poisoned: {e}"))
-        })?;
+        let mut guard = self
+            .pending_syncs
+            .lock()
+            .map_err(|e| AppError::Custom(format!("Sync state lock poisoned: {e}")))?;
 
-        let pending = guard.get_mut(session_id).ok_or_else(|| {
-            AppError::Custom(format!("No pending sync found: {session_id}"))
-        })?;
+        let pending = guard
+            .get_mut(session_id)
+            .ok_or_else(|| AppError::Custom(format!("No pending sync found: {session_id}")))?;
 
         pending.status = PendingSyncStatus::Completed;
         Ok(())
@@ -145,9 +150,10 @@ impl SyncProtocolService {
 
     /// Clean up old completed/rejected syncs.
     pub fn cleanup_finished(&self) -> AppResult<usize> {
-        let mut guard = self.pending_syncs.lock().map_err(|e| {
-            AppError::Custom(format!("Sync state lock poisoned: {e}"))
-        })?;
+        let mut guard = self
+            .pending_syncs
+            .lock()
+            .map_err(|e| AppError::Custom(format!("Sync state lock poisoned: {e}")))?;
 
         let before = guard.len();
         guard.retain(|_, sync| {

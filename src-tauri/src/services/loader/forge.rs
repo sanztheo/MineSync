@@ -135,10 +135,7 @@ impl ForgeInstaller {
         let installer_bytes = response.bytes().await?;
 
         // Save installer
-        let loader_dir = base_dir
-            .join("loaders")
-            .join("forge")
-            .join(&forge_id);
+        let loader_dir = base_dir.join("loaders").join("forge").join(&forge_id);
         tokio::fs::create_dir_all(&loader_dir).await?;
 
         let installer_path = loader_dir.join(format!("forge-{forge_id}-installer.jar"));
@@ -150,12 +147,11 @@ impl ForgeInstaller {
         let version_json_path = loader_dir.join("version.json");
         tokio::fs::write(&version_json_path, &version_json).await?;
 
-        let profile: ForgeVersionJson =
-            serde_json::from_str(&version_json).map_err(|e| {
-                AppError::Custom(format!(
-                    "Failed to parse Forge version.json for {forge_id}: {e}"
-                ))
-            })?;
+        let profile: ForgeVersionJson = serde_json::from_str(&version_json).map_err(|e| {
+            AppError::Custom(format!(
+                "Failed to parse Forge version.json for {forge_id}: {e}"
+            ))
+        })?;
 
         Ok(forge_profile_to_loader_profile(profile))
     }
@@ -175,15 +171,12 @@ impl ForgeInstaller {
 
 fn extract_version_json_from_jar(jar_bytes: &[u8]) -> AppResult<String> {
     let cursor = std::io::Cursor::new(jar_bytes);
-    let mut archive = zip::ZipArchive::new(cursor).map_err(|e| {
-        AppError::Custom(format!("Failed to open Forge installer as ZIP: {e}"))
-    })?;
+    let mut archive = zip::ZipArchive::new(cursor)
+        .map_err(|e| AppError::Custom(format!("Failed to open Forge installer as ZIP: {e}")))?;
 
-    let mut file = archive.by_name("version.json").map_err(|e| {
-        AppError::Custom(format!(
-            "version.json not found in Forge installer: {e}"
-        ))
-    })?;
+    let mut file = archive
+        .by_name("version.json")
+        .map_err(|e| AppError::Custom(format!("version.json not found in Forge installer: {e}")))?;
 
     let mut contents = String::new();
     file.read_to_string(&mut contents)?;
@@ -220,12 +213,10 @@ fn forge_profile_to_loader_profile(profile: ForgeVersionJson) -> LoaderProfile {
         })
         .collect();
 
-    let game_arguments = extract_string_args(
-        profile.arguments.as_ref().and_then(|a| a.game.as_ref()),
-    );
-    let jvm_arguments = extract_string_args(
-        profile.arguments.as_ref().and_then(|a| a.jvm.as_ref()),
-    );
+    let game_arguments =
+        extract_string_args(profile.arguments.as_ref().and_then(|a| a.game.as_ref()));
+    let jvm_arguments =
+        extract_string_args(profile.arguments.as_ref().and_then(|a| a.jvm.as_ref()));
 
     LoaderProfile {
         main_class: profile.main_class,

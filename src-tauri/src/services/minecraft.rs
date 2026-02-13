@@ -7,8 +7,7 @@ use serde::{Deserialize, Serialize};
 use crate::errors::{AppError, AppResult};
 use crate::services::download::DownloadTask;
 
-const MANIFEST_URL: &str =
-    "https://piston-meta.mojang.com/mc/game/version_manifest_v2.json";
+const MANIFEST_URL: &str = "https://piston-meta.mojang.com/mc/game/version_manifest_v2.json";
 const ASSETS_BASE_URL: &str = "https://resources.download.minecraft.net";
 
 // --- Mojang API response types ---
@@ -174,22 +173,14 @@ impl MinecraftService {
         // Save raw JSON to versions/{id}/{id}.json
         let version_dir = self.base_dir.join("versions").join(version_id);
         tokio::fs::create_dir_all(&version_dir).await?;
-        tokio::fs::write(
-            version_dir.join(format!("{version_id}.json")),
-            &body,
-        )
-        .await?;
+        tokio::fs::write(version_dir.join(format!("{version_id}.json")), &body).await?;
 
-        let detail: VersionDetail =
-            serde_json::from_str(&body).map_err(AppError::Serialization)?;
+        let detail: VersionDetail = serde_json::from_str(&body).map_err(AppError::Serialization)?;
         Ok(detail)
     }
 
     /// Build the complete list of files to download for a version
-    pub async fn resolve_downloads(
-        &self,
-        detail: &VersionDetail,
-    ) -> AppResult<Vec<DownloadTask>> {
+    pub async fn resolve_downloads(&self, detail: &VersionDetail) -> AppResult<Vec<DownloadTask>> {
         let mut tasks = Vec::new();
 
         // Client JAR
@@ -224,9 +215,7 @@ impl MinecraftService {
             .iter()
             .find(|v| v.id == version_id)
             .map(|v| v.url.clone())
-            .ok_or_else(|| {
-                AppError::Custom(format!("Version not found: {version_id}"))
-            })
+            .ok_or_else(|| AppError::Custom(format!("Version not found: {version_id}")))
     }
 
     fn resolve_libraries(&self, libraries: &[Library], tasks: &mut Vec<DownloadTask>) {
@@ -303,14 +292,9 @@ impl MinecraftService {
 
         let index_dir = assets_dir.join("indexes");
         tokio::fs::create_dir_all(&index_dir).await?;
-        tokio::fs::write(
-            index_dir.join(format!("{}.json", asset_info.id)),
-            &body,
-        )
-        .await?;
+        tokio::fs::write(index_dir.join(format!("{}.json", asset_info.id)), &body).await?;
 
-        let index: AssetIndex =
-            serde_json::from_str(&body).map_err(AppError::Serialization)?;
+        let index: AssetIndex = serde_json::from_str(&body).map_err(AppError::Serialization)?;
 
         let objects_dir = assets_dir.join("objects");
         for obj in index.objects.values() {
@@ -326,9 +310,7 @@ impl MinecraftService {
         Ok(())
     }
 
-    fn lock_cache(
-        &self,
-    ) -> AppResult<std::sync::MutexGuard<'_, Option<Vec<VersionEntry>>>> {
+    fn lock_cache(&self) -> AppResult<std::sync::MutexGuard<'_, Option<Vec<VersionEntry>>>> {
         self.manifest_cache
             .lock()
             .map_err(|e| AppError::Custom(format!("Manifest cache lock poisoned: {e}")))

@@ -3,9 +3,7 @@ use crate::models::instance::{MinecraftInstance, ModLoader};
 use crate::services::database::DatabaseService;
 
 #[tauri::command]
-pub fn list_instances(
-    db: tauri::State<'_, DatabaseService>,
-) -> AppResult<Vec<MinecraftInstance>> {
+pub fn list_instances(db: tauri::State<'_, DatabaseService>) -> AppResult<Vec<MinecraftInstance>> {
     db.list_instances()
 }
 
@@ -53,9 +51,6 @@ pub fn create_instance(
 }
 
 #[tauri::command]
-pub fn delete_instance(
-    db: tauri::State<'_, DatabaseService>,
-    id: String,
-) -> AppResult<()> {
+pub fn delete_instance(db: tauri::State<'_, DatabaseService>, id: String) -> AppResult<()> {
     db.delete_instance(&id)
 }

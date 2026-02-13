@@ -64,12 +64,8 @@ impl LoaderService {
         loader_version: &str,
     ) -> AppResult<LoaderProfile> {
         match loader {
-            ModLoader::Fabric => {
-                self.fabric.install(game_version, loader_version).await
-            }
-            ModLoader::Quilt => {
-                self.quilt.install(game_version, loader_version).await
-            }
+            ModLoader::Fabric => self.fabric.install(game_version, loader_version).await,
+            ModLoader::Quilt => self.quilt.install(game_version, loader_version).await,
             ModLoader::Forge => {
                 self.forge
                     .install(game_version, loader_version, &self.base_dir)

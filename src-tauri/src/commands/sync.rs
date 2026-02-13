@@ -34,9 +34,8 @@ pub fn join_sync_session(
     db: tauri::State<'_, DatabaseService>,
     sync_code: String,
 ) -> AppResult<SyncSession> {
-    db.get_sync_session_by_code(&sync_code)?.ok_or_else(|| {
-        AppError::Custom(format!("No session found with code: {sync_code}"))
-    })
+    db.get_sync_session_by_code(&sync_code)?
+        .ok_or_else(|| AppError::Custom(format!("No session found with code: {sync_code}")))
 }
 
 /// Generate a 6-character uppercase alphanumeric share code

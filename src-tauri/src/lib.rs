@@ -3,7 +3,9 @@ mod errors;
 mod models;
 mod services;
 
-use commands::{account, auth, instance, launch, loader, minecraft, mods, p2p, sync, sync_protocol};
+use commands::{
+    account, auth, instance, launch, loader, minecraft, mods, p2p, sync, sync_protocol,
+};
 use services::auth::AuthService;
 use services::database::DatabaseService;
 use services::download::DownloadService;
@@ -20,11 +22,12 @@ pub fn run() {
     let _ = dotenvy::dotenv();
 
     tauri::Builder::default()
+        .plugin(tauri_plugin_opener::init())
         .setup(|app| {
             if cfg!(debug_assertions) {
                 app.handle().plugin(
                     tauri_plugin_log::Builder::default()
-                        .level(log::LevelFilter::Info)
+                        .level(log::LevelFilter::Debug)
                         .build(),
                 )?;
             }

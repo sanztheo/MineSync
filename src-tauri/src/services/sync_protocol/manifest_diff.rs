@@ -94,10 +94,7 @@ pub fn compute_diff(local: &SyncManifest, remote: &SyncManifest) -> ManifestDiff
     }
 }
 
-fn detect_version_mismatch(
-    local: &SyncManifest,
-    remote: &SyncManifest,
-) -> Option<VersionMismatch> {
+fn detect_version_mismatch(local: &SyncManifest, remote: &SyncManifest) -> Option<VersionMismatch> {
     let mc_differs = local.minecraft_version != remote.minecraft_version;
     let loader_differs = local.loader_type != remote.loader_type;
 
@@ -287,7 +284,10 @@ mod tests {
         let diff = compute_diff(&local, &remote);
 
         assert!(diff.version_mismatch.is_some());
-        let mismatch = diff.version_mismatch.as_ref().expect("should have mismatch");
+        let mismatch = diff
+            .version_mismatch
+            .as_ref()
+            .expect("should have mismatch");
         assert_eq!(mismatch.local_mc_version, "1.20.4");
         assert_eq!(mismatch.remote_mc_version, "1.21.1");
     }

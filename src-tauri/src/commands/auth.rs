@@ -7,9 +7,7 @@ use crate::services::auth::{AuthService, PollResult};
 use crate::services::database::DatabaseService;
 
 #[tauri::command]
-pub async fn start_auth(
-    auth: tauri::State<'_, AuthService>,
-) -> AppResult<DeviceCodeInfo> {
+pub async fn start_auth(auth: tauri::State<'_, AuthService>) -> AppResult<DeviceCodeInfo> {
     auth.start_device_code_flow().await
 }
 
@@ -48,9 +46,7 @@ pub async fn poll_auth(
 }
 
 #[tauri::command]
-pub fn get_profile(
-    db: tauri::State<'_, DatabaseService>,
-) -> AppResult<Option<MinecraftProfile>> {
+pub fn get_profile(db: tauri::State<'_, DatabaseService>) -> AppResult<Option<MinecraftProfile>> {
     let account = db.get_active_account()?;
     Ok(account.map(|a| MinecraftProfile {
         username: a.username,
@@ -68,9 +64,9 @@ pub async fn refresh_auth(
     auth: tauri::State<'_, AuthService>,
     db: tauri::State<'_, DatabaseService>,
 ) -> AppResult<MinecraftProfile> {
-    let account = db.get_active_account()?.ok_or_else(|| {
-        AppError::Custom("No active account to refresh".to_string())
-    })?;
+    let account = db
+        .get_active_account()?
+        .ok_or_else(|| AppError::Custom("No active account to refresh".to_string()))?;
 
     let refresh_token = account.refresh_token.ok_or_else(|| {
         AppError::Custom("No refresh token stored for active account".to_string())

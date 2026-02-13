@@ -24,9 +24,7 @@ pub async fn launch_instance(
     // Fetch account (need auth token for Minecraft)
     let account = db
         .get_active_account()?
-        .ok_or_else(|| {
-            AppError::Custom("No active account. Please log in first.".to_string())
-        })?;
+        .ok_or_else(|| AppError::Custom("No active account. Please log in first.".to_string()))?;
 
     // Fetch version detail (needs cached manifest)
     let version_detail = mc_svc
@@ -70,15 +68,11 @@ pub async fn launch_instance(
 }
 
 #[tauri::command]
-pub fn get_game_status(
-    launch_svc: tauri::State<'_, LaunchService>,
-) -> AppResult<GameStatus> {
+pub fn get_game_status(launch_svc: tauri::State<'_, LaunchService>) -> AppResult<GameStatus> {
     launch_svc.status()
 }
 
 #[tauri::command]
-pub fn kill_game(
-    launch_svc: tauri::State<'_, LaunchService>,
-) -> AppResult<()> {
+pub fn kill_game(launch_svc: tauri::State<'_, LaunchService>) -> AppResult<()> {
     launch_svc.kill_game()
 }

@@ -89,8 +89,11 @@ impl P2pService {
     pub async fn share_modpack(&self, manifest: SyncManifest) -> AppResult<String> {
         let code = generate_share_code(&self.local_peer_id);
 
-        self.send_command(P2pCommand::ShareModpack { manifest, code: code.clone() })
-            .await?;
+        self.send_command(P2pCommand::ShareModpack {
+            manifest,
+            code: code.clone(),
+        })
+        .await?;
 
         Ok(code)
     }
@@ -100,8 +103,7 @@ impl P2pService {
         let peer_id = share_code::decode_share_code(code)
             .map_err(|e| AppError::P2p(format!("Invalid share code: {e}")))?;
 
-        self.send_command(P2pCommand::ConnectToPeer(peer_id))
-            .await
+        self.send_command(P2pCommand::ConnectToPeer(peer_id)).await
     }
 
     /// Get current P2P status for the frontend.

@@ -149,12 +149,11 @@ impl NeoForgeInstaller {
         tokio::fs::write(&version_json_path, &version_json).await?;
 
         // Parse and convert
-        let profile: NeoForgeVersionJson =
-            serde_json::from_str(&version_json).map_err(|e| {
-                AppError::Custom(format!(
-                    "Failed to parse NeoForge version.json for {loader_version}: {e}"
-                ))
-            })?;
+        let profile: NeoForgeVersionJson = serde_json::from_str(&version_json).map_err(|e| {
+            AppError::Custom(format!(
+                "Failed to parse NeoForge version.json for {loader_version}: {e}"
+            ))
+        })?;
 
         Ok(neoforge_profile_to_loader_profile(
             profile,
@@ -195,14 +194,11 @@ fn mc_to_neoforge_prefix(game_version: &str) -> String {
 /// Extract `version.json` from a NeoForge installer JAR (ZIP archive).
 fn extract_version_json_from_jar(jar_bytes: &[u8]) -> AppResult<String> {
     let cursor = std::io::Cursor::new(jar_bytes);
-    let mut archive = zip::ZipArchive::new(cursor).map_err(|e| {
-        AppError::Custom(format!("Failed to open NeoForge installer as ZIP: {e}"))
-    })?;
+    let mut archive = zip::ZipArchive::new(cursor)
+        .map_err(|e| AppError::Custom(format!("Failed to open NeoForge installer as ZIP: {e}")))?;
 
     let mut file = archive.by_name("version.json").map_err(|e| {
-        AppError::Custom(format!(
-            "version.json not found in NeoForge installer: {e}"
-        ))
+        AppError::Custom(format!("version.json not found in NeoForge installer: {e}"))
     })?;
 
     let mut contents = String::new();
@@ -230,9 +226,7 @@ fn neoforge_profile_to_loader_profile(
                 },
                 None => {
                     let path = maven_name_to_path(&lib.name);
-                    let url = format!(
-                        "{MAVEN_URL}/releases/{path}"
-                    );
+                    let url = format!("{MAVEN_URL}/releases/{path}");
                     (url, path, None, 0)
                 }
             };
@@ -247,12 +241,10 @@ fn neoforge_profile_to_loader_profile(
         })
         .collect();
 
-    let game_arguments = extract_string_args(
-        profile.arguments.as_ref().and_then(|a| a.game.as_ref()),
-    );
-    let jvm_arguments = extract_string_args(
-        profile.arguments.as_ref().and_then(|a| a.jvm.as_ref()),
-    );
+    let game_arguments =
+        extract_string_args(profile.arguments.as_ref().and_then(|a| a.game.as_ref()));
+    let jvm_arguments =
+        extract_string_args(profile.arguments.as_ref().and_then(|a| a.jvm.as_ref()));
 
     LoaderProfile {
         main_class: profile.main_class,

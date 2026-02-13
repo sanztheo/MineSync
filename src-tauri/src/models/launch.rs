@@ -6,8 +6,13 @@ use serde::{Deserialize, Serialize};
 pub enum GameStatus {
     Idle,
     Preparing,
-    Running { pid: u32 },
-    Crashed { exit_code: Option<i32>, message: String },
+    Running {
+        pid: u32,
+    },
+    Crashed {
+        exit_code: Option<i32>,
+        message: String,
+    },
 }
 
 /// Info returned when a game launch succeeds.

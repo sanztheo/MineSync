@@ -35,9 +35,7 @@ pub async fn start_p2p(
 }
 
 #[tauri::command]
-pub async fn stop_p2p(
-    p2p_state: tauri::State<'_, P2pState>,
-) -> AppResult<()> {
+pub async fn stop_p2p(p2p_state: tauri::State<'_, P2pState>) -> AppResult<()> {
     let mut guard = p2p_state.lock().await;
 
     if let Some(ref service) = *guard {
@@ -49,9 +47,7 @@ pub async fn stop_p2p(
 }
 
 #[tauri::command]
-pub async fn get_p2p_status(
-    p2p_state: tauri::State<'_, P2pState>,
-) -> AppResult<P2pStatus> {
+pub async fn get_p2p_status(p2p_state: tauri::State<'_, P2pState>) -> AppResult<P2pStatus> {
     let guard = p2p_state.lock().await;
 
     match *guard {
@@ -112,10 +108,7 @@ pub async fn share_modpack(
 }
 
 #[tauri::command]
-pub async fn join_via_code(
-    p2p_state: tauri::State<'_, P2pState>,
-    code: String,
-) -> AppResult<()> {
+pub async fn join_via_code(p2p_state: tauri::State<'_, P2pState>, code: String) -> AppResult<()> {
     let guard = p2p_state.lock().await;
 
     let service = guard

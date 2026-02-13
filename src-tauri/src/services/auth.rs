@@ -10,14 +10,11 @@ use crate::models::auth::DeviceCodeInfo;
 
 const MS_DEVICE_CODE_URL: &str =
     "https://login.microsoftonline.com/consumers/oauth2/v2.0/devicecode";
-const MS_TOKEN_URL: &str =
-    "https://login.microsoftonline.com/consumers/oauth2/v2.0/token";
+const MS_TOKEN_URL: &str = "https://login.microsoftonline.com/consumers/oauth2/v2.0/token";
 const XBL_AUTH_URL: &str = "https://user.auth.xboxlive.com/user/authenticate";
 const XSTS_AUTH_URL: &str = "https://xsts.auth.xboxlive.com/xsts/authorize";
-const MC_AUTH_URL: &str =
-    "https://api.minecraftservices.com/authentication/loginWithXbox";
-const MC_PROFILE_URL: &str =
-    "https://api.minecraftservices.com/minecraft/profile";
+const MC_AUTH_URL: &str = "https://api.minecraftservices.com/authentication/login_with_xbox";
+const MC_PROFILE_URL: &str = "https://api.minecraftservices.com/minecraft/profile";
 
 const XBOX_SCOPE: &str = "XboxLive.signin offline_access";
 
@@ -121,8 +118,8 @@ pub struct AuthService {
 
 impl AuthService {
     pub fn new() -> Self {
-        let client_id = std::env::var("AZURE_CLIENT_ID")
-            .unwrap_or_else(|_| FALLBACK_CLIENT_ID.to_string());
+        let client_id =
+            std::env::var("AZURE_CLIENT_ID").unwrap_or_else(|_| FALLBACK_CLIENT_ID.to_string());
 
         Self {
             client: reqwest::Client::new(),
@@ -189,10 +186,7 @@ impl AuthService {
             .client
             .post(MS_TOKEN_URL)
             .form(&[
-                (
-                    "grant_type",
-                    "urn:ietf:params:oauth:grant-type:device_code",
-                ),
+                ("grant_type", "urn:ietf:params:oauth:grant-type:device_code"),
                 ("client_id", &client_id),
                 ("device_code", &device_code),
             ])
@@ -212,8 +206,7 @@ impl AuthService {
         match self.complete_auth_chain(&ms_token.access_token).await {
             Ok((mc_auth, profile)) => {
                 self.clear_pending()?;
-                let expires_at =
-                    Utc::now() + Duration::seconds(mc_auth.expires_in as i64);
+                let expires_at = Utc::now() + Duration::seconds(mc_auth.expires_in as i64);
                 Ok(PollResult::Success(FullAuthResult {
                     mc_access_token: mc_auth.access_token,
                     ms_refresh_token: ms_token.refresh_token,
@@ -268,6 +261,7 @@ impl AuthService {
         &self,
         ms_access_token: &str,
     ) -> AppResult<(McAuthResponse, McProfileResponse)> {
+        log::info!("[AUTH] Step 1/4: Xbox Live authentication...");
         let xbl = self.authenticate_xbox_live(ms_access_token).await?;
 
         let uhs = xbl
@@ -277,10 +271,25 @@ impl AuthService {
             .ok_or_else(|| AppError::Custom("No Xbox user hash in response".to_string()))?
             .uhs
             .clone();
+        log::info!("[AUTH] Step 1/4 OK — UHS: {uhs}");
 
+        log::info!("[AUTH] Step 2/4: XSTS authorization...");
         let xsts = self.authenticate_xsts(&xbl.token).await?;
-        let mc_auth = self.authenticate_minecraft(&uhs, &xsts.token).await?;
+        let xsts_uhs = xsts
+            .display_claims
+            .xui
+            .first()
+            .map(|x| x.uhs.clone())
+            .unwrap_or_else(|| uhs.clone());
+        log::info!("[AUTH] Step 2/4 OK — XSTS token length: {}, UHS: {xsts_uhs}", xsts.token.len());
+
+        log::info!("[AUTH] Step 3/4: Minecraft login...");
+        let mc_auth = self.authenticate_minecraft(&xsts_uhs, &xsts.token).await?;
+        log::info!("[AUTH] Step 3/4 OK");
+
+        log::info!("[AUTH] Step 4/4: Fetching Minecraft profile...");
         let profile = self.get_minecraft_profile(&mc_auth.access_token).await?;
+        log::info!("[AUTH] Step 4/4 OK — Player: {}", profile.name);
 
         Ok((mc_auth, profile))
     }
@@ -300,9 +309,11 @@ impl AuthService {
         let response = self.client.post(XBL_AUTH_URL).json(&body).send().await?;
 
         if !response.status().is_success() {
-            return Err(AppError::Custom(
-                "Xbox Live authentication failed".to_string(),
-            ));
+            let status = response.status();
+            let body = response.text().await.unwrap_or_default();
+            return Err(AppError::Custom(format!(
+                "Xbox Live authentication failed (HTTP {status}): {body}"
+            )));
         }
 
         Ok(response.json().await?)
@@ -335,16 +346,26 @@ impl AuthService {
         uhs: &str,
         xsts_token: &str,
     ) -> AppResult<McAuthResponse> {
+        let identity_token = format!("XBL3.0 x={uhs};{xsts_token}");
+        log::debug!("[AUTH] Identity token (first 80 chars): {}", &identity_token[..identity_token.len().min(80)]);
+
         let body = serde_json::json!({
-            "identityToken": format!("XBL3.0 x={uhs};{xsts_token}")
+            "identityToken": identity_token
         });
 
-        let response = self.client.post(MC_AUTH_URL).json(&body).send().await?;
+        let response = self
+            .client
+            .post(MC_AUTH_URL)
+            .json(&body)
+            .send()
+            .await?;
 
         if !response.status().is_success() {
-            return Err(AppError::Custom(
-                "Minecraft authentication failed".to_string(),
-            ));
+            let status = response.status();
+            let body = response.text().await.unwrap_or_default();
+            return Err(AppError::Custom(format!(
+                "Minecraft authentication failed (HTTP {status}): {body}"
+            )));
         }
 
         Ok(response.json().await?)
@@ -366,9 +387,11 @@ impl AuthService {
         }
 
         if !response.status().is_success() {
-            return Err(AppError::Custom(
-                "Failed to fetch Minecraft profile".to_string(),
-            ));
+            let status = response.status();
+            let body = response.text().await.unwrap_or_default();
+            return Err(AppError::Custom(format!(
+                "Failed to fetch Minecraft profile (HTTP {status}): {body}"
+            )));
         }
 
         Ok(response.json().await?)
@@ -376,9 +399,7 @@ impl AuthService {
 
     // --- Private: helpers ---
 
-    fn lock_pending(
-        &self,
-    ) -> AppResult<std::sync::MutexGuard<'_, Option<PendingAuth>>> {
+    fn lock_pending(&self) -> AppResult<std::sync::MutexGuard<'_, Option<PendingAuth>>> {
         self.pending_auth
             .lock()
             .map_err(|e| AppError::Custom(format!("Auth lock poisoned: {e}")))
@@ -391,8 +412,8 @@ impl AuthService {
     }
 
     fn handle_token_error(&self, body: &str) -> AppResult<PollResult> {
-        let error: MsTokenErrorResponse = serde_json::from_str(body)
-            .unwrap_or(MsTokenErrorResponse {
+        let error: MsTokenErrorResponse =
+            serde_json::from_str(body).unwrap_or(MsTokenErrorResponse {
                 error: "unknown".to_string(),
                 error_description: Some(body.to_string()),
             });
@@ -404,9 +425,7 @@ impl AuthService {
                 Ok(PollResult::Expired)
             }
             _ => Ok(PollResult::Error(
-                error
-                    .error_description
-                    .unwrap_or(error.error),
+                error.error_description.unwrap_or(error.error),
             )),
         }
     }
@@ -417,8 +436,9 @@ impl AuthService {
             .unwrap_or(0);
 
         match xerr {
-            2148916233 => "This Microsoft account has no Xbox account. Please create one first."
-                .to_string(),
+            2148916233 => {
+                "This Microsoft account has no Xbox account. Please create one first.".to_string()
+            }
             2148916235 => "Xbox Live is not available in your region.".to_string(),
             2148916238 => {
                 "This is a child account. A parent must add it to a Microsoft family.".to_string()

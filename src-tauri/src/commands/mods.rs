@@ -1,8 +1,6 @@
 use crate::errors::AppResult;
 use crate::models::mod_info::ModSource;
-use crate::models::mod_platform::{
-    ModDetails, ModVersionInfo, SearchFilters, SearchResponse,
-};
+use crate::models::mod_platform::{ModDetails, ModVersionInfo, SearchFilters, SearchResponse};
 use crate::services::mod_platform::UnifiedModClient;
 
 #[tauri::command]
