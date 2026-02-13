@@ -1,0 +1,12 @@
+# Documentation & meta files - never trigger rebuilds
+REVIEW.md
+AGENTS.md
+CLAUDE.md
+README.md
+docs/
+wiki/
+
+# Other non-build files
+.github/
+.cursor/
+*.md

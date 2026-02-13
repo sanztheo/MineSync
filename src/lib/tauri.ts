@@ -19,6 +19,8 @@ import type {
   ModSource,
   ModVersionInfo,
   InstallProgress,
+  GameStatus,
+  LaunchInfo,
 } from "./types";
 
 export async function listInstances(): Promise<MinecraftInstance[]> {
@@ -109,6 +111,23 @@ export async function downloadVersion(versionId: string): Promise<void> {
 
 export async function getDownloadProgress(): Promise<DownloadProgress> {
   return invoke<DownloadProgress>("get_download_progress");
+}
+
+// Launch commands — mirrors src-tauri/src/commands/launch.rs
+
+export async function launchInstance(instanceId: string): Promise<LaunchInfo> {
+  return invoke<LaunchInfo>("launch_instance", {
+    instanceId,
+    javaPath: "java",
+  });
+}
+
+export async function getGameStatus(): Promise<GameStatus> {
+  return invoke<GameStatus>("get_game_status");
+}
+
+export async function killGame(): Promise<void> {
+  return invoke<void>("kill_game");
 }
 
 // P2P commands — mirrors src-tauri/src/commands/p2p.rs

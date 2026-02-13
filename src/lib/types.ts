@@ -49,6 +49,20 @@ export interface DownloadProgress {
   state: DownloadState;
 }
 
+// Launch — mirrors models/launch.rs
+
+export type GameStatus =
+  | "idle"
+  | "preparing"
+  | { running: { pid: number } }
+  | { crashed: { exit_code: number | null; message: string } };
+
+export interface LaunchInfo {
+  instance_id: string;
+  pid: number;
+  minecraft_version: string;
+}
+
 export interface ModInfo {
   id: string;
   instance_id: string;

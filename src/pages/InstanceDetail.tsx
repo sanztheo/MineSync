@@ -21,16 +21,28 @@ import {
   Loader2,
   AlertCircle,
   Plus,
+  Square,
 } from "lucide-react";
 import { useTauriCommand } from "@/hooks/use-tauri";
 import { useInstallProgress } from "@/hooks/use-install-progress";
+import {
+  getCrashInfo,
+  getRunningPid,
+  isGameCrashedStatus,
+  useGameStatus,
+} from "@/hooks/use-game-status";
 import {
   getInstance,
   deleteInstance,
   listInstanceMods,
   removeMod,
 } from "@/lib/tauri";
-import type { ModLoader, ModInfo, InstallStage } from "@/lib/types";
+import type {
+  DownloadProgress,
+  ModLoader,
+  ModInfo,
+  InstallStage,
+} from "@/lib/types";
 
 // --- Constants ---
 
@@ -84,6 +96,11 @@ function stageLabel(stage: InstallStage): string {
   }
 }
 
+function getDownloadPercent(progress: DownloadProgress): number {
+  if (progress.total_bytes <= 0) return 0;
+  return Math.min(100, (progress.downloaded_bytes / progress.total_bytes) * 100);
+}
+
 // --- Sub-components ---
 
 function TabBar({
@@ -114,7 +131,13 @@ function TabBar({
   );
 }
 
-function ModsTab({ instanceId }: { instanceId: string }): ReactNode {
+function ModsTab({
+  instanceId,
+  actionsDisabled,
+}: {
+  instanceId: string;
+  actionsDisabled: boolean;
+}): ReactNode {
   const [mods, setMods] = useState<ModInfo[]>([]);
   const [loading, setLoading] = useState(true);
   const [removing, setRemoving] = useState<string | undefined>(undefined);
@@ -157,11 +180,17 @@ function ModsTab({ instanceId }: { instanceId: string }): ReactNode {
         <h3 className="text-sm font-medium text-zinc-300">
           Installed Mods{mods.length > 0 ? ` (${String(mods.length)})` : ""}
         </h3>
-        <Link to="/mods">
-          <Button size="sm" variant="secondary" icon={<Plus size={12} />}>
+        {actionsDisabled ? (
+          <Button size="sm" variant="secondary" icon={<Plus size={12} />} disabled>
             Add Mods
           </Button>
-        </Link>
+        ) : (
+          <Link to="/mods">
+            <Button size="sm" variant="secondary" icon={<Plus size={12} />}>
+              Add Mods
+            </Button>
+          </Link>
+        )}
       </div>
 
       {loading && (
@@ -198,7 +227,7 @@ function ModsTab({ instanceId }: { instanceId: string }): ReactNode {
               <Button
                 size="sm"
                 variant="ghost"
-                disabled={removing === mod.id}
+                disabled={actionsDisabled || removing === mod.id}
                 icon={
                   removing === mod.id ? (
                     <Loader2 size={12} className="animate-spin" />
@@ -278,6 +307,22 @@ export function InstanceDetail(): ReactNode {
 
   const { progress: installProgress } = useInstallProgress();
   const isInstalling = installProgress?.instance_id === id;
+  const {
+    status: gameStatus,
+    launch,
+    kill,
+    isRunning,
+    isPreparing,
+    launchError,
+    downloadProgress,
+    isDownloadingBeforeLaunch,
+    activeInstanceId,
+  } = useGameStatus();
+  const isLaunchingThisInstance =
+    isDownloadingBeforeLaunch && activeInstanceId === id;
+  const runningPid = getRunningPid(gameStatus);
+  const crashInfo = getCrashInfo(gameStatus);
+  const modsActionsDisabled = isRunning || isPreparing;
 
   const fetchInstance = useCallback(() => getInstance(id ?? ""), [id]);
   const {
@@ -306,6 +351,11 @@ export function InstanceDetail(): ReactNode {
       setDeleting(false);
     }
   }, [id, navigate]);
+
+  const handleLaunch = useCallback(async (): Promise<void> => {
+    if (id === undefined) return;
+    await launch(id);
+  }, [id, launch]);
 
   // Loading state
   if (loading) {
@@ -390,11 +440,71 @@ export function InstanceDetail(): ReactNode {
             </div>
           </div>
         ) : (
-          <div className="flex items-center gap-2">
-            <Button icon={<Play size={14} />}>Launch</Button>
-            <Button variant="secondary" icon={<RefreshCw size={14} />}>
-              Sync
-            </Button>
+          <div className="flex flex-col items-end gap-2">
+            {isPreparing && (
+              <div className="flex items-center gap-2 text-xs text-zinc-400">
+                <Loader2 size={12} className="animate-spin text-accent" />
+                <span>Preparing...</span>
+              </div>
+            )}
+
+            {isRunning && runningPid !== undefined && (
+              <Badge variant="success">Running (PID {String(runningPid)})</Badge>
+            )}
+
+            {isGameCrashedStatus(gameStatus) && crashInfo !== undefined && (
+              <Badge variant="danger">
+                Crashed
+                {crashInfo.exitCode !== null
+                  ? ` (code ${String(crashInfo.exitCode)})`
+                  : ""}
+              </Badge>
+            )}
+
+            {isLaunchingThisInstance && downloadProgress !== undefined && (
+              <div className="flex w-56 flex-col items-end gap-1">
+                <span className="text-xs text-zinc-400">
+                  Downloading Minecraft files before launch...
+                </span>
+                <div className="h-1.5 w-full overflow-hidden rounded-full bg-surface-600">
+                  <div
+                    className="h-full rounded-full bg-accent transition-all duration-300"
+                    style={{ width: `${String(getDownloadPercent(downloadProgress))}%` }}
+                  />
+                </div>
+                <span className="text-[10px] text-zinc-600">
+                  {getDownloadPercent(downloadProgress).toFixed(0)}%
+                </span>
+              </div>
+            )}
+
+            <div className="flex items-center gap-2">
+              <Button
+                icon={<Play size={14} />}
+                disabled={isPreparing || isRunning || isDownloadingBeforeLaunch}
+                onClick={handleLaunch}
+              >
+                Launch
+              </Button>
+              {isRunning && (
+                <Button
+                  variant="danger"
+                  icon={<Square size={14} />}
+                  onClick={() => {
+                    void kill();
+                  }}
+                >
+                  Kill
+                </Button>
+              )}
+              <Button
+                variant="secondary"
+                icon={<RefreshCw size={14} />}
+                disabled={modsActionsDisabled}
+              >
+                Sync
+              </Button>
+            </div>
           </div>
         )}
       </div>
@@ -404,11 +514,27 @@ export function InstanceDetail(): ReactNode {
         <p className="text-sm text-zinc-500">{instance.description}</p>
       )}
 
+      {launchError !== undefined && (
+        <div className="flex items-center gap-2 rounded-lg bg-red-900/20 px-3 py-2">
+          <AlertCircle size={14} className="text-red-400" />
+          <span className="text-xs text-red-300">{launchError}</span>
+        </div>
+      )}
+
+      {isGameCrashedStatus(gameStatus) && crashInfo !== undefined && (
+        <div className="flex items-center gap-2 rounded-lg bg-red-900/20 px-3 py-2">
+          <AlertCircle size={14} className="text-red-400" />
+          <span className="text-xs text-red-300">{crashInfo.message}</span>
+        </div>
+      )}
+
       {/* Tabs */}
       <TabBar active={activeTab} onChange={setActiveTab} />
 
       {/* Tab content */}
-      {activeTab === "mods" && <ModsTab instanceId={instance.id} />}
+      {activeTab === "mods" && (
+        <ModsTab instanceId={instance.id} actionsDisabled={modsActionsDisabled} />
+      )}
       {activeTab === "files" && (
         <FilesTab instancePath={instance.instance_path} />
       )}

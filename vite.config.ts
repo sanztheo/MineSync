@@ -4,7 +4,7 @@ import tailwindcss from "@tailwindcss/vite";
 import path from "path";
 
 // https://vite.dev/config/
- 
+
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   resolve: {
@@ -18,7 +18,14 @@ export default defineConfig({
     port: 5173,
     strictPort: true,
     watch: {
-      ignored: ["**/src-tauri/**"],
+      ignored: [
+        "**/src-tauri/**",
+        "**/docs/**",
+        "**/wiki/**",
+        "**/REVIEW.md",
+        "**/AGENTS.md",
+        "**/CLAUDE.md",
+      ],
     },
   },
 });

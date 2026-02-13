@@ -18,6 +18,12 @@ import {
 import { useTauriCommand } from "@/hooks/use-tauri";
 import { useInstallProgress } from "@/hooks/use-install-progress";
 import {
+  useGameStatus,
+  isGameCrashedStatus,
+  isGamePreparingStatus,
+  isGameRunningStatus,
+} from "@/hooks/use-game-status";
+import {
   listInstances,
   listMcVersions,
   createInstance,
@@ -29,6 +35,8 @@ import type {
   VersionEntry,
   InstallProgress,
   InstallStage,
+  DownloadProgress,
+  GameStatus,
 } from "@/lib/types";
 
 // --- Constants ---
@@ -91,19 +99,50 @@ function shortStageLabel(stage: InstallStage): string {
   }
 }
 
+function getDownloadPercent(progress: DownloadProgress): number {
+  if (progress.total_bytes <= 0) return 0;
+  return Math.min(100, (progress.downloaded_bytes / progress.total_bytes) * 100);
+}
+
+function gameStatusBadge(
+  status: GameStatus,
+): { label: string; variant: "success" | "info" | "danger" } | undefined {
+  if (isGameRunningStatus(status)) {
+    return { label: "Running", variant: "success" };
+  }
+  if (isGamePreparingStatus(status)) {
+    return { label: "Preparing...", variant: "info" };
+  }
+  if (isGameCrashedStatus(status)) {
+    return { label: "Crashed", variant: "danger" };
+  }
+  return undefined;
+}
+
 // --- Sub-components ---
 
 function InstanceCard({
   instance,
+  onPlay,
   onDelete,
   installProgress,
+  gameStatus,
+  actionsDisabled,
+  showLaunchDownload,
+  launchDownloadProgress,
 }: {
   instance: MinecraftInstance;
+  onPlay: (id: string) => void;
   onDelete: (id: string) => void;
   installProgress: InstallProgress | undefined;
+  gameStatus: GameStatus;
+  actionsDisabled: boolean;
+  showLaunchDownload: boolean;
+  launchDownloadProgress: DownloadProgress | undefined;
 }): ReactNode {
   const [menuOpen, setMenuOpen] = useState(false);
   const isInstalling = installProgress?.instance_id === instance.id;
+  const status = gameStatusBadge(gameStatus);
 
   return (
     <div className="group relative">
@@ -156,6 +195,9 @@ function InstanceCard({
               <span className="text-xs text-zinc-500">
                 {instance.minecraft_version}
               </span>
+              {status !== undefined && (
+                <Badge variant={status.variant}>{status.label}</Badge>
+              )}
             </div>
             <span className="text-[10px] text-zinc-600">
               {isInstalling
@@ -165,7 +207,7 @@ function InstanceCard({
           </div>
 
           {/* Actions */}
-          <div className="flex items-center gap-2 pt-1">
+          <div className="flex flex-col gap-2 pt-1">
             {isInstalling ? (
               <Button
                 size="sm"
@@ -174,13 +216,34 @@ function InstanceCard({
               >
                 Installing
               </Button>
-            ) : (
+            ) : showLaunchDownload && launchDownloadProgress !== undefined ? (
               <>
                 <Button
                   size="sm"
+                  disabled
+                  icon={<Loader2 size={12} className="animate-spin" />}
+                >
+                  Preparing launch...
+                </Button>
+                <div className="h-1.5 w-full overflow-hidden rounded-full bg-surface-600">
+                  <div
+                    className="h-full rounded-full bg-accent transition-all duration-300"
+                    style={{ width: `${String(getDownloadPercent(launchDownloadProgress))}%` }}
+                  />
+                </div>
+                <span className="text-[10px] text-zinc-500">
+                  {getDownloadPercent(launchDownloadProgress).toFixed(0)}%
+                </span>
+              </>
+            ) : (
+              <div className="flex items-center gap-2">
+                <Button
+                  size="sm"
+                  disabled={actionsDisabled}
                   icon={<Play size={12} />}
                   onClick={(e) => {
                     e.preventDefault();
+                    void onPlay(instance.id);
                   }}
                 >
                   Play
@@ -188,6 +251,7 @@ function InstanceCard({
                 <Button
                   size="sm"
                   variant="ghost"
+                  disabled={actionsDisabled}
                   icon={<RefreshCw size={12} />}
                   onClick={(e) => {
                     e.preventDefault();
@@ -195,14 +259,14 @@ function InstanceCard({
                 >
                   Sync
                 </Button>
-              </>
+              </div>
             )}
           </div>
         </Card>
       </Link>
 
       {/* Context menu trigger */}
-      {!isInstalling && (
+      {!isInstalling && !actionsDisabled && (
         <div className="absolute right-2 top-2">
           <button
             onClick={() => {
@@ -400,11 +464,22 @@ export function Home(): ReactNode {
     refetch,
   } = useTauriCommand(listInstances);
   const { progress: installProgress } = useInstallProgress();
+  const {
+    status: gameStatus,
+    launch,
+    isRunning,
+    isPreparing,
+    launchError,
+    isDownloadingBeforeLaunch,
+    downloadProgress,
+    activeInstanceId,
+  } = useGameStatus();
   const [createOpen, setCreateOpen] = useState(false);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | undefined>(
     undefined,
   );
   const [deleting, setDeleting] = useState(false);
+  const actionsLocked = isRunning || isPreparing || isDownloadingBeforeLaunch;
 
   const handleDelete = useCallback(async (): Promise<void> => {
     if (deleteConfirmId === undefined) return;
@@ -475,8 +550,15 @@ export function Home(): ReactNode {
             <InstanceCard
               key={instance.id}
               instance={instance}
+              onPlay={launch}
               onDelete={setDeleteConfirmId}
               installProgress={installProgress}
+              gameStatus={gameStatus}
+              actionsDisabled={actionsLocked}
+              showLaunchDownload={
+                isDownloadingBeforeLaunch && activeInstanceId === instance.id
+              }
+              launchDownloadProgress={downloadProgress}
             />
           ))}
 
@@ -494,6 +576,30 @@ export function Home(): ReactNode {
             </div>
           </button>
         </div>
+      )}
+
+      {launchError !== undefined && (
+        <Card className="border-red-900/30">
+          <div className="flex items-center gap-3 p-4">
+            <AlertCircle size={18} className="shrink-0 text-red-400" />
+            <span className="text-sm text-red-300">{launchError}</span>
+          </div>
+        </Card>
+      )}
+
+      {isGameCrashedStatus(gameStatus) && (
+        <Card className="border-red-900/30">
+          <div className="flex items-center gap-3 p-4">
+            <AlertCircle size={18} className="shrink-0 text-red-400" />
+            <span className="text-sm text-red-300">
+              Crash au lancement
+              {gameStatus.crashed.exit_code !== null
+                ? ` (code ${String(gameStatus.crashed.exit_code)})`
+                : ""}
+              : {gameStatus.crashed.message}
+            </span>
+          </div>
+        </Card>
       )}
 
       {/* Empty state */}
@@ -537,7 +643,7 @@ export function Home(): ReactNode {
             <Button
               variant="danger"
               size="sm"
-              disabled={deleting}
+              disabled={deleting || actionsLocked}
               onClick={handleDelete}
               icon={
                 deleting ? (
