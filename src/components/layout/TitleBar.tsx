@@ -39,15 +39,8 @@ export function TitleBar(): ReactNode {
       }}
     >
       {/* Brand */}
-      <div data-tauri-drag-region className="flex items-center gap-2.5 pl-4">
-        <img src={logoSvg} alt="MineSync" className="h-6 w-6" />
-        <span
-          data-tauri-drag-region
-          className="text-sm font-semibold"
-          style={{ color: "rgba(55, 53, 47, 1)" }}
-        >
-          MineSync
-        </span>
+      <div data-tauri-drag-region className="flex items-center pl-4">
+        <img src={logoSvg} alt="MineSync" className="h-5 w-auto" />
       </div>
 
       {/* Window controls */}
