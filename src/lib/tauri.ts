@@ -85,10 +85,10 @@ export async function searchModpacks(
 
 export async function createInstance(params: {
   name: string;
-  minecraft_version: string;
+  minecraftVersion: string;
   loader: string | undefined;
-  loader_version: string | undefined;
-  instance_path: string;
+  loaderVersion: string | undefined;
+  instancePath: string;
 }): Promise<MinecraftInstance> {
   return invoke<MinecraftInstance>("create_instance", params);
 }
@@ -185,6 +185,9 @@ export async function installModpack(params: {
   source: ModSource;
   projectId: string;
   versionId: string;
+  modpackName?: string;
+  modpackIconUrl?: string;
+  modpackDescription?: string;
 }): Promise<MinecraftInstance> {
   return invoke<MinecraftInstance>("install_modpack", params);
 }

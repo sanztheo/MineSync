@@ -23,13 +23,14 @@ import {
   Plus,
 } from "lucide-react";
 import { useTauriCommand } from "@/hooks/use-tauri";
+import { useInstallProgress } from "@/hooks/use-install-progress";
 import {
   getInstance,
   deleteInstance,
   listInstanceMods,
   removeMod,
 } from "@/lib/tauri";
-import type { ModLoader, ModInfo } from "@/lib/types";
+import type { ModLoader, ModInfo, InstallStage } from "@/lib/types";
 
 // --- Constants ---
 
@@ -51,6 +52,37 @@ const LOADER_BADGE_VARIANT: Record<
   quilt: "success",
   vanilla: "default",
 };
+
+// --- Helpers ---
+
+function stageLabel(stage: InstallStage): string {
+  switch (stage.type) {
+    case "fetching_info":
+      return "Fetching modpack info...";
+    case "downloading_pack":
+      return "Downloading modpack archive...";
+    case "extracting_pack":
+      return "Extracting archive...";
+    case "creating_instance":
+      return "Creating instance...";
+    case "downloading_minecraft":
+      return "Downloading Minecraft...";
+    case "installing_loader":
+      return "Installing mod loader...";
+    case "resolving_mods":
+      return "Resolving mod downloads...";
+    case "downloading_mods":
+      return `Downloading mods (${String(stage.current)}/${String(stage.total)})...`;
+    case "copying_overrides":
+      return "Copying overrides...";
+    case "registering_mods":
+      return "Registering mods...";
+    case "completed":
+      return "Installation complete!";
+    case "failed":
+      return `Failed: ${stage.message}`;
+  }
+}
 
 // --- Sub-components ---
 
@@ -244,6 +276,9 @@ export function InstanceDetail(): ReactNode {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
+  const { progress: installProgress } = useInstallProgress();
+  const isInstalling = installProgress?.instance_id === id;
+
   const fetchInstance = useCallback(() => getInstance(id ?? ""), [id]);
   const {
     data: instance,
@@ -307,6 +342,17 @@ export function InstanceDetail(): ReactNode {
         >
           <ArrowLeft size={18} />
         </Link>
+
+        {/* Icon */}
+        {instance.icon_url !== undefined && (
+          <img
+            src={instance.icon_url}
+            alt={instance.name}
+            className="h-10 w-10 shrink-0 rounded-lg object-cover"
+            loading="lazy"
+          />
+        )}
+
         <div className="flex-1">
           <h1 className="text-2xl font-bold text-zinc-100">{instance.name}</h1>
           <div className="flex items-center gap-2">
@@ -316,13 +362,47 @@ export function InstanceDetail(): ReactNode {
             </span>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <Button icon={<Play size={14} />}>Launch</Button>
-          <Button variant="secondary" icon={<RefreshCw size={14} />}>
-            Sync
-          </Button>
-        </div>
+
+        {/* Action buttons — or progress bar if installing */}
+        {isInstalling && installProgress !== undefined ? (
+          <div className="flex items-center gap-3">
+            <div className="flex flex-col items-end gap-1">
+              <div className="flex items-center gap-2">
+                <Loader2 size={14} className="animate-spin text-accent" />
+                <span className="text-sm font-medium text-zinc-200">
+                  Installing...
+                </span>
+              </div>
+              <span className="text-xs text-zinc-500">
+                {stageLabel(installProgress.stage)}
+              </span>
+              <div className="h-1.5 w-48 overflow-hidden rounded-full bg-surface-600">
+                <div
+                  className="h-full rounded-full bg-accent transition-all duration-300"
+                  style={{
+                    width: `${String(Math.min(100, installProgress.overall_percent))}%`,
+                  }}
+                />
+              </div>
+              <span className="text-[10px] text-zinc-600">
+                {installProgress.overall_percent.toFixed(0)}%
+              </span>
+            </div>
+          </div>
+        ) : (
+          <div className="flex items-center gap-2">
+            <Button icon={<Play size={14} />}>Launch</Button>
+            <Button variant="secondary" icon={<RefreshCw size={14} />}>
+              Sync
+            </Button>
+          </div>
+        )}
       </div>
+
+      {/* Description */}
+      {instance.description !== undefined && (
+        <p className="text-sm text-zinc-500">{instance.description}</p>
+      )}
 
       {/* Tabs */}
       <TabBar active={activeTab} onChange={setActiveTab} />

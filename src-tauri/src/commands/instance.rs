@@ -39,6 +39,8 @@ pub fn create_instance(
         loader_version,
         instance_path,
         icon_path: None,
+        icon_url: None,
+        description: None,
         last_played_at: None,
         total_play_time: 0,
         is_active: true,

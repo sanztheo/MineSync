@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex, MutexGuard};
 
 use chrono::Utc;
@@ -17,12 +18,24 @@ use crate::services::mod_platform::UnifiedModClient;
 /// Orchestrates mod and modpack installation.
 pub struct InstallService {
     progress: Arc<Mutex<InstallProgress>>,
+    install_in_progress: AtomicBool,
+}
+
+struct InstallGuard<'a> {
+    flag: &'a AtomicBool,
+}
+
+impl Drop for InstallGuard<'_> {
+    fn drop(&mut self) {
+        self.flag.store(false, Ordering::Release);
+    }
 }
 
 impl InstallService {
     pub fn new() -> Self {
         Self {
             progress: Arc::new(Mutex::new(InstallProgress::idle())),
+            install_in_progress: AtomicBool::new(false),
         }
     }
 
@@ -41,12 +54,14 @@ impl InstallService {
         project_id: &str,
         version_id: &str,
     ) -> AppResult<ModInfo> {
+        let _install_guard = self.begin_install()?;
+
         // Validate instance exists
         let instance = db
             .get_instance(instance_id)?
             .ok_or_else(|| AppError::Custom(format!("Instance not found: {instance_id}")))?;
 
-        self.set_progress(InstallStage::FetchingInfo, 10.0)?;
+        self.set_progress_fresh(InstallStage::FetchingInfo, 10.0)?;
 
         // Fetch versions and find the requested one
         let versions = mod_client
@@ -141,7 +156,20 @@ impl InstallService {
         source: &ModSource,
         project_id: &str,
         version_id: &str,
+        modpack_name: Option<String>,
+        modpack_icon_url: Option<String>,
+        modpack_description: Option<String>,
     ) -> AppResult<MinecraftInstance> {
+        let _install_guard = self.begin_install()?;
+
+        // Initialize progress with modpack metadata from the start
+        {
+            let mut progress = self.lock_progress()?;
+            *progress = InstallProgress::new(InstallStage::FetchingInfo, 0.0);
+            progress.modpack_name = modpack_name.clone();
+            progress.modpack_icon_url = modpack_icon_url.clone();
+        }
+
         let temp_dir = std::env::temp_dir().join(format!("minesync_modpack_{}", uuid::Uuid::new_v4()));
         tokio::fs::create_dir_all(&temp_dir).await?;
 
@@ -186,6 +214,11 @@ impl InstallService {
             // 4. Parse manifest and build instance metadata
             let pack_info = parse_modpack_manifest(&extract_dir)?;
             self.set_progress(InstallStage::CreatingInstance, 18.0)?;
+            // Set instance_id in progress so frontend can track which instance is installing
+            {
+                let mut p = self.lock_progress()?;
+                p.instance_id = Some(instance_id.clone());
+            }
             tokio::fs::create_dir_all(instance_path.join("mods")).await?;
 
             let now = Utc::now();
@@ -197,6 +230,8 @@ impl InstallService {
                 loader_version: pack_info.loader_version.clone(),
                 instance_path: instance_path.to_string_lossy().to_string(),
                 icon_path: None,
+                icon_url: modpack_icon_url.clone(),
+                description: modpack_description.clone(),
                 last_played_at: None,
                 total_play_time: 0,
                 is_active: true,
@@ -316,9 +351,38 @@ impl InstallService {
 
     // --- Private helpers ---
 
-    fn set_progress(&self, stage: InstallStage, percent: f32) -> AppResult<()> {
+    fn begin_install(&self) -> AppResult<InstallGuard<'_>> {
+        match self.install_in_progress.compare_exchange(
+            false,
+            true,
+            Ordering::AcqRel,
+            Ordering::Acquire,
+        ) {
+            Ok(_) => Ok(InstallGuard {
+                flag: &self.install_in_progress,
+            }),
+            Err(_) => Err(AppError::Custom(
+                "Another installation is already in progress".to_string(),
+            )),
+        }
+    }
+
+    fn set_progress_fresh(&self, stage: InstallStage, percent: f32) -> AppResult<()> {
         let mut progress = self.lock_progress()?;
         *progress = InstallProgress::new(stage, percent);
+        Ok(())
+    }
+
+    fn set_progress(&self, stage: InstallStage, percent: f32) -> AppResult<()> {
+        let mut progress = self.lock_progress()?;
+        // Preserve metadata across progress updates
+        let instance_id = progress.instance_id.clone();
+        let modpack_name = progress.modpack_name.clone();
+        let modpack_icon_url = progress.modpack_icon_url.clone();
+        *progress = InstallProgress::new(stage, percent);
+        progress.instance_id = instance_id;
+        progress.modpack_name = modpack_name;
+        progress.modpack_icon_url = modpack_icon_url;
         Ok(())
     }
 
@@ -639,6 +703,8 @@ mod tests {
             loader_version: Some("0.15.0".to_string()),
             instance_path: instance_path.to_string_lossy().to_string(),
             icon_path: None,
+            icon_url: None,
+            description: None,
             last_played_at: None,
             total_play_time: 0,
             is_active: true,
@@ -677,6 +743,45 @@ mod tests {
         assert!(mods.is_empty(), "Removed mod should be inactive in DB");
 
         let _ = std::fs::remove_dir_all(root);
+        Ok(())
+    }
+
+    #[test]
+    fn begin_install_blocks_concurrent_installations() -> AppResult<()> {
+        let service = InstallService::new();
+
+        let guard = service.begin_install()?;
+        assert!(
+            service.begin_install().is_err(),
+            "A second install must be rejected while one is active"
+        );
+
+        drop(guard);
+
+        assert!(
+            service.begin_install().is_ok(),
+            "A new install should be allowed after the previous one completes"
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn set_progress_fresh_clears_stale_metadata() -> AppResult<()> {
+        let service = InstallService::new();
+        {
+            let mut progress = service.lock_progress()?;
+            progress.instance_id = Some("instance-123".to_string());
+            progress.modpack_name = Some("Old Pack".to_string());
+            progress.modpack_icon_url = Some("https://example.com/old.png".to_string());
+        }
+
+        service.set_progress_fresh(InstallStage::FetchingInfo, 10.0)?;
+        let progress = service.get_progress()?;
+
+        assert_eq!(progress.overall_percent, 10.0);
+        assert!(progress.instance_id.is_none());
+        assert!(progress.modpack_name.is_none());
+        assert!(progress.modpack_icon_url.is_none());
         Ok(())
     }
 }

@@ -56,6 +56,8 @@ fn row_to_instance(row: &rusqlite::Row<'_>) -> rusqlite::Result<MinecraftInstanc
         loader_version: row.get("loader_version")?,
         instance_path: row.get("instance_path")?,
         icon_path: row.get("icon_path")?,
+        icon_url: row.get("icon_url")?,
+        description: row.get("description")?,
         last_played_at: parse_optional_dt(row.get("last_played_at")?)?,
         total_play_time: row.get("total_play_time")?,
         is_active: row.get::<_, i32>("is_active")? != 0,
@@ -221,9 +223,9 @@ impl DatabaseService {
         };
         conn.execute(
             "INSERT INTO instances (id, name, minecraft_version, loader_type, loader_version,
-             instance_path, icon_path, last_played_at, total_play_time, is_active,
-             created_at, updated_at)
-             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12)",
+             instance_path, icon_path, icon_url, description, last_played_at,
+             total_play_time, is_active, created_at, updated_at)
+             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14)",
             params![
                 instance.id,
                 instance.name,
@@ -232,6 +234,8 @@ impl DatabaseService {
                 instance.loader_version,
                 instance.instance_path,
                 instance.icon_path,
+                instance.icon_url,
+                instance.description,
                 instance.last_played_at.map(|dt| format_dt(&dt)),
                 instance.total_play_time,
                 instance.is_active as i32,
@@ -270,9 +274,10 @@ impl DatabaseService {
         };
         conn.execute(
             "UPDATE instances SET name = ?1, minecraft_version = ?2, loader_type = ?3,
-             loader_version = ?4, instance_path = ?5, icon_path = ?6,
-             last_played_at = ?7, total_play_time = ?8, updated_at = datetime('now')
-             WHERE id = ?9",
+             loader_version = ?4, instance_path = ?5, icon_path = ?6, icon_url = ?7,
+             description = ?8, last_played_at = ?9, total_play_time = ?10,
+             updated_at = datetime('now')
+             WHERE id = ?11",
             params![
                 instance.name,
                 instance.minecraft_version,
@@ -280,6 +285,8 @@ impl DatabaseService {
                 instance.loader_version,
                 instance.instance_path,
                 instance.icon_path,
+                instance.icon_url,
+                instance.description,
                 instance.last_played_at.map(|dt| format_dt(&dt)),
                 instance.total_play_time,
                 instance.id,

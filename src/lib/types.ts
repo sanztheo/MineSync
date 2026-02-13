@@ -14,6 +14,8 @@ export interface MinecraftInstance {
   loader_version: string | undefined;
   instance_path: string;
   icon_path: string | undefined;
+  icon_url: string | undefined;
+  description: string | undefined;
   last_played_at: string | undefined;
   total_play_time: number;
   is_active: boolean;
@@ -206,6 +208,9 @@ export type InstallStage =
 export interface InstallProgress {
   stage: InstallStage;
   overall_percent: number;
+  instance_id: string | undefined;
+  modpack_name: string | undefined;
+  modpack_icon_url: string | undefined;
 }
 
 // Mod versions — mirrors Rust models/mod_platform.rs

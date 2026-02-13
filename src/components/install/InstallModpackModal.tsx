@@ -14,6 +14,8 @@ import {
   CheckCircle2,
   AlertCircle,
   ChevronRight,
+  Boxes,
+  X,
 } from "lucide-react";
 import {
   getModVersions,
@@ -138,6 +140,9 @@ export function InstallModpackModal({
           source: modpack.source,
           projectId: modpack.id,
           versionId: version.id,
+          modpackName: modpack.name,
+          modpackIconUrl: modpack.icon_url,
+          modpackDescription: modpack.description,
         });
         setStep("done");
         onInstalled();
@@ -151,16 +156,50 @@ export function InstallModpackModal({
         }
       }
     },
-    [modpack.source, modpack.id, onInstalled],
+    [
+      modpack.source,
+      modpack.id,
+      modpack.name,
+      modpack.icon_url,
+      modpack.description,
+      onInstalled,
+    ],
   );
 
+  const handleClose = useCallback((): void => {
+    onClose();
+  }, [onClose]);
+
   return (
-    <Modal
-      open={open}
-      onClose={step === "installing" ? () => {} : onClose}
-      title={`Install ${modpack.name}`}
-    >
+    <Modal open={open} onClose={handleClose} title={`Install ${modpack.name}`}>
       <div className="flex flex-col gap-4">
+        {/* Modpack info header */}
+        <div className="flex items-start gap-3 rounded-lg border border-border-default bg-surface-800 p-3">
+          {modpack.icon_url !== undefined ? (
+            <img
+              src={modpack.icon_url}
+              alt={modpack.name}
+              className="h-12 w-12 shrink-0 rounded-lg object-cover"
+              loading="lazy"
+            />
+          ) : (
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-surface-600">
+              <Boxes size={20} className="text-zinc-500" />
+            </div>
+          )}
+          <div className="flex flex-1 flex-col gap-0.5 overflow-hidden">
+            <h3 className="truncate text-sm font-semibold text-zinc-100">
+              {modpack.name}
+            </h3>
+            <span className="text-xs text-zinc-500">by {modpack.author}</span>
+            {modpack.description !== "" && (
+              <p className="line-clamp-2 text-xs text-zinc-600">
+                {modpack.description}
+              </p>
+            )}
+          </div>
+        </div>
+
         {/* Version selection */}
         {step === "select_version" && (
           <>
@@ -252,6 +291,17 @@ export function InstallModpackModal({
                 </span>
               </>
             )}
+            <p className="text-xs text-zinc-600">
+              You can close this dialog — installation continues in background.
+            </p>
+            <Button
+              size="sm"
+              variant="ghost"
+              icon={<X size={14} />}
+              onClick={handleClose}
+            >
+              Close
+            </Button>
           </div>
         )}
 

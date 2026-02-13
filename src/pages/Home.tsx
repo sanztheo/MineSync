@@ -16,13 +16,20 @@ import {
   MoreVertical,
 } from "lucide-react";
 import { useTauriCommand } from "@/hooks/use-tauri";
+import { useInstallProgress } from "@/hooks/use-install-progress";
 import {
   listInstances,
   listMcVersions,
   createInstance,
   deleteInstance,
 } from "@/lib/tauri";
-import type { MinecraftInstance, ModLoader, VersionEntry } from "@/lib/types";
+import type {
+  MinecraftInstance,
+  ModLoader,
+  VersionEntry,
+  InstallProgress,
+  InstallStage,
+} from "@/lib/types";
 
 // --- Constants ---
 
@@ -55,24 +62,86 @@ function formatPlayTime(seconds: number): string {
   return `${String(mins)}m played`;
 }
 
+function shortStageLabel(stage: InstallStage): string {
+  switch (stage.type) {
+    case "fetching_info":
+      return "Fetching info...";
+    case "downloading_pack":
+      return "Downloading pack...";
+    case "extracting_pack":
+      return "Extracting...";
+    case "creating_instance":
+      return "Creating...";
+    case "downloading_minecraft":
+      return "Downloading MC...";
+    case "installing_loader":
+      return "Installing loader...";
+    case "resolving_mods":
+      return "Resolving mods...";
+    case "downloading_mods":
+      return `Mods ${String(stage.current)}/${String(stage.total)}`;
+    case "copying_overrides":
+      return "Copying files...";
+    case "registering_mods":
+      return "Registering...";
+    case "completed":
+      return "Done!";
+    case "failed":
+      return "Failed";
+  }
+}
+
 // --- Sub-components ---
 
 function InstanceCard({
   instance,
   onDelete,
+  installProgress,
 }: {
   instance: MinecraftInstance;
   onDelete: (id: string) => void;
+  installProgress: InstallProgress | undefined;
 }): ReactNode {
   const [menuOpen, setMenuOpen] = useState(false);
+  const isInstalling = installProgress?.instance_id === instance.id;
 
   return (
     <div className="group relative">
       <Link to={`/instance/${instance.id}`} className="block">
         <Card hoverable className="flex flex-col gap-3">
           {/* Icon area */}
-          <div className="flex h-24 items-center justify-center rounded-lg bg-surface-600">
-            <Gamepad2 size={32} className="text-zinc-600" />
+          <div className="relative flex h-24 items-center justify-center overflow-hidden rounded-lg bg-surface-600">
+            {instance.icon_url !== undefined ? (
+              <img
+                src={instance.icon_url}
+                alt={instance.name}
+                className="h-full w-full object-cover"
+                loading="lazy"
+              />
+            ) : (
+              <Gamepad2 size={32} className="text-zinc-600" />
+            )}
+
+            {/* Installing overlay */}
+            {isInstalling && installProgress !== undefined && (
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 bg-surface-900/80">
+                <Loader2 size={20} className="animate-spin text-accent" />
+                <span className="text-[10px] font-medium text-zinc-300">
+                  {shortStageLabel(installProgress.stage)}
+                </span>
+                <div className="mx-4 h-1.5 w-3/4 overflow-hidden rounded-full bg-surface-600">
+                  <div
+                    className="h-full rounded-full bg-accent transition-all duration-300"
+                    style={{
+                      width: `${String(Math.min(100, installProgress.overall_percent))}%`,
+                    }}
+                  />
+                </div>
+                <span className="text-[10px] text-zinc-500">
+                  {installProgress.overall_percent.toFixed(0)}%
+                </span>
+              </div>
+            )}
           </div>
 
           {/* Info */}
@@ -89,60 +158,76 @@ function InstanceCard({
               </span>
             </div>
             <span className="text-[10px] text-zinc-600">
-              {formatPlayTime(instance.total_play_time)}
+              {isInstalling
+                ? "Installing..."
+                : formatPlayTime(instance.total_play_time)}
             </span>
           </div>
 
           {/* Actions */}
           <div className="flex items-center gap-2 pt-1">
-            <Button
-              size="sm"
-              icon={<Play size={12} />}
-              onClick={(e) => {
-                e.preventDefault();
-              }}
-            >
-              Play
-            </Button>
-            <Button
-              size="sm"
-              variant="ghost"
-              icon={<RefreshCw size={12} />}
-              onClick={(e) => {
-                e.preventDefault();
-              }}
-            >
-              Sync
-            </Button>
+            {isInstalling ? (
+              <Button
+                size="sm"
+                disabled
+                icon={<Loader2 size={12} className="animate-spin" />}
+              >
+                Installing
+              </Button>
+            ) : (
+              <>
+                <Button
+                  size="sm"
+                  icon={<Play size={12} />}
+                  onClick={(e) => {
+                    e.preventDefault();
+                  }}
+                >
+                  Play
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  icon={<RefreshCw size={12} />}
+                  onClick={(e) => {
+                    e.preventDefault();
+                  }}
+                >
+                  Sync
+                </Button>
+              </>
+            )}
           </div>
         </Card>
       </Link>
 
       {/* Context menu trigger */}
-      <div className="absolute right-2 top-2">
-        <button
-          onClick={() => {
-            setMenuOpen((prev) => !prev);
-          }}
-          className="rounded p-1 text-zinc-600 opacity-0 transition-all hover:bg-surface-500 hover:text-zinc-300 group-hover:opacity-100"
-        >
-          <MoreVertical size={14} />
-        </button>
-        {menuOpen && (
-          <div className="absolute right-0 top-8 z-10 w-36 rounded-lg border border-border-default bg-surface-700 py-1 shadow-xl">
-            <button
-              onClick={() => {
-                setMenuOpen(false);
-                onDelete(instance.id);
-              }}
-              className="flex w-full items-center gap-2 px-3 py-1.5 text-xs text-red-400 hover:bg-surface-600"
-            >
-              <Trash2 size={12} />
-              Delete
-            </button>
-          </div>
-        )}
-      </div>
+      {!isInstalling && (
+        <div className="absolute right-2 top-2">
+          <button
+            onClick={() => {
+              setMenuOpen((prev) => !prev);
+            }}
+            className="rounded p-1 text-zinc-600 opacity-0 transition-all hover:bg-surface-500 hover:text-zinc-300 group-hover:opacity-100"
+          >
+            <MoreVertical size={14} />
+          </button>
+          {menuOpen && (
+            <div className="absolute right-0 top-8 z-10 w-36 rounded-lg border border-border-default bg-surface-700 py-1 shadow-xl">
+              <button
+                onClick={() => {
+                  setMenuOpen(false);
+                  onDelete(instance.id);
+                }}
+                className="flex w-full items-center gap-2 px-3 py-1.5 text-xs text-red-400 hover:bg-surface-600"
+              >
+                <Trash2 size={12} />
+                Delete
+              </button>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -183,10 +268,10 @@ function CreateInstanceModal({
     try {
       await createInstance({
         name: name.trim(),
-        minecraft_version: mcVersion,
+        minecraftVersion: mcVersion,
         loader: loader !== "vanilla" ? loader : undefined,
-        loader_version: undefined,
-        instance_path: `~/.minesync/instances/${name.trim().toLowerCase().replace(/\s+/g, "-")}`,
+        loaderVersion: undefined,
+        instancePath: `~/.minesync/instances/${name.trim().toLowerCase().replace(/\s+/g, "-")}`,
       });
       setName("");
       setMcVersion("");
@@ -314,6 +399,7 @@ export function Home(): ReactNode {
     error,
     refetch,
   } = useTauriCommand(listInstances);
+  const { progress: installProgress } = useInstallProgress();
   const [createOpen, setCreateOpen] = useState(false);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | undefined>(
     undefined,
@@ -390,6 +476,7 @@ export function Home(): ReactNode {
               key={instance.id}
               instance={instance}
               onDelete={setDeleteConfirmId}
+              installProgress={installProgress}
             />
           ))}
 

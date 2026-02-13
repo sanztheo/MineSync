@@ -44,6 +44,9 @@ pub async fn install_modpack(
     source: ModSource,
     project_id: String,
     version_id: String,
+    modpack_name: Option<String>,
+    modpack_icon_url: Option<String>,
+    modpack_description: Option<String>,
 ) -> AppResult<MinecraftInstance> {
     install_service
         .install_modpack(
@@ -55,6 +58,9 @@ pub async fn install_modpack(
             &source,
             &project_id,
             &version_id,
+            modpack_name,
+            modpack_icon_url,
+            modpack_description,
         )
         .await
 }
