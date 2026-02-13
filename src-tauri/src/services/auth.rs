@@ -21,8 +21,8 @@ const MC_PROFILE_URL: &str =
 
 const XBOX_SCOPE: &str = "XboxLive.signin offline_access";
 
-/// Azure AD client ID — replace with your registered application ID
-const DEFAULT_CLIENT_ID: &str = "00000000-0000-0000-0000-000000000000";
+/// Fallback Azure AD client ID if AZURE_CLIENT_ID env var is not set
+const FALLBACK_CLIENT_ID: &str = "00000000-0000-0000-0000-000000000000";
 
 // --- Internal API response types ---
 
@@ -121,9 +121,12 @@ pub struct AuthService {
 
 impl AuthService {
     pub fn new() -> Self {
+        let client_id = std::env::var("AZURE_CLIENT_ID")
+            .unwrap_or_else(|_| FALLBACK_CLIENT_ID.to_string());
+
         Self {
             client: reqwest::Client::new(),
-            client_id: DEFAULT_CLIENT_ID.to_string(),
+            client_id,
             pending_auth: Mutex::new(None),
         }
     }
