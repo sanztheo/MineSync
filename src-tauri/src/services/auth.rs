@@ -18,8 +18,9 @@ const MC_PROFILE_URL: &str = "https://api.minecraftservices.com/minecraft/profil
 
 const XBOX_SCOPE: &str = "XboxLive.signin offline_access";
 
-/// Fallback Azure AD client ID if AZURE_CLIENT_ID env var is not set
-const FALLBACK_CLIENT_ID: &str = "00000000-0000-0000-0000-000000000000";
+/// Fallback Azure AD client ID (approved open-source launcher ID for development)
+/// Replace with your own approved ID once Mojang reviews your app at https://aka.ms/mce-reviewappid
+const FALLBACK_CLIENT_ID: &str = "6b329578-bfec-42a3-b503-303ab3f2ac96";
 
 // --- Internal API response types ---
 
