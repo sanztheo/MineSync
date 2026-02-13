@@ -3,8 +3,11 @@ mod errors;
 mod models;
 mod services;
 
-use commands::{account, instance, sync};
+use commands::{account, auth, instance, minecraft, sync};
+use services::auth::AuthService;
 use services::database::DatabaseService;
+use services::download::DownloadService;
+use services::minecraft::MinecraftService;
 use tauri::Manager;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -19,12 +22,22 @@ pub fn run() {
                 )?;
             }
 
-            // Initialize SQLite database in app data directory
             let app_dir = app.path().app_data_dir()?;
             std::fs::create_dir_all(&app_dir)?;
+
+            // SQLite database
             let db_path = app_dir.join("minesync.db");
             let db = DatabaseService::new(&db_path)?;
             app.manage(db);
+
+            // Auth service
+            app.manage(AuthService::new());
+
+            // Minecraft version manager
+            app.manage(MinecraftService::new(app_dir.clone()));
+
+            // Download manager
+            app.manage(DownloadService::new());
 
             Ok(())
         })
@@ -37,6 +50,14 @@ pub fn run() {
             sync::join_sync_session,
             account::get_active_account,
             account::save_account,
+            auth::start_auth,
+            auth::poll_auth,
+            auth::get_profile,
+            auth::logout,
+            auth::refresh_auth,
+            minecraft::list_mc_versions,
+            minecraft::download_version,
+            minecraft::get_download_progress,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

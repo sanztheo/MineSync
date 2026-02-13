@@ -28,3 +28,21 @@ chrono = { version = "0.4", features = ["serde"] }
 thiserror = "1"
 log = "0.4"
 env_logger = "0.11"
+libp2p = { version = "0.54", features = [
+    "tokio",
+    "tcp",
+    "noise",
+    "yamux",
+    "identify",
+    "ping",
+    "relay",
+    "dcutr",
+    "autonat",
+    "request-response",
+    "cbor",
+    "macros",
+    "dns",
+    "quic",
+] }
+rand = "0.8"
+sha1 = "0.10"

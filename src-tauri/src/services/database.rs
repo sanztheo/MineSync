@@ -460,4 +460,34 @@ impl DatabaseService {
             None => Ok(None),
         }
     }
+
+    pub fn deactivate_all_accounts(&self) -> AppResult<()> {
+        let conn = self.conn()?;
+        conn.execute(
+            "UPDATE accounts SET is_active = 0, updated_at = datetime('now') WHERE is_active = 1",
+            [],
+        )?;
+        Ok(())
+    }
+
+    pub fn update_account_tokens(
+        &self,
+        uuid: &str,
+        access_token: &str,
+        refresh_token: &str,
+        token_expires_at: &DateTime<Utc>,
+    ) -> AppResult<()> {
+        let conn = self.conn()?;
+        conn.execute(
+            "UPDATE accounts SET access_token = ?1, refresh_token = ?2,
+             token_expires_at = ?3, updated_at = datetime('now') WHERE uuid = ?4",
+            params![
+                access_token,
+                refresh_token,
+                format_dt(token_expires_at),
+                uuid
+            ],
+        )?;
+        Ok(())
+    }
 }

@@ -14,6 +14,9 @@ pub enum AppError {
     #[error("IO error: {0}")]
     Io(#[from] std::io::Error),
 
+    #[error("P2P error: {0}")]
+    P2p(String),
+
     #[error("{0}")]
     Custom(String),
 }
