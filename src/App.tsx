@@ -16,11 +16,11 @@ export function App(): ReactNode {
   return (
     <JavaRuntimeProvider>
       <BrowserRouter>
-        <div className="flex h-screen flex-col bg-surface-900 text-zinc-100">
+        <div className="flex h-screen flex-col bg-surface-100 text-gray-900">
           <TitleBar />
           <div className="flex flex-1 overflow-hidden">
             <Sidebar />
-            <main className="flex-1 overflow-y-auto bg-surface-900">
+            <main className="flex-1 overflow-y-auto bg-surface-100 p-0">
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/mods" element={<BrowseMods />} />

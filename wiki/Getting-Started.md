@@ -10,7 +10,9 @@ Before installing MineSync, ensure you have:
 |-------------|---------|----------|
 | Node.js | >= 18 | [nodejs.org](https://nodejs.org/) |
 | Rust | >= 1.77 | [rustup.rs](https://rustup.rs/) |
-| Java | 17 or 21 | [adoptium.net](https://adoptium.net/) |
+| Java | Auto-managed (Java 21) | Installed by MineSync if missing |
+
+> Sur Linux, l'installation automatique Java n'est pas encore prise en charge: installe Java 21 systeme manuellement.
 
 ### Platform-Specific Dependencies
 
@@ -88,8 +90,9 @@ Get your CurseForge API key at [console.curseforge.com](https://console.cursefor
 ### Step 1: Sign In
 
 1. Launch MineSync
-2. Click **Sign In** in the sidebar
-3. Follow the Microsoft Device Code Flow:
+2. If prompted, install Java 21 from the startup modal
+3. Click **Sign In** in the sidebar
+4. Follow the Microsoft Device Code Flow:
    - A code will be displayed
    - Open the provided URL in your browser
    - Enter the code and sign in with your Microsoft account
@@ -117,9 +120,12 @@ Get your CurseForge API key at [console.curseforge.com](https://console.cursefor
 
 1. Click **Play** on your instance
 2. MineSync will:
+   - Ensure Java 21 is available (managed runtime)
    - Download the Minecraft version (if needed)
    - Install the mod loader (if needed)
    - Launch the game with your mods
+3. During pre-launch download, progress is kept visible even if you navigate to other pages
+4. While the game is running, launch actions and mod edition actions are locked
 
 ## Sharing Your Modpack
 
@@ -153,12 +159,10 @@ When the host updates their modpack:
 <details>
 <summary><strong>Game won't launch</strong></summary>
 
-1. Check Java is installed: `java -version`
-2. Verify the correct Java version for your Minecraft version:
-   - MC 1.16 and below: Java 8
-   - MC 1.17-1.20.4: Java 17
-   - MC 1.20.5+: Java 21
-3. Check logs in `~/.local/share/minesync/logs/`
+1. Verify Java status in startup modal or **Settings > Java Runtime**
+2. If needed, click **Install / Reinstall Java 21**
+3. Confirm no active pre-launch download is already running
+4. Check logs in `{data_dir}/logs/`
 </details>
 
 <details>

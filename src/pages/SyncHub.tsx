@@ -59,21 +59,21 @@ function P2pStatusBar({
       <CardContent className="flex items-center justify-between py-3">
         <div className="flex items-center gap-3">
           {isRunning ? (
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-900/30">
-              <Wifi size={16} className="text-emerald-400" />
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-50">
+              <Wifi size={16} className="text-emerald-500" />
             </div>
           ) : (
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-zinc-800">
-              <WifiOff size={16} className="text-zinc-500" />
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gray-100">
+              <WifiOff size={16} className="text-gray-400" />
             </div>
           )}
           <div>
-            <p className="text-sm font-medium text-zinc-200">
+            <p className="text-sm font-semibold text-gray-800">
               {isRunning ? "P2P Connected" : "P2P Offline"}
             </p>
             {isRunning && status?.peer_id !== "" && (
-              <p className="font-mono text-[10px] text-zinc-600">
-                {status?.peer_id.slice(0, 16)}...
+              <p className="font-mono text-[10px] text-gray-400">
+                {status?.peer_id.slice(0, 16)}\u2026
               </p>
             )}
           </div>
@@ -93,7 +93,7 @@ function P2pStatusBar({
             )
           }
         >
-          {toggling ? "Connecting..." : isRunning ? "Disconnect" : "Connect"}
+          {toggling ? "Connecting\u2026" : isRunning ? "Disconnect" : "Connect"}
         </Button>
       </CardContent>
     </Card>
@@ -145,20 +145,20 @@ function ShareSection({
     <Card>
       <CardHeader>
         <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-900/30">
-            <Share2 size={16} className="text-emerald-400" />
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-50">
+            <Share2 size={16} className="text-emerald-500" />
           </div>
-          <h3 className="font-medium text-zinc-200">Share Modpack</h3>
+          <h3 className="font-semibold text-gray-800">Share Modpack</h3>
         </div>
       </CardHeader>
       <CardContent className="flex flex-col gap-3">
-        <p className="text-sm text-zinc-500">
+        <p className="text-sm text-gray-500">
           Share your mod setup with friends. They&apos;ll get a code to join and
           sync.
         </p>
 
         <div className="flex flex-col gap-1.5">
-          <span className="text-xs font-medium text-zinc-400">Instance</span>
+          <span className="text-xs font-medium text-gray-600">Instance</span>
           <select
             value={selectedInstance}
             onChange={(e) => {
@@ -166,25 +166,26 @@ function ShareSection({
               setShareCode(undefined);
             }}
             disabled={!p2pRunning}
-            className="rounded-lg border border-border-default bg-surface-700 px-3 py-2 text-sm text-zinc-200 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30 disabled:opacity-50"
+            className="rounded-xl border border-gray-200 bg-white px-3.5 py-2.5 text-sm text-gray-700 shadow-inset focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 disabled:opacity-50"
           >
-            <option value="">Select an instance</option>
+            <option value="">Select an instance\u2026</option>
             {instances.map((inst) => (
               <option key={inst.id} value={inst.id}>
-                {inst.name} — {inst.minecraft_version}
+                {inst.name} \u2014 {inst.minecraft_version}
               </option>
             ))}
           </select>
         </div>
 
         {shareCode !== undefined ? (
-          <div className="flex items-center gap-2 rounded-lg border border-accent/30 bg-accent-muted px-4 py-3">
-            <span className="flex-1 text-center font-mono text-lg font-bold tracking-widest text-accent">
+          <div className="flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3">
+            <span className="flex-1 text-center font-mono text-lg font-bold tracking-widest text-emerald-600">
               {shareCode}
             </span>
             <button
               onClick={handleCopy}
-              className="rounded p-1.5 text-accent transition-colors hover:bg-accent/20"
+              aria-label="Copy share code"
+              className="rounded-lg p-1.5 text-emerald-500 transition-colors hover:bg-emerald-100"
             >
               {copied ? <Check size={16} /> : <Copy size={16} />}
             </button>
@@ -202,14 +203,14 @@ function ShareSection({
               )
             }
           >
-            {sharing ? "Generating..." : "Generate Share Code"}
+            {sharing ? "Generating\u2026" : "Generate Share Code"}
           </Button>
         )}
 
         {error !== undefined && (
-          <div className="flex items-center gap-2 rounded-lg bg-red-900/20 px-3 py-2">
-            <AlertCircle size={14} className="text-red-400" />
-            <span className="text-xs text-red-300">{error}</span>
+          <div className="flex items-center gap-2 rounded-xl bg-red-50 px-3 py-2">
+            <AlertCircle size={14} className="text-red-500" />
+            <span className="text-xs text-red-600">{error}</span>
           </div>
         )}
       </CardContent>
@@ -245,14 +246,14 @@ function JoinSection({ p2pRunning }: { p2pRunning: boolean }): ReactNode {
     <Card>
       <CardHeader>
         <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-900/30">
-            <ArrowDownToLine size={16} className="text-blue-400" />
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50">
+            <ArrowDownToLine size={16} className="text-blue-500" />
           </div>
-          <h3 className="font-medium text-zinc-200">Join Session</h3>
+          <h3 className="font-semibold text-gray-800">Join Session</h3>
         </div>
       </CardHeader>
       <CardContent className="flex flex-col gap-3">
-        <p className="text-sm text-zinc-500">
+        <p className="text-sm text-gray-500">
           Enter a share code from a friend to download their mod setup.
         </p>
 
@@ -281,23 +282,23 @@ function JoinSection({ p2pRunning }: { p2pRunning: boolean }): ReactNode {
               )
             }
           >
-            {joining ? "Joining..." : "Join"}
+            {joining ? "Joining\u2026" : "Join"}
           </Button>
         </div>
 
         {success && (
-          <div className="flex items-center gap-2 rounded-lg bg-emerald-900/20 px-3 py-2">
-            <Check size={14} className="text-emerald-400" />
-            <span className="text-xs text-emerald-300">
-              Connected! Waiting for sync data...
+          <div className="flex items-center gap-2 rounded-xl bg-emerald-50 px-3 py-2">
+            <Check size={14} className="text-emerald-500" />
+            <span className="text-xs text-emerald-600">
+              Connected! Waiting for sync data\u2026
             </span>
           </div>
         )}
 
         {error !== undefined && (
-          <div className="flex items-center gap-2 rounded-lg bg-red-900/20 px-3 py-2">
-            <AlertCircle size={14} className="text-red-400" />
-            <span className="text-xs text-red-300">{error}</span>
+          <div className="flex items-center gap-2 rounded-xl bg-red-50 px-3 py-2">
+            <AlertCircle size={14} className="text-red-500" />
+            <span className="text-xs text-red-600">{error}</span>
           </div>
         )}
       </CardContent>
@@ -349,20 +350,20 @@ function DiffPreviewModal({
               )
             }
           >
-            {confirming ? "Syncing..." : "Confirm Sync"}
+            {confirming ? "Syncing\u2026" : "Confirm Sync"}
           </Button>
         </>
       }
     >
       <div className="flex flex-col gap-4">
         {diff.version_mismatch !== undefined && (
-          <div className="flex items-start gap-2 rounded-lg bg-amber-900/20 px-3 py-2">
+          <div className="flex items-start gap-2 rounded-xl bg-amber-50 px-3 py-2">
             <AlertTriangle
               size={14}
-              className="mt-0.5 shrink-0 text-amber-400"
+              className="mt-0.5 shrink-0 text-amber-500"
             />
-            <div className="text-xs text-amber-300">
-              <p className="font-medium">Version mismatch</p>
+            <div className="text-xs text-amber-700">
+              <p className="font-semibold">Version mismatch</p>
               <p>
                 Local: {diff.version_mismatch.local_mc_version}
                 {diff.version_mismatch.local_loader !== undefined &&
@@ -378,7 +379,7 @@ function DiffPreviewModal({
         )}
 
         {!hasChanges && (
-          <p className="text-center text-sm text-zinc-500">
+          <p className="text-center text-sm text-gray-500">
             Everything is already in sync!
           </p>
         )}
@@ -386,7 +387,7 @@ function DiffPreviewModal({
         {addCount > 0 && (
           <DiffSection
             title={`${String(addCount)} mod${addCount > 1 ? "s" : ""} to add`}
-            icon={<Plus size={14} className="text-emerald-400" />}
+            icon={<Plus size={14} className="text-emerald-500" />}
             items={diff.to_add.map((m) => m.mod_name)}
             variant="add"
           />
@@ -395,7 +396,7 @@ function DiffPreviewModal({
         {removeCount > 0 && (
           <DiffSection
             title={`${String(removeCount)} mod${removeCount > 1 ? "s" : ""} to remove`}
-            icon={<Minus size={14} className="text-red-400" />}
+            icon={<Minus size={14} className="text-red-500" />}
             items={diff.to_remove.map((m) => m.mod_name)}
             variant="remove"
           />
@@ -418,18 +419,18 @@ function DiffSection({
   items: string[];
   variant: "add" | "remove";
 }): ReactNode {
-  const bgColor = variant === "add" ? "bg-emerald-900/10" : "bg-red-900/10";
-  const textColor = variant === "add" ? "text-emerald-300" : "text-red-300";
+  const bgColor = variant === "add" ? "bg-emerald-50/70" : "bg-red-50/70";
+  const textColor = variant === "add" ? "text-emerald-600" : "text-red-600";
 
   return (
-    <div className={`rounded-lg ${bgColor} px-3 py-2`}>
+    <div className={`rounded-xl ${bgColor} px-3 py-2`}>
       <div className="mb-1 flex items-center gap-1.5">
         {icon}
-        <span className={`text-xs font-medium ${textColor}`}>{title}</span>
+        <span className={`text-xs font-semibold ${textColor}`}>{title}</span>
       </div>
       <ul className="flex flex-col gap-0.5">
         {items.map((name) => (
-          <li key={name} className="text-xs text-zinc-400">
+          <li key={name} className="text-xs text-gray-600">
             {name}
           </li>
         ))}
@@ -440,19 +441,19 @@ function DiffSection({
 
 function UpdateSection({ updates }: { updates: ModUpdate[] }): ReactNode {
   return (
-    <div className="rounded-lg bg-amber-900/10 px-3 py-2">
+    <div className="rounded-xl bg-amber-50/70 px-3 py-2">
       <div className="mb-1 flex items-center gap-1.5">
-        <ArrowUpDown size={14} className="text-amber-400" />
-        <span className="text-xs font-medium text-amber-300">
+        <ArrowUpDown size={14} className="text-amber-500" />
+        <span className="text-xs font-semibold text-amber-600">
           {updates.length} mod{updates.length > 1 ? "s" : ""} to update
         </span>
       </div>
       <ul className="flex flex-col gap-0.5">
         {updates.map((u) => (
-          <li key={u.mod_name} className="text-xs text-zinc-400">
+          <li key={u.mod_name} className="text-xs text-gray-600">
             {u.mod_name}{" "}
-            <span className="text-zinc-600">
-              {u.local_version} → {u.remote_version}
+            <span className="text-gray-400">
+              {u.local_version} \u2192 {u.remote_version}
             </span>
           </li>
         ))}
@@ -465,13 +466,15 @@ function SyncHistoryPlaceholder(): ReactNode {
   return (
     <div>
       <div className="mb-3 flex items-center gap-2">
-        <History size={16} className="text-zinc-400" />
-        <h2 className="text-lg font-semibold text-zinc-200">Sync History</h2>
+        <History size={16} className="text-gray-500" />
+        <h2 className="text-lg font-bold text-gray-800">Sync History</h2>
       </div>
-      <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border-default py-10 text-zinc-600">
-        <History size={32} className="mb-2 text-zinc-700" />
-        <p className="text-sm">No sync history yet</p>
-        <p className="text-xs text-zinc-700">
+      <div className="flex flex-col items-center justify-center rounded-[20px] border-2 border-dashed border-gray-200 py-10 text-gray-400">
+        <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-gray-100">
+          <History size={24} className="text-gray-300" />
+        </div>
+        <p className="text-sm font-medium text-gray-500">No sync history yet</p>
+        <p className="text-xs text-gray-400">
           Share or join a session to get started
         </p>
       </div>
@@ -536,8 +539,6 @@ export function SyncHub(): ReactNode {
   const handleConfirmSync = useCallback(async (): Promise<void> => {
     setConfirming(true);
     try {
-      // In a real flow, confirm_sync would be called with the session_id
-      // For now we close the preview
       setDiffOpen(false);
       setDiffPreview(undefined);
     } finally {
@@ -553,11 +554,11 @@ export function SyncHub(): ReactNode {
   const p2pRunning = p2pStatus?.is_running === true;
 
   return (
-    <div className="flex flex-1 flex-col gap-6 p-6">
+    <div className="flex flex-1 flex-col gap-6 p-7">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-zinc-100">Sync Hub</h1>
-        <p className="text-sm text-zinc-500">
+        <h1 className="text-2xl font-extrabold text-gray-900">Sync Hub</h1>
+        <p className="mt-0.5 text-sm text-gray-500">
           Synchronize mods with friends via P2P
         </p>
       </div>
@@ -572,16 +573,16 @@ export function SyncHub(): ReactNode {
 
       {/* P2P not running hint */}
       {!p2pRunning && !toggling && (
-        <div className="flex items-center gap-2 rounded-lg bg-amber-900/15 px-4 py-3">
-          <AlertTriangle size={14} className="shrink-0 text-amber-400" />
-          <span className="text-xs text-amber-300">
+        <div className="flex items-center gap-2 rounded-xl bg-amber-50 px-4 py-3">
+          <AlertTriangle size={14} className="shrink-0 text-amber-500" />
+          <span className="text-xs font-medium text-amber-700">
             Connect to P2P network to share or join sync sessions.
           </span>
         </div>
       )}
 
       {/* Share / Join cards */}
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-5 md:grid-cols-2">
         <ShareSection p2pRunning={p2pRunning} instances={instances ?? []} />
         <JoinSection p2pRunning={p2pRunning} />
       </div>

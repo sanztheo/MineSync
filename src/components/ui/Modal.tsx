@@ -35,14 +35,16 @@ export function Modal({
     <dialog
       ref={dialogRef}
       onClose={onClose}
-      className="fixed inset-0 z-50 m-auto max-w-lg rounded-xl border border-border-default bg-surface-800 p-0 text-zinc-100 shadow-2xl backdrop:bg-black/70"
+      className="fixed inset-0 z-50 m-auto max-w-lg rounded-[24px] border-0 bg-white p-0 text-gray-900 shadow-float backdrop:bg-black/30 backdrop:backdrop-blur-sm"
+      style={{ overscrollBehavior: "contain" }}
     >
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-border-default px-6 py-4">
-        <h2 className="text-lg font-semibold">{title}</h2>
+      <div className="flex items-center justify-between border-b border-gray-100 px-6 py-5">
+        <h2 className="text-lg font-bold text-gray-900">{title}</h2>
         <button
           onClick={onClose}
-          className="rounded-lg p-1 text-zinc-500 transition-colors hover:bg-surface-600 hover:text-zinc-300"
+          aria-label="Close modal"
+          className="rounded-xl p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
         >
           <X size={18} />
         </button>
@@ -53,7 +55,7 @@ export function Modal({
 
       {/* Footer */}
       {footer !== undefined && (
-        <div className="flex items-center justify-end gap-3 border-t border-border-default px-6 py-4">
+        <div className="flex items-center justify-end gap-3 border-t border-gray-100 px-6 py-4">
           {footer}
         </div>
       )}

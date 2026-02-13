@@ -52,43 +52,48 @@ function DeviceCodeDisplay({ info }: { info: DeviceCodeInfo }): ReactNode {
   }, [info.user_code]);
 
   return (
-    <Card>
+    <Card className="bg-white shadow-soft rounded-[20px]">
       <CardHeader>
         <div className="flex items-center gap-2">
-          <LogIn size={18} className="text-accent" />
-          <h3 className="font-medium text-zinc-200">Enter this code</h3>
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-50">
+            <LogIn size={18} className="text-emerald-600" />
+          </div>
+          <h3 className="font-medium text-gray-900">Enter this code</h3>
         </div>
       </CardHeader>
       <CardContent className="flex flex-col items-center gap-4 py-4">
         {/* Code display */}
         <button
           onClick={copyCode}
-          className="group flex items-center gap-3 rounded-xl border border-border-hover bg-surface-600 px-6 py-3 transition-colors hover:border-accent"
+          className="group flex items-center gap-3 rounded-xl border border-gray-200 bg-gray-50 px-6 py-3 transition-colors hover:border-emerald-300"
         >
-          <span className="font-mono text-2xl font-bold tracking-[0.3em] text-zinc-100">
+          <span className="font-mono text-2xl font-bold tracking-[0.3em] text-gray-900">
             {info.user_code}
           </span>
           {copied ? (
-            <Check size={18} className="text-accent" />
+            <Check size={18} className="text-emerald-600" />
           ) : (
-            <Copy size={18} className="text-zinc-500 group-hover:text-accent" />
+            <Copy
+              size={18}
+              className="text-gray-500 group-hover:text-emerald-600"
+            />
           )}
         </button>
-        <p className="text-xs text-zinc-500">Click to copy</p>
+        <p className="text-xs text-gray-500">Click to copy</p>
 
         {/* Link to verification */}
         <button
           type="button"
           onClick={() => openUrl(info.verification_uri)}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-surface-600 px-4 py-2 text-sm text-zinc-300 transition-colors hover:bg-surface-500 hover:text-zinc-100"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-gray-50 px-4 py-2 text-sm text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900"
         >
           Open {info.verification_uri} <ExternalLink size={14} />
         </button>
 
         <div className="flex items-center gap-2 pt-2">
-          <Loader2 size={14} className="animate-spin text-accent" />
-          <span className="text-xs text-zinc-500">
-            Waiting for you to sign in on Microsoft...
+          <Loader2 size={14} className="animate-spin text-emerald-600" />
+          <span className="text-xs text-gray-500">
+            Waiting for you to sign in on Microsoft\u2026
           </span>
         </div>
       </CardContent>
@@ -104,21 +109,21 @@ function PlayerProfile({
   onLogout: () => void;
 }): ReactNode {
   return (
-    <Card>
+    <Card className="bg-white shadow-soft rounded-[20px]">
       <CardContent className="flex items-center gap-4">
         <img
           src={`${SKIN_BASE_URL}/${profile.uuid}/64`}
           alt={`${profile.username} skin`}
-          className="h-16 w-16 rounded-lg"
+          className="h-16 w-16 rounded-lg shadow-button"
           onError={(e) => {
             e.currentTarget.style.display = "none";
           }}
         />
         <div className="flex flex-1 flex-col gap-1">
-          <span className="text-lg font-bold text-zinc-100">
+          <span className="text-lg font-bold text-gray-900">
             {profile.username}
           </span>
-          <span className="font-mono text-xs text-zinc-600">
+          <span className="font-mono text-xs text-gray-600">
             {profile.uuid}
           </span>
           <Badge variant="success">Connected</Badge>
@@ -223,10 +228,10 @@ export function Auth(): ReactNode {
   }, []);
 
   return (
-    <div className="flex flex-1 flex-col gap-6 p-6">
+    <div className="flex flex-1 flex-col gap-6 bg-surface-100 p-7">
       <div>
-        <h1 className="text-2xl font-bold text-zinc-100">Account</h1>
-        <p className="text-sm text-zinc-500">
+        <h1 className="text-2xl font-extrabold text-gray-900">Account</h1>
+        <p className="text-sm text-gray-600">
           Sign in with your Microsoft account to play Minecraft
         </p>
       </div>
@@ -238,14 +243,14 @@ export function Auth(): ReactNode {
 
       {/* Not connected — sign in */}
       {profile === undefined && phase.step === "idle" && (
-        <Card>
+        <Card className="bg-white shadow-soft rounded-[20px]">
           <CardContent className="flex flex-col items-center gap-4 py-8">
-            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-surface-600">
-              <User size={32} className="text-zinc-500" />
+            <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-emerald-50">
+              <User size={32} className="text-emerald-600" />
             </div>
             <div className="text-center">
-              <h3 className="font-semibold text-zinc-200">Not signed in</h3>
-              <p className="text-sm text-zinc-500">
+              <h3 className="font-semibold text-gray-900">Not signed in</h3>
+              <p className="text-sm text-gray-600">
                 Sign in with Microsoft to access multiplayer and sync
               </p>
             </div>
@@ -258,11 +263,11 @@ export function Auth(): ReactNode {
 
       {/* Loading */}
       {phase.step === "loading" && (
-        <Card>
+        <Card className="bg-white shadow-soft rounded-[20px]">
           <CardContent className="flex items-center justify-center gap-3 py-8">
-            <Loader2 size={20} className="animate-spin text-accent" />
-            <span className="text-sm text-zinc-400">
-              Starting authentication...
+            <Loader2 size={20} className="animate-spin text-emerald-600" />
+            <span className="text-sm text-gray-500">
+              Starting authentication\u2026
             </span>
           </CardContent>
         </Card>
@@ -273,14 +278,16 @@ export function Auth(): ReactNode {
 
       {/* Error */}
       {phase.step === "error" && (
-        <Card className="border-red-900/30">
+        <Card className="bg-white shadow-soft rounded-[20px] border-red-200">
           <CardContent className="flex items-center gap-3">
-            <AlertCircle size={18} className="shrink-0 text-red-400" />
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-red-50">
+              <AlertCircle size={18} className="text-red-600" />
+            </div>
             <div className="flex flex-1 flex-col gap-1">
-              <span className="text-sm font-medium text-red-300">
+              <span className="text-sm font-medium text-red-600">
                 Authentication failed
               </span>
-              <span className="text-xs text-zinc-500">{phase.message}</span>
+              <span className="text-xs text-gray-500">{phase.message}</span>
             </div>
             <Button size="sm" variant="secondary" onClick={handleStartAuth}>
               Retry
@@ -290,32 +297,32 @@ export function Auth(): ReactNode {
       )}
 
       {/* How it works */}
-      <Card>
+      <Card className="bg-white shadow-soft rounded-[20px]">
         <CardHeader>
-          <h3 className="text-sm font-medium text-zinc-400">How it works</h3>
+          <h3 className="text-sm font-medium text-gray-500">How it works</h3>
         </CardHeader>
         <CardContent>
-          <ol className="flex flex-col gap-2 text-sm text-zinc-500">
+          <ol className="flex flex-col gap-2 text-sm text-gray-600">
             <li className="flex items-start gap-2">
-              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-surface-600 text-xs font-medium text-zinc-400">
+              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-xs font-medium text-emerald-600">
                 1
               </span>
               <span>Click &quot;Sign in with Microsoft&quot;</span>
             </li>
             <li className="flex items-start gap-2">
-              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-surface-600 text-xs font-medium text-zinc-400">
+              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-xs font-medium text-emerald-600">
                 2
               </span>
               <span>Copy the code and enter it on the Microsoft page</span>
             </li>
             <li className="flex items-start gap-2">
-              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-surface-600 text-xs font-medium text-zinc-400">
+              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-xs font-medium text-emerald-600">
                 3
               </span>
               <span>Sign in with your Microsoft/Xbox account</span>
             </li>
             <li className="flex items-start gap-2">
-              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-surface-600 text-xs font-medium text-zinc-400">
+              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-xs font-medium text-emerald-600">
                 4
               </span>
               <span>

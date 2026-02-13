@@ -74,25 +74,25 @@ function formatPlayTime(seconds: number): string {
 function shortStageLabel(stage: InstallStage): string {
   switch (stage.type) {
     case "fetching_info":
-      return "Fetching info...";
+      return "Fetching info\u2026";
     case "downloading_pack":
-      return "Downloading pack...";
+      return "Downloading pack\u2026";
     case "extracting_pack":
-      return "Extracting...";
+      return "Extracting\u2026";
     case "creating_instance":
-      return "Creating...";
+      return "Creating\u2026";
     case "downloading_minecraft":
-      return "Downloading MC...";
+      return "Downloading MC\u2026";
     case "installing_loader":
-      return "Installing loader...";
+      return "Installing loader\u2026";
     case "resolving_mods":
-      return "Resolving mods...";
+      return "Resolving mods\u2026";
     case "downloading_mods":
       return `Mods ${String(stage.current)}/${String(stage.total)}`;
     case "copying_overrides":
-      return "Copying files...";
+      return "Copying files\u2026";
     case "registering_mods":
-      return "Registering...";
+      return "Registering\u2026";
     case "completed":
       return "Done!";
     case "failed":
@@ -102,7 +102,10 @@ function shortStageLabel(stage: InstallStage): string {
 
 function getDownloadPercent(progress: DownloadProgress): number {
   if (progress.total_bytes <= 0) return 0;
-  return Math.min(100, (progress.downloaded_bytes / progress.total_bytes) * 100);
+  return Math.min(
+    100,
+    (progress.downloaded_bytes / progress.total_bytes) * 100,
+  );
 }
 
 function gameStatusBadge(
@@ -112,7 +115,7 @@ function gameStatusBadge(
     return { label: "Running", variant: "success" };
   }
   if (isGamePreparingStatus(status)) {
-    return { label: "Preparing...", variant: "info" };
+    return { label: "Preparing\u2026", variant: "info" };
   }
   if (isGameCrashedStatus(status)) {
     return { label: "Crashed", variant: "danger" };
@@ -150,7 +153,7 @@ function InstanceCard({
       <Link to={`/instance/${instance.id}`} className="block">
         <Card hoverable className="flex flex-col gap-3">
           {/* Icon area */}
-          <div className="relative flex h-24 items-center justify-center overflow-hidden rounded-lg bg-surface-600">
+          <div className="relative flex h-28 items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-gray-50 to-gray-100">
             {instance.icon_url !== undefined ? (
               <img
                 src={instance.icon_url}
@@ -159,25 +162,25 @@ function InstanceCard({
                 loading="lazy"
               />
             ) : (
-              <Gamepad2 size={32} className="text-zinc-600" />
+              <Gamepad2 size={32} className="text-gray-300" />
             )}
 
             {/* Installing overlay */}
             {isInstalling && installProgress !== undefined && (
-              <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 bg-surface-900/80">
-                <Loader2 size={20} className="animate-spin text-accent" />
-                <span className="text-[10px] font-medium text-zinc-300">
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 rounded-2xl bg-white/90 backdrop-blur-sm">
+                <Loader2 size={20} className="animate-spin text-emerald-500" />
+                <span className="text-[10px] font-semibold text-gray-700">
                   {shortStageLabel(installProgress.stage)}
                 </span>
-                <div className="mx-4 h-1.5 w-3/4 overflow-hidden rounded-full bg-surface-600">
+                <div className="mx-4 h-2 w-3/4 overflow-hidden rounded-full bg-gray-200">
                   <div
-                    className="h-full rounded-full bg-accent transition-all duration-300"
+                    className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-emerald-500 transition-all duration-300"
                     style={{
                       width: `${String(Math.min(100, installProgress.overall_percent))}%`,
                     }}
                   />
                 </div>
-                <span className="text-[10px] text-zinc-500">
+                <span className="text-[10px] font-medium text-gray-500">
                   {installProgress.overall_percent.toFixed(0)}%
                 </span>
               </div>
@@ -185,24 +188,24 @@ function InstanceCard({
           </div>
 
           {/* Info */}
-          <div className="flex flex-col gap-1">
-            <h3 className="truncate font-semibold text-zinc-100">
+          <div className="flex flex-col gap-1.5">
+            <h3 className="truncate text-sm font-bold text-gray-900">
               {instance.name}
             </h3>
             <div className="flex items-center gap-2">
               <Badge variant={LOADER_BADGE_VARIANT[instance.loader]}>
                 {instance.loader}
               </Badge>
-              <span className="text-xs text-zinc-500">
+              <span className="text-xs font-medium text-gray-400">
                 {instance.minecraft_version}
               </span>
               {status !== undefined && (
                 <Badge variant={status.variant}>{status.label}</Badge>
               )}
             </div>
-            <span className="text-[10px] text-zinc-600">
+            <span className="text-[11px] text-gray-400">
               {isInstalling
-                ? "Installing..."
+                ? "Installing\u2026"
                 : formatPlayTime(instance.total_play_time)}
             </span>
           </div>
@@ -224,15 +227,17 @@ function InstanceCard({
                   disabled
                   icon={<Loader2 size={12} className="animate-spin" />}
                 >
-                  Preparing launch...
+                  Preparing launch\u2026
                 </Button>
-                <div className="h-1.5 w-full overflow-hidden rounded-full bg-surface-600">
+                <div className="h-2 w-full overflow-hidden rounded-full bg-gray-100">
                   <div
-                    className="h-full rounded-full bg-accent transition-all duration-300"
-                    style={{ width: `${String(getDownloadPercent(launchDownloadProgress))}%` }}
+                    className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-emerald-500 transition-all duration-300"
+                    style={{
+                      width: `${String(getDownloadPercent(launchDownloadProgress))}%`,
+                    }}
                   />
                 </div>
-                <span className="text-[10px] text-zinc-500">
+                <span className="text-[10px] font-medium text-gray-400">
                   {getDownloadPercent(launchDownloadProgress).toFixed(0)}%
                 </span>
               </>
@@ -251,7 +256,7 @@ function InstanceCard({
                 </Button>
                 <Button
                   size="sm"
-                  variant="ghost"
+                  variant="secondary"
                   disabled={actionsDisabled}
                   icon={<RefreshCw size={12} />}
                   onClick={(e) => {
@@ -268,23 +273,24 @@ function InstanceCard({
 
       {/* Context menu trigger */}
       {!isInstalling && !actionsDisabled && (
-        <div className="absolute right-2 top-2">
+        <div className="absolute right-3 top-3">
           <button
             onClick={() => {
               setMenuOpen((prev) => !prev);
             }}
-            className="rounded p-1 text-zinc-600 opacity-0 transition-all hover:bg-surface-500 hover:text-zinc-300 group-hover:opacity-100"
+            aria-label="Instance options"
+            className="rounded-xl p-1.5 text-gray-400 opacity-0 transition-all hover:bg-white hover:text-gray-600 hover:shadow-soft group-hover:opacity-100"
           >
             <MoreVertical size={14} />
           </button>
           {menuOpen && (
-            <div className="absolute right-0 top-8 z-10 w-36 rounded-lg border border-border-default bg-surface-700 py-1 shadow-xl">
+            <div className="absolute right-0 top-9 z-10 w-36 rounded-xl bg-white py-1 shadow-elevated">
               <button
                 onClick={() => {
                   setMenuOpen(false);
                   onDelete(instance.id);
                 }}
-                className="flex w-full items-center gap-2 px-3 py-1.5 text-xs text-red-400 hover:bg-surface-600"
+                className="flex w-full items-center gap-2 px-3 py-2 text-xs font-medium text-red-500 hover:bg-red-50"
               >
                 <Trash2 size={12} />
                 Delete
@@ -373,7 +379,7 @@ function CreateInstanceModal({
               )
             }
           >
-            {creating ? "Creating..." : "Create"}
+            {creating ? "Creating\u2026" : "Create"}
           </Button>
         </>
       }
@@ -381,7 +387,7 @@ function CreateInstanceModal({
       <div className="flex flex-col gap-4">
         <Input
           label="Instance name"
-          placeholder="My Modpack"
+          placeholder="My Modpack\u2026"
           value={name}
           onChange={(e) => {
             setName(e.target.value);
@@ -389,22 +395,24 @@ function CreateInstanceModal({
         />
 
         <div className="flex flex-col gap-1.5">
-          <span className="text-sm font-medium text-zinc-400">
+          <span className="text-sm font-medium text-gray-700">
             Minecraft version
           </span>
           {versionsLoading ? (
             <div className="flex items-center gap-2 py-2">
-              <Loader2 size={14} className="animate-spin text-zinc-500" />
-              <span className="text-xs text-zinc-500">Loading versions...</span>
+              <Loader2 size={14} className="animate-spin text-gray-400" />
+              <span className="text-xs text-gray-500">
+                Loading versions\u2026
+              </span>
             </div>
           ) : versionsError !== undefined ? (
-            <div className="flex items-center gap-2 rounded-lg bg-red-900/20 px-3 py-2">
+            <div className="flex items-center gap-2 rounded-xl bg-red-50 px-3 py-2">
               <AlertCircle size={14} className="shrink-0 text-red-400" />
-              <span className="text-xs text-red-300">{versionsError}</span>
+              <span className="text-xs text-red-600">{versionsError}</span>
               <button
                 type="button"
                 onClick={refetchVersions}
-                className="ml-auto text-xs text-accent hover:underline"
+                className="ml-auto text-xs font-medium text-emerald-600 hover:underline"
               >
                 Retry
               </button>
@@ -415,9 +423,9 @@ function CreateInstanceModal({
               onChange={(e) => {
                 setMcVersion(e.target.value);
               }}
-              className="rounded-lg border border-border-default bg-surface-700 px-3 py-2 text-sm text-zinc-200 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30"
+              className="rounded-xl border border-gray-200 bg-white px-3.5 py-2.5 text-sm text-gray-700 shadow-inset focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
             >
-              <option value="">Select version</option>
+              <option value="">Select version\u2026</option>
               {releaseVersions.map((v) => (
                 <option key={v.id} value={v.id}>
                   {v.id}
@@ -428,13 +436,13 @@ function CreateInstanceModal({
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <span className="text-sm font-medium text-zinc-400">Mod loader</span>
+          <span className="text-sm font-medium text-gray-700">Mod loader</span>
           <select
             value={loader}
             onChange={(e) => {
               setLoader(e.target.value);
             }}
-            className="rounded-lg border border-border-default bg-surface-700 px-3 py-2 text-sm text-zinc-200 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30"
+            className="rounded-xl border border-gray-200 bg-white px-3.5 py-2.5 text-sm text-gray-700 shadow-inset focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
           >
             {LOADER_OPTIONS.map((opt) => (
               <option key={opt.value} value={opt.value}>
@@ -445,9 +453,9 @@ function CreateInstanceModal({
         </div>
 
         {error !== undefined && (
-          <div className="flex items-center gap-2 rounded-lg bg-red-900/20 px-3 py-2">
+          <div className="flex items-center gap-2 rounded-xl bg-red-50 px-3 py-2">
             <AlertCircle size={14} className="text-red-400" />
-            <span className="text-xs text-red-300">{error}</span>
+            <span className="text-xs text-red-600">{error}</span>
           </div>
         )}
       </div>
@@ -504,12 +512,14 @@ export function Home(): ReactNode {
   );
 
   return (
-    <div className="flex flex-1 flex-col gap-6 p-6">
+    <div className="flex flex-1 flex-col gap-6 p-7">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-zinc-100">My Instances</h1>
-          <p className="text-sm text-zinc-500">
+          <h1 className="text-2xl font-extrabold text-gray-900">
+            My Instances
+          </h1>
+          <p className="mt-0.5 text-sm text-gray-500">
             Manage your Minecraft instances
           </p>
         </div>
@@ -526,19 +536,21 @@ export function Home(): ReactNode {
       {/* Loading */}
       {loading && (
         <div className="flex items-center justify-center py-16">
-          <Loader2 size={24} className="animate-spin text-accent" />
-          <span className="ml-3 text-sm text-zinc-500">
-            Loading instances...
+          <Loader2 size={24} className="animate-spin text-emerald-500" />
+          <span className="ml-3 text-sm text-gray-500">
+            Loading instances\u2026
           </span>
         </div>
       )}
 
       {/* Error */}
       {error !== undefined && !loading && (
-        <Card className="border-red-900/30">
-          <div className="flex items-center gap-3 p-4">
-            <AlertCircle size={18} className="shrink-0 text-red-400" />
-            <span className="text-sm text-red-300">{error}</span>
+        <Card>
+          <div className="flex items-center gap-3 p-1">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-red-50">
+              <AlertCircle size={18} className="text-red-500" />
+            </div>
+            <span className="flex-1 text-sm text-red-600">{error}</span>
             <Button size="sm" variant="secondary" onClick={refetch}>
               Retry
             </Button>
@@ -548,7 +560,7 @@ export function Home(): ReactNode {
 
       {/* Instance grid */}
       {!loading && error === undefined && (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {activeInstances.map((instance) => (
             <InstanceCard
               key={instance.id}
@@ -571,32 +583,38 @@ export function Home(): ReactNode {
             onClick={() => {
               setCreateOpen(true);
             }}
-            className="flex min-h-[200px] items-center justify-center rounded-xl border border-dashed border-border-hover bg-transparent text-zinc-600 transition-colors hover:border-accent hover:text-accent"
+            className="flex min-h-[220px] items-center justify-center rounded-[20px] border-2 border-dashed border-gray-200 bg-white/50 text-gray-400 transition-all duration-200 hover:border-emerald-300 hover:bg-emerald-50/50 hover:text-emerald-500 hover:shadow-soft"
           >
             <div className="flex flex-col items-center gap-2">
-              <Plus size={24} />
-              <span className="text-sm font-medium">Add Instance</span>
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gray-100 transition-colors group-hover:bg-emerald-100">
+                <Plus size={24} />
+              </div>
+              <span className="text-sm font-semibold">Add Instance</span>
             </div>
           </button>
         </div>
       )}
 
       {launchError !== undefined && (
-        <Card className="border-red-900/30">
-          <div className="flex items-center gap-3 p-4">
-            <AlertCircle size={18} className="shrink-0 text-red-400" />
-            <span className="text-sm text-red-300">{launchError}</span>
+        <Card>
+          <div className="flex items-center gap-3 p-1">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-red-50">
+              <AlertCircle size={18} className="text-red-500" />
+            </div>
+            <span className="text-sm text-red-600">{launchError}</span>
           </div>
         </Card>
       )}
 
       {!isJavaReady && (
-        <Card className="border-amber-900/30">
-          <div className="flex items-center gap-3 p-4">
-            <AlertCircle size={18} className="shrink-0 text-amber-400" />
-            <span className="text-sm text-amber-200">
-              Java 21 n&apos;est pas prêt. Termine l&apos;installation via la
-              popup avant de lancer une instance.
+        <Card>
+          <div className="flex items-center gap-3 p-1">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-50">
+              <AlertCircle size={18} className="text-amber-500" />
+            </div>
+            <span className="text-sm text-amber-700">
+              Java 21 n&apos;est pas pr\u00eat. Termine l&apos;installation via
+              la popup avant de lancer une instance.
             </span>
           </div>
         </Card>
@@ -604,20 +622,23 @@ export function Home(): ReactNode {
 
       {isDownloadingBeforeLaunch && downloadProgress !== undefined && (
         <Card>
-          <div className="flex flex-col gap-2 p-4">
+          <div className="flex flex-col gap-3 p-1">
             <div className="flex items-center gap-2">
-              <Loader2 size={16} className="animate-spin text-accent" />
-              <span className="text-sm text-zinc-300">
-                Téléchargement Minecraft en cours avant lancement...
+              <Loader2 size={16} className="animate-spin text-emerald-500" />
+              <span className="text-sm font-medium text-gray-700">
+                T\u00e9l\u00e9chargement Minecraft en cours avant
+                lancement\u2026
               </span>
             </div>
-            <div className="h-1.5 w-full overflow-hidden rounded-full bg-surface-600">
+            <div className="h-2 w-full overflow-hidden rounded-full bg-gray-100">
               <div
-                className="h-full rounded-full bg-accent transition-all duration-300"
-                style={{ width: `${String(getDownloadPercent(downloadProgress))}%` }}
+                className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-emerald-500 transition-all duration-300"
+                style={{
+                  width: `${String(getDownloadPercent(downloadProgress))}%`,
+                }}
               />
             </div>
-            <span className="text-xs text-zinc-500">
+            <span className="text-xs font-medium text-gray-400">
               {getDownloadPercent(downloadProgress).toFixed(0)}%
             </span>
           </div>
@@ -625,10 +646,12 @@ export function Home(): ReactNode {
       )}
 
       {isGameCrashedStatus(gameStatus) && (
-        <Card className="border-red-900/30">
-          <div className="flex items-center gap-3 p-4">
-            <AlertCircle size={18} className="shrink-0 text-red-400" />
-            <span className="text-sm text-red-300">
+        <Card>
+          <div className="flex items-center gap-3 p-1">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-red-50">
+              <AlertCircle size={18} className="text-red-500" />
+            </div>
+            <span className="text-sm text-red-600">
               Crash au lancement
               {gameStatus.crashed.exit_code !== null
                 ? ` (code ${String(gameStatus.crashed.exit_code)})`
@@ -641,10 +664,14 @@ export function Home(): ReactNode {
 
       {/* Empty state */}
       {!loading && error === undefined && activeInstances.length === 0 && (
-        <div className="flex flex-col items-center justify-center py-12 text-zinc-600">
-          <Gamepad2 size={48} className="mb-4 text-zinc-700" />
-          <p className="text-sm font-medium">No instances yet</p>
-          <p className="text-xs text-zinc-700">
+        <div className="flex flex-col items-center justify-center py-16 text-gray-400">
+          <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-3xl bg-gray-100">
+            <Gamepad2 size={36} className="text-gray-300" />
+          </div>
+          <p className="text-sm font-semibold text-gray-500">
+            No instances yet
+          </p>
+          <p className="mt-1 text-xs text-gray-400">
             Create your first modpack to get started!
           </p>
         </div>
@@ -690,12 +717,12 @@ export function Home(): ReactNode {
                 )
               }
             >
-              {deleting ? "Deleting..." : "Delete"}
+              {deleting ? "Deleting\u2026" : "Delete"}
             </Button>
           </>
         }
       >
-        <p className="text-sm text-zinc-400">
+        <p className="text-sm text-gray-600">
           Are you sure? This will permanently delete the instance and all its
           data. This action cannot be undone.
         </p>

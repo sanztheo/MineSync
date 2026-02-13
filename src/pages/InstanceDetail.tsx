@@ -71,25 +71,25 @@ const LOADER_BADGE_VARIANT: Record<
 function stageLabel(stage: InstallStage): string {
   switch (stage.type) {
     case "fetching_info":
-      return "Fetching modpack info...";
+      return "Fetching modpack info\u2026";
     case "downloading_pack":
-      return "Downloading modpack archive...";
+      return "Downloading modpack archive\u2026";
     case "extracting_pack":
-      return "Extracting archive...";
+      return "Extracting archive\u2026";
     case "creating_instance":
-      return "Creating instance...";
+      return "Creating instance\u2026";
     case "downloading_minecraft":
-      return "Downloading Minecraft...";
+      return "Downloading Minecraft\u2026";
     case "installing_loader":
-      return "Installing mod loader...";
+      return "Installing mod loader\u2026";
     case "resolving_mods":
-      return "Resolving mod downloads...";
+      return "Resolving mod downloads\u2026";
     case "downloading_mods":
-      return `Downloading mods (${String(stage.current)}/${String(stage.total)})...`;
+      return `Downloading mods (${String(stage.current)}/${String(stage.total)})\u2026`;
     case "copying_overrides":
-      return "Copying overrides...";
+      return "Copying overrides\u2026";
     case "registering_mods":
-      return "Registering mods...";
+      return "Registering mods\u2026";
     case "completed":
       return "Installation complete!";
     case "failed":
@@ -99,7 +99,10 @@ function stageLabel(stage: InstallStage): string {
 
 function getDownloadPercent(progress: DownloadProgress): number {
   if (progress.total_bytes <= 0) return 0;
-  return Math.min(100, (progress.downloaded_bytes / progress.total_bytes) * 100);
+  return Math.min(
+    100,
+    (progress.downloaded_bytes / progress.total_bytes) * 100,
+  );
 }
 
 // --- Sub-components ---
@@ -112,17 +115,17 @@ function TabBar({
   onChange: (tab: Tab) => void;
 }): ReactNode {
   return (
-    <div className="flex gap-1 border-b border-border-default">
+    <div className="flex gap-1 rounded-xl bg-gray-100 p-1">
       {TABS.map((tab) => (
         <button
           key={tab.id}
           onClick={() => {
             onChange(tab.id);
           }}
-          className={`px-4 py-2 text-sm font-medium transition-colors ${
+          className={`rounded-lg px-4 py-2 text-sm font-semibold transition-all duration-150 ${
             active === tab.id
-              ? "border-b-2 border-accent text-accent"
-              : "text-zinc-500 hover:text-zinc-300"
+              ? "bg-white text-gray-900 shadow-soft"
+              : "text-gray-500 hover:text-gray-700"
           }`}
         >
           {tab.label}
@@ -149,7 +152,6 @@ function ModsTab({
       const result = await listInstanceMods(instanceId);
       setMods(result);
     } catch {
-      // Silently handle — empty list shown
       setMods([]);
     } finally {
       setLoading(false);
@@ -178,11 +180,16 @@ function ModsTab({
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-medium text-zinc-300">
+        <h3 className="text-sm font-semibold text-gray-700">
           Installed Mods{mods.length > 0 ? ` (${String(mods.length)})` : ""}
         </h3>
         {actionsDisabled ? (
-          <Button size="sm" variant="secondary" icon={<Plus size={12} />} disabled>
+          <Button
+            size="sm"
+            variant="secondary"
+            icon={<Plus size={12} />}
+            disabled
+          >
             Add Mods
           </Button>
         ) : (
@@ -196,16 +203,18 @@ function ModsTab({
 
       {loading && (
         <div className="flex items-center justify-center py-8">
-          <Loader2 size={20} className="animate-spin text-accent" />
-          <span className="ml-2 text-sm text-zinc-500">Loading mods...</span>
+          <Loader2 size={20} className="animate-spin text-emerald-500" />
+          <span className="ml-2 text-sm text-gray-500">Loading mods\u2026</span>
         </div>
       )}
 
       {!loading && mods.length === 0 && (
-        <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border-default py-10 text-zinc-600">
-          <Package size={32} className="mb-2 text-zinc-700" />
-          <p className="text-sm">No mods installed</p>
-          <p className="text-xs text-zinc-700">
+        <div className="flex flex-col items-center justify-center rounded-[20px] border-2 border-dashed border-gray-200 py-10 text-gray-400">
+          <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-gray-100">
+            <Package size={24} className="text-gray-300" />
+          </div>
+          <p className="text-sm font-medium text-gray-500">No mods installed</p>
+          <p className="text-xs text-gray-400">
             Browse and add mods from CurseForge or Modrinth
           </p>
         </div>
@@ -216,14 +225,16 @@ function ModsTab({
           {mods.map((mod) => (
             <div
               key={mod.id}
-              className="flex items-center gap-3 rounded-lg border border-border-default bg-surface-800 px-4 py-3"
+              className="flex items-center gap-3 rounded-xl bg-white px-4 py-3 shadow-soft"
             >
-              <Package size={16} className="shrink-0 text-zinc-500" />
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50">
+                <Package size={14} className="text-blue-500" />
+              </div>
               <div className="flex flex-1 flex-col gap-0.5 overflow-hidden">
-                <span className="truncate text-sm font-medium text-zinc-200">
+                <span className="truncate text-sm font-semibold text-gray-800">
                   {mod.name}
                 </span>
-                <span className="text-xs text-zinc-600">{mod.file_name}</span>
+                <span className="text-xs text-gray-400">{mod.file_name}</span>
               </div>
               <Button
                 size="sm"
@@ -256,12 +267,16 @@ function FilesTab({ instancePath }: { instancePath: string }): ReactNode {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <FolderOpen size={16} className="text-zinc-400" />
-            <h3 className="font-medium text-zinc-200">Instance Directory</h3>
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50">
+              <FolderOpen size={14} className="text-blue-500" />
+            </div>
+            <h3 className="font-semibold text-gray-800">Instance Directory</h3>
           </div>
         </CardHeader>
         <CardContent className="flex flex-col gap-3">
-          <p className="font-mono text-xs text-zinc-600">{instancePath}</p>
+          <p className="rounded-lg bg-gray-50 px-3 py-2 font-mono text-xs text-gray-500">
+            {instancePath}
+          </p>
           <div>
             <Button
               size="sm"
@@ -283,12 +298,14 @@ function SettingsTab(): ReactNode {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Settings size={16} className="text-zinc-400" />
-            <h3 className="font-medium text-zinc-200">Instance Settings</h3>
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-100">
+              <Settings size={14} className="text-gray-500" />
+            </div>
+            <h3 className="font-semibold text-gray-800">Instance Settings</h3>
           </div>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-zinc-500">
+          <p className="text-sm text-gray-500">
             Per-instance JVM arguments and RAM allocation coming soon.
           </p>
         </CardContent>
@@ -363,8 +380,10 @@ export function InstanceDetail(): ReactNode {
   if (loading) {
     return (
       <div className="flex flex-1 items-center justify-center">
-        <Loader2 size={24} className="animate-spin text-accent" />
-        <span className="ml-3 text-sm text-zinc-500">Loading instance...</span>
+        <Loader2 size={24} className="animate-spin text-emerald-500" />
+        <span className="ml-3 text-sm text-gray-500">
+          Loading instance\u2026
+        </span>
       </div>
     );
   }
@@ -373,8 +392,10 @@ export function InstanceDetail(): ReactNode {
   if (error !== undefined || instance === undefined) {
     return (
       <div className="flex flex-1 flex-col items-center justify-center gap-4">
-        <AlertCircle size={32} className="text-red-400" />
-        <p className="text-sm text-zinc-400">{error ?? "Instance not found"}</p>
+        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-red-50">
+          <AlertCircle size={32} className="text-red-500" />
+        </div>
+        <p className="text-sm text-gray-500">{error ?? "Instance not found"}</p>
         <Link to="/">
           <Button variant="secondary" size="sm" icon={<ArrowLeft size={14} />}>
             Back to Home
@@ -385,12 +406,12 @@ export function InstanceDetail(): ReactNode {
   }
 
   return (
-    <div className="flex flex-1 flex-col gap-6 p-6">
+    <div className="flex flex-1 flex-col gap-6 p-7">
       {/* Header */}
       <div className="flex items-center gap-4">
         <Link
           to="/"
-          className="flex h-8 w-8 items-center justify-center rounded-lg text-zinc-500 transition-colors hover:bg-surface-600 hover:text-zinc-300"
+          className="flex h-9 w-9 items-center justify-center rounded-xl text-gray-400 transition-all hover:bg-gray-100 hover:text-gray-600"
         >
           <ArrowLeft size={18} />
         </Link>
@@ -400,43 +421,45 @@ export function InstanceDetail(): ReactNode {
           <img
             src={instance.icon_url}
             alt={instance.name}
-            className="h-10 w-10 shrink-0 rounded-lg object-cover"
+            className="h-11 w-11 shrink-0 rounded-xl object-cover shadow-button"
             loading="lazy"
           />
         )}
 
         <div className="flex-1">
-          <h1 className="text-2xl font-bold text-zinc-100">{instance.name}</h1>
+          <h1 className="text-2xl font-extrabold text-gray-900">
+            {instance.name}
+          </h1>
           <div className="flex items-center gap-2">
             <Badge variant={loaderVariant}>{instance.loader}</Badge>
-            <span className="text-sm text-zinc-500">
+            <span className="text-sm text-gray-500">
               {instance.minecraft_version}
             </span>
           </div>
         </div>
 
-        {/* Action buttons — or progress bar if installing */}
+        {/* Action buttons \u2014 or progress bar if installing */}
         {isInstalling && installProgress !== undefined ? (
           <div className="flex items-center gap-3">
             <div className="flex flex-col items-end gap-1">
               <div className="flex items-center gap-2">
-                <Loader2 size={14} className="animate-spin text-accent" />
-                <span className="text-sm font-medium text-zinc-200">
-                  Installing...
+                <Loader2 size={14} className="animate-spin text-emerald-500" />
+                <span className="text-sm font-semibold text-gray-700">
+                  Installing\u2026
                 </span>
               </div>
-              <span className="text-xs text-zinc-500">
+              <span className="text-xs text-gray-500">
                 {stageLabel(installProgress.stage)}
               </span>
-              <div className="h-1.5 w-48 overflow-hidden rounded-full bg-surface-600">
+              <div className="h-2 w-48 overflow-hidden rounded-full bg-gray-100">
                 <div
-                  className="h-full rounded-full bg-accent transition-all duration-300"
+                  className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-emerald-500 transition-all duration-300"
                   style={{
                     width: `${String(Math.min(100, installProgress.overall_percent))}%`,
                   }}
                 />
               </div>
-              <span className="text-[10px] text-zinc-600">
+              <span className="text-[10px] font-medium text-gray-400">
                 {installProgress.overall_percent.toFixed(0)}%
               </span>
             </div>
@@ -444,14 +467,16 @@ export function InstanceDetail(): ReactNode {
         ) : (
           <div className="flex flex-col items-end gap-2">
             {isPreparing && (
-              <div className="flex items-center gap-2 text-xs text-zinc-400">
-                <Loader2 size={12} className="animate-spin text-accent" />
-                <span>Preparing...</span>
+              <div className="flex items-center gap-2 text-xs text-gray-500">
+                <Loader2 size={12} className="animate-spin text-emerald-500" />
+                <span>Preparing\u2026</span>
               </div>
             )}
 
             {isRunning && runningPid !== undefined && (
-              <Badge variant="success">Running (PID {String(runningPid)})</Badge>
+              <Badge variant="success">
+                Running (PID {String(runningPid)})
+              </Badge>
             )}
 
             {isGameCrashedStatus(gameStatus) && crashInfo !== undefined && (
@@ -465,16 +490,18 @@ export function InstanceDetail(): ReactNode {
 
             {isLaunchingThisInstance && downloadProgress !== undefined && (
               <div className="flex w-56 flex-col items-end gap-1">
-                <span className="text-xs text-zinc-400">
-                  Downloading Minecraft files before launch...
+                <span className="text-xs text-gray-500">
+                  Downloading Minecraft files before launch\u2026
                 </span>
-                <div className="h-1.5 w-full overflow-hidden rounded-full bg-surface-600">
+                <div className="h-2 w-full overflow-hidden rounded-full bg-gray-100">
                   <div
-                    className="h-full rounded-full bg-accent transition-all duration-300"
-                    style={{ width: `${String(getDownloadPercent(downloadProgress))}%` }}
+                    className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-emerald-500 transition-all duration-300"
+                    style={{
+                      width: `${String(getDownloadPercent(downloadProgress))}%`,
+                    }}
                   />
                 </div>
-                <span className="text-[10px] text-zinc-600">
+                <span className="text-[10px] font-medium text-gray-400">
                   {getDownloadPercent(downloadProgress).toFixed(0)}%
                 </span>
               </div>
@@ -518,22 +545,22 @@ export function InstanceDetail(): ReactNode {
 
       {/* Description */}
       {instance.description !== undefined && (
-        <p className="text-sm text-zinc-500">{instance.description}</p>
+        <p className="text-sm text-gray-500">{instance.description}</p>
       )}
 
       {launchError !== undefined && (
-        <div className="flex items-center gap-2 rounded-lg bg-red-900/20 px-3 py-2">
-          <AlertCircle size={14} className="text-red-400" />
-          <span className="text-xs text-red-300">{launchError}</span>
+        <div className="flex items-center gap-2 rounded-xl bg-red-50 px-3 py-2">
+          <AlertCircle size={14} className="text-red-500" />
+          <span className="text-xs text-red-600">{launchError}</span>
         </div>
       )}
 
       {!isJavaReady && (
-        <div className="flex items-center gap-2 rounded-lg bg-amber-900/20 px-3 py-2">
-          <AlertCircle size={14} className="text-amber-400" />
-          <span className="text-xs text-amber-300">
-            Java 21 n&apos;est pas prêt. Termine l&apos;installation via la popup
-            pour lancer cette instance.
+        <div className="flex items-center gap-2 rounded-xl bg-amber-50 px-3 py-2">
+          <AlertCircle size={14} className="text-amber-500" />
+          <span className="text-xs text-amber-700">
+            Java 21 n&apos;est pas pr\u00eat. Termine l&apos;installation via la
+            popup pour lancer cette instance.
           </span>
         </div>
       )}
@@ -541,27 +568,32 @@ export function InstanceDetail(): ReactNode {
       {isDownloadingBeforeLaunch &&
         !isLaunchingThisInstance &&
         downloadProgress !== undefined && (
-          <div className="flex flex-col gap-1 rounded-lg bg-surface-800 px-3 py-2">
-            <div className="flex items-center gap-2 text-xs text-zinc-300">
-              <Loader2 size={12} className="animate-spin text-accent" />
-              <span>Téléchargement Minecraft en cours avant lancement...</span>
+          <div className="flex flex-col gap-1 rounded-xl bg-white p-3 shadow-soft">
+            <div className="flex items-center gap-2 text-xs text-gray-600">
+              <Loader2 size={12} className="animate-spin text-emerald-500" />
+              <span>
+                T\u00e9l\u00e9chargement Minecraft en cours avant
+                lancement\u2026
+              </span>
             </div>
-            <div className="h-1.5 w-full overflow-hidden rounded-full bg-surface-600">
+            <div className="h-2 w-full overflow-hidden rounded-full bg-gray-100">
               <div
-                className="h-full rounded-full bg-accent transition-all duration-300"
-                style={{ width: `${String(getDownloadPercent(downloadProgress))}%` }}
+                className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-emerald-500 transition-all duration-300"
+                style={{
+                  width: `${String(getDownloadPercent(downloadProgress))}%`,
+                }}
               />
             </div>
-            <span className="text-[10px] text-zinc-600">
+            <span className="text-[10px] font-medium text-gray-400">
               {getDownloadPercent(downloadProgress).toFixed(0)}%
             </span>
           </div>
         )}
 
       {isGameCrashedStatus(gameStatus) && crashInfo !== undefined && (
-        <div className="flex items-center gap-2 rounded-lg bg-red-900/20 px-3 py-2">
-          <AlertCircle size={14} className="text-red-400" />
-          <span className="text-xs text-red-300">{crashInfo.message}</span>
+        <div className="flex items-center gap-2 rounded-xl bg-red-50 px-3 py-2">
+          <AlertCircle size={14} className="text-red-500" />
+          <span className="text-xs text-red-600">{crashInfo.message}</span>
         </div>
       )}
 
@@ -570,7 +602,10 @@ export function InstanceDetail(): ReactNode {
 
       {/* Tab content */}
       {activeTab === "mods" && (
-        <ModsTab instanceId={instance.id} actionsDisabled={modsActionsDisabled} />
+        <ModsTab
+          instanceId={instance.id}
+          actionsDisabled={modsActionsDisabled}
+        />
       )}
       {activeTab === "files" && (
         <FilesTab instancePath={instance.instance_path} />
@@ -578,12 +613,12 @@ export function InstanceDetail(): ReactNode {
       {activeTab === "settings" && <SettingsTab />}
 
       {/* Danger zone */}
-      <Card className="border-red-900/30">
+      <Card className="border border-red-100">
         <CardHeader>
-          <h3 className="font-medium text-red-400">Danger Zone</h3>
+          <h3 className="font-semibold text-red-500">Danger Zone</h3>
         </CardHeader>
         <CardContent className="flex items-center justify-between">
-          <p className="text-sm text-zinc-500">
+          <p className="text-sm text-gray-500">
             Permanently delete this instance and all its data.
           </p>
           <Button
@@ -630,12 +665,12 @@ export function InstanceDetail(): ReactNode {
                 )
               }
             >
-              {deleting ? "Deleting..." : "Delete Instance"}
+              {deleting ? "Deleting\u2026" : "Delete Instance"}
             </Button>
           </>
         }
       >
-        <p className="text-sm text-zinc-400">
+        <p className="text-sm text-gray-600">
           Are you sure you want to delete <strong>{instance.name}</strong>? This
           will remove all files including installed mods. This action cannot be
           undone.

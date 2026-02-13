@@ -150,15 +150,15 @@ export function InstallModModal({
         {/* Step 1: Select instance */}
         {step === "select_instance" && (
           <>
-            <p className="text-sm text-zinc-400">
+            <p className="text-sm text-gray-500">
               Select an instance to install this mod into:
             </p>
 
             {loadingInstances && (
               <div className="flex items-center justify-center py-6">
-                <Loader2 size={20} className="animate-spin text-accent" />
-                <span className="ml-2 text-sm text-zinc-500">
-                  Loading instances...
+                <Loader2 size={20} className="animate-spin text-emerald-500" />
+                <span className="ml-2 text-sm text-gray-500">
+                  Loading instances\u2026
                 </span>
               </div>
             )}
@@ -172,10 +172,10 @@ export function InstallModModal({
                       onClick={() => {
                         selectInstance(inst);
                       }}
-                      className="flex items-center gap-3 rounded-lg px-3 py-2 text-left transition-colors hover:bg-surface-600"
+                      className="flex items-center gap-3 rounded-xl px-3 py-2 text-left transition-colors hover:bg-gray-100"
                     >
                       <div className="flex flex-1 flex-col gap-0.5">
-                        <span className="text-sm font-medium text-zinc-200">
+                        <span className="text-sm font-medium text-gray-900">
                           {inst.name}
                         </span>
                         <div className="flex gap-1">
@@ -192,7 +192,7 @@ export function InstallModModal({
             )}
 
             {!loadingInstances && instances.length === 0 && (
-              <p className="py-4 text-center text-sm text-zinc-500">
+              <p className="py-4 text-center text-sm text-gray-500">
                 No instances found. Create one first.
               </p>
             )}
@@ -212,21 +212,21 @@ export function InstallModModal({
               >
                 Back
               </Button>
-              <span className="text-xs text-zinc-500">
+              <span className="text-xs text-gray-500">
                 Installing into{" "}
-                <strong className="text-zinc-300">
+                <strong className="text-gray-600">
                   {selectedInstance.name}
                 </strong>
               </span>
             </div>
 
-            <p className="text-sm text-zinc-400">Select a version:</p>
+            <p className="text-sm text-gray-500">Select a version:</p>
 
             {loadingVersions && (
               <div className="flex items-center justify-center py-6">
-                <Loader2 size={20} className="animate-spin text-accent" />
-                <span className="ml-2 text-sm text-zinc-500">
-                  Loading versions...
+                <Loader2 size={20} className="animate-spin text-emerald-500" />
+                <span className="ml-2 text-sm text-gray-500">
+                  Loading versions\u2026
                 </span>
               </div>
             )}
@@ -240,11 +240,13 @@ export function InstallModModal({
                       onClick={() => {
                         doInstall(v);
                       }}
-                      className="flex items-center gap-3 rounded-lg px-3 py-2 text-left transition-colors hover:bg-surface-600"
+                      className="flex items-center gap-3 rounded-xl px-3 py-2 text-left transition-colors hover:bg-gray-100"
                     >
-                      <Download size={14} className="shrink-0 text-zinc-500" />
+                      <div className="rounded-xl bg-emerald-50 p-1.5">
+                        <Download size={14} className="text-emerald-600" />
+                      </div>
                       <div className="flex flex-1 flex-col gap-0.5 overflow-hidden">
-                        <span className="truncate text-sm font-medium text-zinc-200">
+                        <span className="truncate text-sm font-medium text-gray-900">
                           {v.name}
                         </span>
                         <div className="flex flex-wrap gap-1">
@@ -262,7 +264,7 @@ export function InstallModModal({
             )}
 
             {!loadingVersions && filteredVersions.length === 0 && (
-              <p className="py-4 text-center text-sm text-zinc-500">
+              <p className="py-4 text-center text-sm text-gray-500">
                 No compatible versions found for this instance
               </p>
             )}
@@ -272,20 +274,22 @@ export function InstallModModal({
         {/* Step 3: Installing */}
         {step === "installing" && (
           <div className="flex flex-col items-center gap-3 py-6">
-            <Loader2 size={28} className="animate-spin text-accent" />
-            <p className="text-sm text-zinc-300">Installing mod...</p>
+            <Loader2 size={28} className="animate-spin text-emerald-500" />
+            <p className="text-sm text-gray-600">Installing mod\u2026</p>
           </div>
         )}
 
         {/* Step 4: Done */}
         {step === "done" && (
           <div className="flex flex-col items-center gap-3 py-6">
-            <CheckCircle2 size={28} className="text-accent" />
-            <p className="text-sm font-medium text-zinc-200">
+            <div className="rounded-xl bg-emerald-50 p-2">
+              <CheckCircle2 size={28} className="text-emerald-600" />
+            </div>
+            <p className="text-sm font-medium text-gray-900">
               Mod installed successfully!
             </p>
             {installedMod !== undefined && (
-              <p className="text-xs text-zinc-500">{installedMod.file_name}</p>
+              <p className="text-xs text-gray-500">{installedMod.file_name}</p>
             )}
             <Button size="sm" onClick={onClose}>
               Done
@@ -296,12 +300,14 @@ export function InstallModModal({
         {/* Error */}
         {step === "error" && (
           <div className="flex flex-col items-center gap-3 py-6">
-            <AlertCircle size={28} className="text-red-400" />
-            <p className="text-sm font-medium text-red-300">
+            <div className="rounded-xl bg-red-50 p-2">
+              <AlertCircle size={28} className="text-red-600" />
+            </div>
+            <p className="text-sm font-medium text-red-600">
               Installation failed
             </p>
             {errorMsg !== undefined && (
-              <p className="max-w-sm text-center text-xs text-zinc-500">
+              <p className="max-w-sm text-center text-xs text-gray-500">
                 {errorMsg}
               </p>
             )}
@@ -313,9 +319,9 @@ export function InstallModModal({
 
         {/* General error (during loading) */}
         {errorMsg !== undefined && step === "select_instance" && (
-          <div className="flex items-center gap-2 rounded-lg bg-red-950/30 p-3">
-            <AlertCircle size={16} className="text-red-400" />
-            <span className="text-xs text-red-300">{errorMsg}</span>
+          <div className="flex items-center gap-2 rounded-xl bg-red-50 p-3 text-red-600">
+            <AlertCircle size={16} className="shrink-0" />
+            <span className="text-xs">{errorMsg}</span>
           </div>
         )}
       </div>

@@ -9,11 +9,11 @@ interface BadgeProps {
 }
 
 const VARIANT_CLASSES: Record<BadgeVariant, string> = {
-  default: "bg-surface-600 text-zinc-300 border-border-default",
-  success: "bg-emerald-900/30 text-emerald-400 border-emerald-800/50",
-  warning: "bg-amber-900/30 text-amber-400 border-amber-800/50",
-  danger: "bg-red-900/30 text-red-400 border-red-800/50",
-  info: "bg-blue-900/30 text-blue-400 border-blue-800/50",
+  default: "bg-gray-100 text-gray-600",
+  success: "bg-emerald-50 text-emerald-600",
+  warning: "bg-amber-50 text-amber-600",
+  danger: "bg-red-50 text-red-600",
+  info: "bg-blue-50 text-blue-600",
 };
 
 export function Badge({
@@ -23,7 +23,7 @@ export function Badge({
 }: BadgeProps): ReactNode {
   return (
     <span
-      className={`inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-medium ${VARIANT_CLASSES[variant]} ${className}`}
+      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${VARIANT_CLASSES[variant]} ${className}`}
     >
       {children}
     </span>

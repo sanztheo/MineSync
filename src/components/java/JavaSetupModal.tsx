@@ -25,36 +25,36 @@ export function JavaSetupModal(): ReactNode {
   const stage = status.status === "installing" ? status.stage : undefined;
 
   return (
-    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/75 px-4">
-      <div className="w-full max-w-lg rounded-xl border border-border-default bg-surface-800 p-6 shadow-2xl">
-        <h2 className="text-xl font-bold text-zinc-100">Java requis</h2>
-        <p className="mt-2 text-sm text-zinc-400">
+    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/40 px-4">
+      <div className="w-full max-w-lg rounded-xl border border-gray-200 bg-white p-6 shadow-2xl">
+        <h2 className="text-xl font-bold text-gray-900">Java requis</h2>
+        <p className="mt-2 text-sm text-gray-600">
           MineSync a besoin de Java 21 pour lancer Minecraft. Clique sur le
           bouton pour installer automatiquement le runtime portable.
         </p>
 
         {errorMessage !== undefined && (
-          <div className="mt-4 flex items-start gap-2 rounded-lg bg-red-900/20 px-3 py-2">
-            <AlertCircle size={16} className="mt-0.5 shrink-0 text-red-400" />
-            <span className="text-xs text-red-300">{errorMessage}</span>
+          <div className="mt-4 flex items-start gap-2 rounded-xl bg-red-50 px-3 py-2 text-red-600">
+            <AlertCircle size={16} className="mt-0.5 shrink-0" />
+            <span className="text-xs">{errorMessage}</span>
           </div>
         )}
 
         {status.status === "installing" && (
-          <div className="mt-4 flex flex-col gap-2 rounded-lg bg-surface-700 px-3 py-3">
+          <div className="mt-4 flex flex-col gap-2 rounded-xl border border-gray-200 bg-gray-50 px-3 py-3">
             <div className="flex items-center gap-2">
-              <Loader2 size={14} className="animate-spin text-accent" />
-              <span className="text-sm text-zinc-300">
-                Installation Java ({stage ?? "working"})...
+              <Loader2 size={14} className="animate-spin text-emerald-500" />
+              <span className="text-sm text-gray-600">
+                Installation Java ({stage ?? "working"})\u2026
               </span>
             </div>
-            <div className="h-2 overflow-hidden rounded-full bg-surface-600">
+            <div className="h-2 overflow-hidden rounded-full bg-gray-100">
               <div
-                className="h-full rounded-full bg-accent transition-all duration-300"
+                className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-emerald-500 transition-all duration-300"
                 style={{ width: `${String(Math.min(100, progress))}%` }}
               />
             </div>
-            <div className="flex items-center justify-between text-[11px] text-zinc-500">
+            <div className="flex items-center justify-between text-[11px] text-gray-500">
               <span>{progress.toFixed(0)}%</span>
               <span>
                 {formatBytes(downloaded)}
@@ -68,7 +68,7 @@ export function JavaSetupModal(): ReactNode {
           <Button
             icon={
               isInstalling ? (
-                <Loader2 size={14} className="animate-spin" />
+                <Loader2 size={14} className="animate-spin text-emerald-500" />
               ) : (
                 <Download size={14} />
               )
@@ -78,7 +78,7 @@ export function JavaSetupModal(): ReactNode {
               void installJava();
             }}
           >
-            {isInstalling ? "Installation..." : "Installer Java 21"}
+            {isInstalling ? "Installation\u2026" : "Installer Java 21"}
           </Button>
         </div>
       </div>

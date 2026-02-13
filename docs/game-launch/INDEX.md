@@ -20,7 +20,7 @@
 | Fichier | Role |
 |---------|------|
 | `src-tauri/src/services/java.rs` | JavaService (Java 21 portable: detect/install/status) |
-| `src-tauri/src/commands/java.rs` | get_java_status, install_java_runtime, get_java_path |
+| `src-tauri/src/commands/java.rs` | get_java_status, get_java_install_progress, install_java_runtime, get_java_path |
 | `src-tauri/src/services/launch.rs` | LaunchService (config, spawn, monitor, kill) |
 | `src-tauri/src/commands/launch.rs` | launch_instance, get_game_status, kill_game |
 | `src/pages/Home.tsx` | Bouton Play sur les cartes d'instance |

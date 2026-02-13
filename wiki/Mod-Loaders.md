@@ -275,7 +275,7 @@ Directory structure:
 | Problem | Solution |
 |---------|----------|
 | Failed to install | Run as administrator (Windows) |
-| Java version error | Use Java 17+ for MC 1.18+ |
+| Java runtime missing | Install/Reinstall Java 21 from MineSync startup modal or Settings |
 | Out of memory | Increase RAM allocation |
 
 ### NeoForge Issues

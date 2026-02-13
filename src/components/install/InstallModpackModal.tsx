@@ -43,25 +43,25 @@ type Step = "select_version" | "installing" | "done" | "error";
 function stageLabel(stage: InstallStage): string {
   switch (stage.type) {
     case "fetching_info":
-      return "Fetching modpack info...";
+      return "Fetching modpack info\u2026";
     case "downloading_pack":
-      return "Downloading modpack archive...";
+      return "Downloading modpack archive\u2026";
     case "extracting_pack":
-      return "Extracting archive...";
+      return "Extracting archive\u2026";
     case "creating_instance":
-      return "Creating instance...";
+      return "Creating instance\u2026";
     case "downloading_minecraft":
-      return "Downloading Minecraft...";
+      return "Downloading Minecraft\u2026";
     case "installing_loader":
-      return "Installing mod loader...";
+      return "Installing mod loader\u2026";
     case "resolving_mods":
-      return "Resolving mod downloads...";
+      return "Resolving mod downloads\u2026";
     case "downloading_mods":
-      return `Downloading mods (${String(stage.current)}/${String(stage.total)})...`;
+      return `Downloading mods (${String(stage.current)}/${String(stage.total)})\u2026`;
     case "copying_overrides":
-      return "Copying overrides...";
+      return "Copying overrides\u2026";
     case "registering_mods":
-      return "Registering mods...";
+      return "Registering mods\u2026";
     case "completed":
       return "Installation complete!";
     case "failed":
@@ -174,26 +174,26 @@ export function InstallModpackModal({
     <Modal open={open} onClose={handleClose} title={`Install ${modpack.name}`}>
       <div className="flex flex-col gap-4">
         {/* Modpack info header */}
-        <div className="flex items-start gap-3 rounded-lg border border-border-default bg-surface-800 p-3">
+        <div className="flex items-start gap-3 rounded-xl border border-gray-200 bg-white p-3 shadow-sm">
           {modpack.icon_url !== undefined ? (
             <img
               src={modpack.icon_url}
               alt={modpack.name}
-              className="h-12 w-12 shrink-0 rounded-lg object-cover"
+              className="h-12 w-12 shrink-0 rounded-xl object-cover"
               loading="lazy"
             />
           ) : (
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-surface-600">
-              <Boxes size={20} className="text-zinc-500" />
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gray-100">
+              <Boxes size={20} className="text-gray-400" />
             </div>
           )}
           <div className="flex flex-1 flex-col gap-0.5 overflow-hidden">
-            <h3 className="truncate text-sm font-semibold text-zinc-100">
+            <h3 className="truncate text-sm font-bold text-gray-900">
               {modpack.name}
             </h3>
-            <span className="text-xs text-zinc-500">by {modpack.author}</span>
+            <span className="text-xs text-gray-500">by {modpack.author}</span>
             {modpack.description !== "" && (
-              <p className="line-clamp-2 text-xs text-zinc-600">
+              <p className="line-clamp-2 text-xs text-gray-400">
                 {modpack.description}
               </p>
             )}
@@ -203,15 +203,15 @@ export function InstallModpackModal({
         {/* Version selection */}
         {step === "select_version" && (
           <>
-            <p className="text-sm text-zinc-400">
+            <p className="text-sm text-gray-600">
               Select a version to install:
             </p>
 
             {loadingVersions && (
               <div className="flex items-center justify-center py-6">
-                <Loader2 size={20} className="animate-spin text-accent" />
-                <span className="ml-2 text-sm text-zinc-500">
-                  Loading versions...
+                <Loader2 size={20} className="animate-spin text-emerald-500" />
+                <span className="ml-2 text-sm text-gray-500">
+                  Loading versions\u2026
                 </span>
               </div>
             )}
@@ -225,10 +225,10 @@ export function InstallModpackModal({
                       onClick={() => {
                         startInstall(v);
                       }}
-                      className="flex items-center gap-3 rounded-lg px-3 py-2 text-left transition-colors hover:bg-surface-600"
+                      className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-all hover:bg-gray-50"
                     >
                       <div className="flex flex-1 flex-col gap-0.5 overflow-hidden">
-                        <span className="truncate text-sm font-medium text-zinc-200">
+                        <span className="truncate text-sm font-semibold text-gray-800">
                           {v.name}
                         </span>
                         <div className="flex flex-wrap gap-1">
@@ -244,7 +244,7 @@ export function InstallModpackModal({
                           ))}
                         </div>
                       </div>
-                      <ChevronRight size={16} className="text-zinc-600" />
+                      <ChevronRight size={16} className="text-gray-300" />
                     </button>
                   ))}
                 </div>
@@ -252,15 +252,15 @@ export function InstallModpackModal({
             )}
 
             {!loadingVersions && versions.length === 0 && (
-              <p className="py-4 text-center text-sm text-zinc-500">
+              <p className="py-4 text-center text-sm text-gray-500">
                 No versions found
               </p>
             )}
 
             {errorMsg !== undefined && (
-              <div className="flex items-center gap-2 rounded-lg bg-red-950/30 p-3">
-                <AlertCircle size={16} className="text-red-400" />
-                <span className="text-xs text-red-300">{errorMsg}</span>
+              <div className="flex items-center gap-2 rounded-xl bg-red-50 p-3">
+                <AlertCircle size={16} className="text-red-500" />
+                <span className="text-xs text-red-600">{errorMsg}</span>
               </div>
             )}
           </>
@@ -269,30 +269,31 @@ export function InstallModpackModal({
         {/* Installing */}
         {step === "installing" && (
           <div className="flex flex-col items-center gap-4 py-6">
-            <Loader2 size={32} className="animate-spin text-accent" />
-            <p className="text-sm font-medium text-zinc-200">
-              Installing modpack...
+            <Loader2 size={32} className="animate-spin text-emerald-500" />
+            <p className="text-sm font-semibold text-gray-800">
+              Installing modpack\u2026
             </p>
             {progress !== undefined && (
               <>
-                <p className="text-xs text-zinc-400">
+                <p className="text-xs text-gray-500">
                   {stageLabel(progress.stage)}
                 </p>
-                <div className="h-2 w-full overflow-hidden rounded-full bg-surface-600">
+                <div className="h-2 w-full overflow-hidden rounded-full bg-gray-100">
                   <div
-                    className="h-full rounded-full bg-accent transition-all duration-300"
+                    className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-emerald-500 transition-all duration-300"
                     style={{
                       width: `${String(Math.min(100, progress.overall_percent))}%`,
                     }}
                   />
                 </div>
-                <span className="text-xs text-zinc-600">
+                <span className="text-xs font-medium text-gray-400">
                   {progress.overall_percent.toFixed(0)}%
                 </span>
               </>
             )}
-            <p className="text-xs text-zinc-600">
-              You can close this dialog — installation continues in background.
+            <p className="text-xs text-gray-400">
+              You can close this dialog \u2014 installation continues in
+              background.
             </p>
             <Button
               size="sm"
@@ -308,8 +309,10 @@ export function InstallModpackModal({
         {/* Done */}
         {step === "done" && (
           <div className="flex flex-col items-center gap-4 py-6">
-            <CheckCircle2 size={32} className="text-accent" />
-            <p className="text-sm font-medium text-zinc-200">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50">
+              <CheckCircle2 size={28} className="text-emerald-500" />
+            </div>
+            <p className="text-sm font-semibold text-gray-800">
               Instance created successfully!
             </p>
             <Button size="sm" icon={<Download size={14} />} onClick={onClose}>
@@ -321,12 +324,14 @@ export function InstallModpackModal({
         {/* Error */}
         {step === "error" && (
           <div className="flex flex-col items-center gap-4 py-6">
-            <AlertCircle size={32} className="text-red-400" />
-            <p className="text-sm font-medium text-red-300">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-red-50">
+              <AlertCircle size={28} className="text-red-500" />
+            </div>
+            <p className="text-sm font-semibold text-red-600">
               Installation failed
             </p>
             {errorMsg !== undefined && (
-              <p className="max-w-sm text-center text-xs text-zinc-500">
+              <p className="max-w-sm text-center text-xs text-gray-500">
                 {errorMsg}
               </p>
             )}

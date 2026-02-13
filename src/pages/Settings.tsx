@@ -31,11 +31,11 @@ function SettingsSection({
   children: ReactNode;
 }): ReactNode {
   return (
-    <Card>
+    <Card className="bg-white shadow-soft rounded-[20px]">
       <CardHeader>
         <div className="flex items-center gap-2">
           {icon}
-          <h3 className="font-medium text-zinc-200">{title}</h3>
+          <h3 className="font-medium text-gray-900">{title}</h3>
         </div>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">{children}</CardContent>
@@ -50,16 +50,20 @@ export function Settings(): ReactNode {
   const { status: javaStatus, installJava, isInstalling } = useJavaRuntime();
 
   return (
-    <div className="flex flex-1 flex-col gap-6 p-6">
+    <div className="flex flex-1 flex-col gap-6 bg-surface-100 p-7">
       <div>
-        <h1 className="text-2xl font-bold text-zinc-100">Settings</h1>
-        <p className="text-sm text-zinc-500">Configure MineSync</p>
+        <h1 className="text-2xl font-extrabold text-gray-900">Settings</h1>
+        <p className="text-sm text-gray-600">Configure MineSync</p>
       </div>
 
       <div className="flex flex-col gap-4">
         {/* Installation directory */}
         <SettingsSection
-          icon={<FolderOpen size={18} className="text-zinc-400" />}
+          icon={
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50">
+              <FolderOpen size={18} className="text-blue-500" />
+            </div>
+          }
           title="Game Directory"
         >
           <Input
@@ -80,7 +84,11 @@ export function Settings(): ReactNode {
 
         {/* Java Runtime */}
         <SettingsSection
-          icon={<HardDrive size={18} className="text-zinc-400" />}
+          icon={
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-50">
+              <HardDrive size={18} className="text-amber-500" />
+            </div>
+          }
           title="Java Runtime"
         >
           <Input
@@ -89,7 +97,7 @@ export function Settings(): ReactNode {
             placeholder="Not installed"
             disabled
           />
-          <p className="text-xs text-zinc-600">
+          <p className="text-xs text-gray-600">
             {javaStatus.status === "ready"
               ? `Java ${String(javaStatus.major_version)} (${javaStatus.source})`
               : "Java 21 requis pour lancer les instances."}
@@ -110,14 +118,20 @@ export function Settings(): ReactNode {
                 void installJava();
               }}
             >
-              {isInstalling ? "Installing..." : "Install / Reinstall Java 21"}
+              {isInstalling
+                ? "Installing\u2026"
+                : "Install / Reinstall Java 21"}
             </Button>
           </div>
         </SettingsSection>
 
         {/* Memory / RAM */}
         <SettingsSection
-          icon={<Cpu size={18} className="text-zinc-400" />}
+          icon={
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-50">
+              <Cpu size={18} className="text-emerald-600" />
+            </div>
+          }
           title="Memory Allocation"
         >
           <Slider
@@ -129,14 +143,18 @@ export function Settings(): ReactNode {
             unit=" MB"
             onChange={setRamMb}
           />
-          <p className="text-xs text-zinc-600">
+          <p className="text-xs text-gray-600">
             Recommended: 4096 MB for modded, 2048 MB for vanilla.
           </p>
         </SettingsSection>
 
         {/* Network / P2P */}
         <SettingsSection
-          icon={<Wifi size={18} className="text-zinc-400" />}
+          icon={
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-purple-50">
+              <Wifi size={18} className="text-purple-500" />
+            </div>
+          }
           title="Network"
         >
           <Toggle
@@ -155,13 +173,17 @@ export function Settings(): ReactNode {
 
         {/* About */}
         <SettingsSection
-          icon={<Info size={18} className="text-zinc-400" />}
+          icon={
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gray-100">
+              <Info size={18} className="text-gray-600" />
+            </div>
+          }
           title="About"
         >
-          <div className="flex flex-col gap-2 text-sm text-zinc-500">
+          <div className="flex flex-col gap-2 text-sm text-gray-600">
             <div className="flex items-center justify-between">
               <span>MineSync</span>
-              <span className="font-mono text-xs text-zinc-600">v0.1.0</span>
+              <span className="font-mono text-xs text-gray-500">v0.1.0</span>
             </div>
             <p>Minecraft Launcher with P2P Mod Sync</p>
             <div className="flex gap-3 pt-1">
@@ -169,7 +191,7 @@ export function Settings(): ReactNode {
                 href="https://github.com/minesync"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-xs text-zinc-400 transition-colors hover:text-accent"
+                className="inline-flex items-center gap-1 text-xs text-emerald-600 transition-colors hover:text-emerald-700"
               >
                 GitHub <ExternalLink size={10} />
               </a>

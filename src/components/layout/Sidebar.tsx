@@ -31,10 +31,10 @@ function NavItem({ to, icon: Icon, label }: NavItemProps): ReactNode {
       to={to}
       end={to === "/"}
       className={({ isActive }) =>
-        `flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+        `flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-150 ${
           isActive
-            ? "bg-accent-muted text-accent"
-            : "text-zinc-400 hover:bg-surface-600 hover:text-zinc-200"
+            ? "bg-emerald-50 text-emerald-700 shadow-sm"
+            : "text-gray-500 hover:bg-gray-100 hover:text-gray-700"
         }`
       }
     >
@@ -70,24 +70,26 @@ function PlayerBadge(): ReactNode {
   return (
     <Link
       to="/auth"
-      className="flex items-center gap-3 rounded-lg px-3 py-2 transition-colors hover:bg-surface-600"
+      className="flex items-center gap-3 rounded-xl px-3 py-2.5 transition-all duration-150 hover:bg-gray-100"
     >
       {profile !== undefined ? (
         <img
           src={`${SKIN_BASE_URL}/${profile.uuid}/32`}
           alt={profile.username}
-          className="h-8 w-8 rounded-md"
+          width={32}
+          height={32}
+          className="h-8 w-8 rounded-lg shadow-button"
         />
       ) : (
-        <div className="flex h-8 w-8 items-center justify-center rounded-md bg-surface-600">
-          <User size={16} className="text-zinc-400" />
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-100">
+          <User size={16} className="text-gray-400" />
         </div>
       )}
       <div className="flex flex-col">
-        <span className="text-xs font-medium text-zinc-300">
+        <span className="text-xs font-semibold text-gray-700">
           {profile !== undefined ? profile.username : "Player"}
         </span>
-        <span className="text-[10px] text-zinc-600">
+        <span className="text-[10px] font-medium text-gray-400">
           {profile !== undefined ? "Connected" : "Not signed in"}
         </span>
       </div>
@@ -97,9 +99,9 @@ function PlayerBadge(): ReactNode {
 
 export function Sidebar(): ReactNode {
   return (
-    <aside className="flex w-[220px] shrink-0 flex-col border-r border-border-default bg-surface-800">
+    <aside className="flex w-[230px] shrink-0 flex-col bg-white shadow-soft">
       {/* Main navigation */}
-      <nav className="flex flex-1 flex-col gap-0.5 p-3">
+      <nav className="flex flex-1 flex-col gap-1 p-4">
         {NAV_ITEMS.map((item) => (
           <NavItem
             key={item.to}
@@ -111,7 +113,7 @@ export function Sidebar(): ReactNode {
       </nav>
 
       {/* Bottom section */}
-      <div className="flex flex-col gap-0.5 border-t border-border-default p-3">
+      <div className="flex flex-col gap-1 border-t border-gray-100 p-4">
         <NavItem to="/settings" icon={Settings} label="Settings" />
         <PlayerBadge />
       </div>

@@ -69,6 +69,8 @@ MineSync/
 │   │   ├── layout/              # App shell components
 │   │   │   ├── TitleBar.tsx     # Custom window title bar
 │   │   │   └── Sidebar.tsx      # Navigation sidebar
+│   │   ├── java/                # Java runtime setup UI
+│   │   │   └── JavaSetupModal.tsx
 │   │   └── ui/                  # Reusable UI components
 │   │       ├── Button.tsx
 │   │       ├── Card.tsx

@@ -24,11 +24,11 @@ export function Slider({
   const percentage = ((value - min) / (max - min)) * 100;
 
   return (
-    <div className={`flex flex-col gap-2 ${disabled ? "opacity-40" : ""}`}>
+    <div className={`flex flex-col gap-2.5 ${disabled ? "opacity-40" : ""}`}>
       {label !== undefined && (
         <div className="flex items-center justify-between">
-          <span className="text-sm font-medium text-zinc-400">{label}</span>
-          <span className="text-sm font-semibold text-zinc-200">
+          <span className="text-sm font-medium text-gray-600">{label}</span>
+          <span className="rounded-lg bg-emerald-50 px-2.5 py-1 text-sm font-bold text-emerald-600">
             {value}
             {unit}
           </span>
@@ -44,12 +44,12 @@ export function Slider({
         onChange={(e) => {
           onChange(Number(e.target.value));
         }}
-        className="h-2 w-full cursor-pointer appearance-none rounded-full bg-surface-500 accent-emerald-500"
+        className="h-2 w-full cursor-pointer appearance-none rounded-full"
         style={{
-          background: `linear-gradient(to right, #10b981 0%, #10b981 ${String(percentage)}%, #2e2e44 ${String(percentage)}%, #2e2e44 100%)`,
+          background: `linear-gradient(to right, #10b981 0%, #10b981 ${String(percentage)}%, #E5E7EB ${String(percentage)}%, #E5E7EB 100%)`,
         }}
       />
-      <div className="flex justify-between text-[10px] text-zinc-600">
+      <div className="flex justify-between text-[10px] font-medium text-gray-400">
         <span>
           {min}
           {unit}

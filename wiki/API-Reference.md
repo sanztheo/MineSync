@@ -1,6 +1,6 @@
 # API Reference
 
-MineSync exposes 38 Tauri IPC commands for frontend-backend communication. All commands are invoked via `@tauri-apps/api`.
+MineSync exposes Tauri IPC commands for frontend-backend communication. All commands are invoked via `@tauri-apps/api`.
 
 ## Command Categories
 
@@ -14,7 +14,7 @@ MineSync exposes 38 Tauri IPC commands for frontend-backend communication. All c
 | [Sync](#sync) | 6 | Modpack synchronization |
 | [Loaders](#loaders) | 2 | Mod loader installation |
 | [Launch](#launch) | 3 | Game launching |
-| [Settings](#settings) | 6 | App configuration |
+| [Java Runtime](#java-runtime) | 4 | Java 21 managed runtime |
 
 ---
 
@@ -674,15 +674,16 @@ Launches Minecraft with the specified instance.
 ```typescript
 interface LaunchParams {
   instance_id: string;
+  java_path: string;
 }
 ```
 
 **Returns:**
 ```typescript
-interface LaunchResult {
-  success: boolean;
-  pid?: number;
-  error?: string;
+interface LaunchInfo {
+  instance_id: string;
+  pid: number;
+  minecraft_version: string;
 }
 ```
 
@@ -697,10 +698,10 @@ Gets current game running status.
 **Returns:**
 ```typescript
 type GameStatus = 
-  | { status: 'idle' }
-  | { status: 'preparing' }
-  | { status: 'running'; pid: number }
-  | { status: 'crashed'; exit_code: number; message: string };
+  | "idle"
+  | "preparing"
+  | { running: { pid: number } }
+  | { crashed: { exit_code: number | null; message: string } };
 ```
 
 ---
@@ -715,32 +716,60 @@ Forcefully terminates the running game.
 
 ---
 
-## Settings
+## Java Runtime
 
-### `get_settings`
+### `get_java_status`
 
-Gets all application settings.
+Gets current Java runtime status used by startup modal and launch guards.
 
 **Returns:**
 ```typescript
-interface AppSettings {
-  ram_min: number;
-  ram_max: number;
-  java_path: string | null;
-  close_on_launch: boolean;
-  theme: 'dark' | 'light' | 'system';
+type JavaRuntimeStatus =
+  | {
+      status: "ready";
+      java_path: string;
+      major_version: number;
+      source: string;
+    }
+  | { status: "missing" }
+  | {
+      status: "installing";
+      stage: string;
+      percent: number;
+      downloaded_bytes: number;
+      total_bytes: number | null;
+    }
+  | { status: "error"; message: string };
+```
+
+---
+
+### `get_java_install_progress`
+
+Returns the same payload as `get_java_status`, optimized for polling during install.
+
+---
+
+### `install_java_runtime`
+
+Installs the managed Temurin Java 21 runtime (portable, app-local).
+
+**Returns:**
+```typescript
+interface JavaInstallResult {
+  java_path: string;
+  major_version: number;
+  install_dir: string;
 }
 ```
 
 ---
 
-### `update_settings`
+### `get_java_path`
 
-Updates application settings.
+Returns a valid Java executable path for launch (`managed` or compatible system Java).
 
-**Parameters:** `Partial<AppSettings>`
-
-**Returns:** `void`
+**Returns:** `string`
 
 ---
 
@@ -766,7 +795,8 @@ try {
 
 ## Events
 
-MineSync emits events for async operations:
+MineSync can emit events for async operations.  
+The current launch and Java flows are primarily polled via commands (`get_game_status`, `get_download_progress`, `get_java_install_progress`).
 
 | Event | Payload | Description |
 |-------|---------|-------------|

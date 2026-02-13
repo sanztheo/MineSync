@@ -31,15 +31,16 @@ Les **commands** sont les handlers IPC exposes au frontend via `#[tauri::command
 commands/
 ├── auth.rs           # start_auth, poll_auth, get_profile, logout
 ├── account.rs        # get_active_account, save_account
-├── instance.rs       # list_instances, create_instance, delete_instance
-├── java.rs           # get_java_status, install_java_runtime, get_java_path
+├── instance.rs       # list_instances, get_instance, create_instance, delete_instance
+├── java.rs           # get_java_status, get_java_install_progress, install_java_runtime, get_java_path
 ├── minecraft.rs      # list_mc_versions, download_version, get_download_progress
 ├── loader.rs         # list_loader_versions, install_loader
 ├── launch.rs         # launch_instance, get_game_status, kill_game
-├── mods.rs           # search_mods, get_mod_details, get_mod_versions
-├── p2p.rs            # start_p2p, stop_p2p, share_modpack, join_via_code
+├── mods.rs           # search_mods, search_modpacks, get_mod_details, get_mod_versions, resolve_mod_dependencies
+├── p2p.rs            # start_p2p, stop_p2p, get_p2p_status, share_modpack, join_via_code
 ├── sync.rs           # create_sync_session, join_sync_session
-└── sync_protocol.rs  # preview_sync, confirm_sync, reject_sync, apply_sync
+├── install.rs        # install_mod, install_modpack, get_install_progress, list_instance_mods, remove_mod
+└── sync_protocol.rs  # preview_sync, get_pending_sync, confirm_sync, reject_sync, apply_sync
 ```
 
 ### Services (`src-tauri/src/services/`)

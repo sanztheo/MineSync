@@ -48,29 +48,29 @@ Settings are stored in the SQLite database and can be modified via the Settings 
 - Heavy modpacks (100+ mods): 6-8 GB
 - Shader packs: 8+ GB
 
-### Java Configuration
+### Java Runtime
 
-| Setting | Default | Description |
-|---------|---------|-------------|
-| `java_path` | Auto-detect | Path to Java executable |
+MineSync utilise une politique runtime unique:
 
-MineSync auto-detects Java in these locations:
-- `JAVA_HOME` environment variable
-- System PATH
-- Common installation directories
+| Policy | Valeur |
+|--------|--------|
+| Runtime cible | Java 21 |
+| Runtime gere | Temurin 21 portable (installe localement) |
+| Dossier runtime | `{data_dir}/java-runtime/temurin-21/` |
+| Fallback | Java systeme si version majeure >= 21 |
 
-**Manual Java path:**
-- Windows: `C:\Program Files\Java\jdk-17\bin\javaw.exe`
-- macOS: `/Library/Java/JavaVirtualMachines/jdk-17.jdk/Contents/Home/bin/java`
-- Linux: `/usr/lib/jvm/java-17/bin/java`
+Le frontend affiche une popup bloquante au demarrage si Java 21 n'est pas pret.
+L'utilisateur peut installer/reinstaller Java 21 automatiquement depuis:
+- cette popup de demarrage,
+- la page **Settings > Java Runtime**.
 
-### Java Version Requirements
+Pendant l'installation, l'etat est disponible en IPC:
+- `get_java_status`
+- `get_java_install_progress`
+- `install_java_runtime`
+- `get_java_path`
 
-| Minecraft Version | Required Java |
-|-------------------|---------------|
-| 1.7.10 - 1.16.5 | Java 8 |
-| 1.17 - 1.20.4 | Java 17 |
-| 1.20.5+ | Java 21 |
+> Note: l'installation automatique est supportee sur macOS et Windows.
 
 ### Launch Behavior
 
@@ -96,7 +96,6 @@ Each instance can have custom settings that override global defaults.
 interface InstanceSettings {
     ram_min?: number;    // Override global minimum
     ram_max?: number;    // Override global maximum
-    java_path?: string;  // Use specific Java version
 }
 ```
 
@@ -111,6 +110,8 @@ Custom JVM arguments can be added per-instance:
 -XX:G1NewSizePercent=20
 -XX:G1ReservePercent=20
 ```
+
+> Le choix du runtime Java n'est plus configure par instance: MineSync utilise Java 21 globalement.
 
 ## P2P Network Settings
 
@@ -165,6 +166,10 @@ minesync/
 │   ├── forge/
 │   ├── neoforge/
 │   └── quilt/
+├── java-runtime/            # Runtime Java portable
+│   └── temurin-21/
+│       ├── java_path.txt
+│       └── extract/...
 └── logs/                    # Application logs
 ```
 
@@ -317,6 +322,7 @@ Remove downloaded files:
 rm -rf ~/.local/share/minesync/versions/
 rm -rf ~/.local/share/minesync/libraries/
 rm -rf ~/.local/share/minesync/assets/
+rm -rf ~/.local/share/minesync/java-runtime/
 ```
 
 ## Next Steps

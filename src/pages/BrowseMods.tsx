@@ -81,7 +81,7 @@ function FilterSelect({
 }): ReactNode {
   return (
     <div className="flex flex-col gap-1">
-      <span className="text-[10px] font-medium uppercase tracking-wider text-zinc-600">
+      <span className="text-[10px] font-medium uppercase tracking-wider text-gray-500">
         {label}
       </span>
       <select
@@ -89,7 +89,7 @@ function FilterSelect({
         onChange={(e) => {
           onChange(e.target.value);
         }}
-        className="rounded-lg border border-border-default bg-surface-700 px-2.5 py-1.5 text-xs text-zinc-200 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30"
+        className="rounded-xl border border-gray-200 bg-white px-2.5 py-1.5 text-xs text-gray-900 shadow-inset focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
       >
         <option value="">All</option>
         {options.map((opt) => (
@@ -116,31 +116,31 @@ function ModCard({
         <img
           src={mod.icon_url}
           alt={mod.name}
-          className="h-12 w-12 shrink-0 rounded-lg object-cover"
+          className="h-12 w-12 shrink-0 rounded-xl object-cover"
           loading="lazy"
         />
       ) : (
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-surface-600">
-          <Package size={20} className="text-zinc-500" />
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gray-100">
+          <Package size={20} className="text-gray-500" />
         </div>
       )}
 
       {/* Info */}
       <div className="flex flex-1 flex-col gap-1 overflow-hidden">
         <div className="flex items-center gap-2">
-          <h3 className="truncate text-sm font-semibold text-zinc-100">
+          <h3 className="truncate text-sm font-semibold text-gray-900">
             {mod.name}
           </h3>
           <Badge variant={SOURCE_BADGE_VARIANT[mod.source]}>{mod.source}</Badge>
         </div>
-        <span className="text-xs text-zinc-500">by {mod.author}</span>
-        <p className="line-clamp-2 text-xs text-zinc-600">{mod.description}</p>
+        <span className="text-xs text-gray-500">by {mod.author}</span>
+        <p className="line-clamp-2 text-xs text-gray-600">{mod.description}</p>
         {mod.loaders.length > 0 && (
           <div className="flex flex-wrap gap-1 pt-0.5">
             {mod.loaders.map((loader) => (
               <span
                 key={loader}
-                className="rounded bg-surface-600 px-1.5 py-0.5 text-[10px] text-zinc-500"
+                className="rounded-xl bg-gray-100 px-1.5 py-0.5 text-[10px] text-gray-500"
               >
                 {loader}
               </span>
@@ -151,7 +151,7 @@ function ModCard({
 
       {/* Actions */}
       <div className="flex shrink-0 flex-col items-end gap-2">
-        <span className="text-xs text-zinc-600">
+        <span className="text-xs text-gray-600">
           {formatDownloads(mod.downloads)}
         </span>
         <Button
@@ -198,7 +198,7 @@ function Pagination({
       >
         Previous
       </Button>
-      <span className="text-xs text-zinc-500">
+      <span className="text-xs text-gray-500">
         Page {currentPage} of {totalPages}
       </span>
       <Button
@@ -280,18 +280,20 @@ export function BrowseMods(): ReactNode {
   );
 
   return (
-    <div className="flex flex-1 flex-col gap-4 p-6">
+    <div className="flex flex-1 flex-col gap-6 bg-surface-100 p-7">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-zinc-100">Browse Mods</h1>
-        <p className="text-sm text-zinc-500">Search CurseForge and Modrinth</p>
+        <h1 className="text-2xl font-bold text-gray-900 text-pretty">
+          Browse Mods
+        </h1>
+        <p className="text-sm text-gray-600">Search CurseForge and Modrinth</p>
       </div>
 
       {/* Search bar + filter toggle */}
       <div className="flex items-end gap-3">
         <div className="flex-1">
           <Input
-            placeholder="Search mods..."
+            placeholder="Search mods\u2026"
             icon={<Search size={16} />}
             value={query}
             onChange={(e) => {
@@ -313,7 +315,7 @@ export function BrowseMods(): ReactNode {
 
       {/* Filters bar */}
       {showFilters && (
-        <div className="flex flex-wrap items-end gap-4 rounded-xl border border-border-default bg-surface-800 p-4">
+        <div className="flex flex-wrap items-end gap-4 rounded-[20px] bg-white p-5 shadow-soft">
           <FilterSelect
             label="Sort by"
             value={sortBy}
@@ -352,21 +354,23 @@ export function BrowseMods(): ReactNode {
       {/* Loading */}
       {loading && (
         <div className="flex items-center justify-center py-12">
-          <Loader2 size={24} className="animate-spin text-accent" />
-          <span className="ml-3 text-sm text-zinc-500">Searching mods...</span>
+          <Loader2 size={24} className="animate-spin text-emerald-500" />
+          <span className="ml-3 text-sm text-gray-500">
+            Searching mods\u2026
+          </span>
         </div>
       )}
 
       {/* Error */}
       {error !== undefined && !loading && (
-        <Card className="border-red-900/30">
+        <Card className="rounded-xl border-red-200 bg-red-50">
           <div className="flex items-center gap-3 p-4">
-            <AlertCircle size={18} className="shrink-0 text-red-400" />
+            <AlertCircle size={18} className="shrink-0 text-red-600" />
             <div className="flex flex-1 flex-col gap-0.5">
-              <span className="text-sm font-medium text-red-300">
+              <span className="text-sm font-medium text-red-600">
                 Search failed
               </span>
-              <span className="text-xs text-zinc-500">{error}</span>
+              <span className="text-xs text-gray-600">{error}</span>
             </div>
             <Button
               size="sm"
@@ -387,7 +391,7 @@ export function BrowseMods(): ReactNode {
           {/* Results count */}
           {results.length > 0 && (
             <div className="flex items-center justify-between">
-              <span className="text-xs text-zinc-600">
+              <span className="text-xs text-gray-600">
                 {totalHits.toLocaleString()} results found
               </span>
             </div>
@@ -406,12 +410,14 @@ export function BrowseMods(): ReactNode {
 
           {/* Empty state */}
           {results.length === 0 && debouncedQuery !== "" && (
-            <div className="flex flex-col items-center justify-center py-12 text-zinc-600">
-              <Package size={40} className="mb-3 text-zinc-700" />
-              <p className="text-sm">
+            <div className="flex flex-col items-center justify-center py-12">
+              <div className="mb-3 flex h-16 w-16 items-center justify-center rounded-3xl bg-gray-100">
+                <Package size={40} className="text-gray-400" />
+              </div>
+              <p className="text-sm text-gray-600">
                 No mods found for &quot;{debouncedQuery}&quot;
               </p>
-              <p className="text-xs text-zinc-700">
+              <p className="text-xs text-gray-500">
                 Try different keywords or filters
               </p>
             </div>
@@ -419,10 +425,14 @@ export function BrowseMods(): ReactNode {
 
           {/* Welcome state */}
           {results.length === 0 && debouncedQuery === "" && !loading && (
-            <div className="flex flex-col items-center justify-center py-12 text-zinc-600">
-              <Search size={40} className="mb-3 text-zinc-700" />
-              <p className="text-sm">Search for mods to get started</p>
-              <p className="text-xs text-zinc-700">
+            <div className="flex flex-col items-center justify-center py-12">
+              <div className="mb-3 flex h-16 w-16 items-center justify-center rounded-3xl bg-gray-100">
+                <Search size={40} className="text-gray-400" />
+              </div>
+              <p className="text-sm text-gray-600">
+                Search for mods to get started
+              </p>
+              <p className="text-xs text-gray-500">
                 Results from CurseForge and Modrinth
               </p>
             </div>
