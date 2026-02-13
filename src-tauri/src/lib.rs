@@ -100,6 +100,7 @@ pub fn run() {
             loader::install_loader,
             launch::launch_instance,
             launch::get_game_status,
+            launch::kill_game,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

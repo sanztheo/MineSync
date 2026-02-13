@@ -297,6 +297,20 @@ impl DatabaseService {
         Ok(())
     }
 
+    /// Increment play time and set last_played_at for an instance.
+    pub fn update_play_time(&self, instance_id: &str, additional_seconds: i64) -> AppResult<()> {
+        let conn = self.conn()?;
+        conn.execute(
+            "UPDATE instances SET
+             last_played_at = datetime('now'),
+             total_play_time = total_play_time + ?1,
+             updated_at = datetime('now')
+             WHERE id = ?2 AND is_active = 1",
+            params![additional_seconds, instance_id],
+        )?;
+        Ok(())
+    }
+
     // --- Mod CRUD ---
 
     pub fn add_mod_to_instance(&self, mod_info: &ModInfo) -> AppResult<()> {

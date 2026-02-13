@@ -31,10 +31,10 @@ struct LatestVersions {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct VersionEntry {
     pub id: String,
-    #[serde(rename = "type")]
+    #[serde(alias = "type")]
     pub version_type: String,
     pub url: String,
-    #[serde(rename = "releaseTime")]
+    #[serde(alias = "releaseTime")]
     pub release_time: String,
 }
 

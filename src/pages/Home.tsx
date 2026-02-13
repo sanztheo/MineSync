@@ -162,8 +162,12 @@ function CreateInstanceModal({
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState<string | undefined>(undefined);
 
-  const { data: versions, loading: versionsLoading } =
-    useTauriCommand<VersionEntry[]>(listMcVersions);
+  const {
+    data: versions,
+    loading: versionsLoading,
+    error: versionsError,
+    refetch: refetchVersions,
+  } = useTauriCommand<VersionEntry[]>(listMcVersions);
 
   const releaseVersions = useMemo(
     () => (versions ?? []).filter((v) => v.version_type === "release"),
@@ -242,6 +246,18 @@ function CreateInstanceModal({
             <div className="flex items-center gap-2 py-2">
               <Loader2 size={14} className="animate-spin text-zinc-500" />
               <span className="text-xs text-zinc-500">Loading versions...</span>
+            </div>
+          ) : versionsError !== undefined ? (
+            <div className="flex items-center gap-2 rounded-lg bg-red-900/20 px-3 py-2">
+              <AlertCircle size={14} className="shrink-0 text-red-400" />
+              <span className="text-xs text-red-300">{versionsError}</span>
+              <button
+                type="button"
+                onClick={refetchVersions}
+                className="ml-auto text-xs text-accent hover:underline"
+              >
+                Retry
+              </button>
             </div>
           ) : (
             <select

@@ -63,27 +63,108 @@ export interface ModInfo {
 export interface SyncSession {
   id: string;
   instance_id: string;
-  sync_code: string;
+  share_code: string | undefined;
+  peer_id: string | undefined;
+  is_host: boolean;
   status: SyncStatus;
-  peer_count: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export type SyncAction = "joined" | "synced" | "updated" | "left";
+
+export interface SyncHistory {
+  id: string;
+  session_id: string;
+  action: SyncAction;
+  peer_name: string | undefined;
+  mods_added: number;
+  mods_removed: number;
+  mods_updated: number;
   created_at: string;
 }
 
 export interface SyncManifest {
+  id: string;
+  name: string;
   instance_id: string;
   minecraft_version: string;
-  loader: string;
+  loader_type: string | undefined;
   loader_version: string | undefined;
   mods: SyncModEntry[];
+  manifest_version: number;
   created_at: string;
 }
 
 export interface SyncModEntry {
-  name: string;
-  version: string;
-  source: string;
-  source_id: string | undefined;
+  mod_name: string;
+  mod_version: string;
+  file_name: string;
   file_hash: string | undefined;
+  source: string;
+  source_project_id: string | undefined;
+  source_version_id: string | undefined;
+}
+
+// Sync protocol — mirrors services/sync_protocol
+
+export interface ManifestDiff {
+  to_add: SyncModEntry[];
+  to_remove: SyncModEntry[];
+  to_update: ModUpdate[];
+  version_mismatch: VersionMismatch | undefined;
+}
+
+export interface ModUpdate {
+  mod_name: string;
+  local_version: string;
+  remote_version: string;
+  source: string;
+  source_project_id: string | undefined;
+  source_version_id: string | undefined;
+  remote_file_name: string;
+  remote_hash: string | undefined;
+}
+
+export interface VersionMismatch {
+  local_mc_version: string;
+  remote_mc_version: string;
+  local_loader: string | undefined;
+  remote_loader: string | undefined;
+}
+
+export type PendingSyncStatus =
+  | "awaiting_confirmation"
+  | "syncing"
+  | "completed"
+  | "rejected";
+
+export interface PendingSync {
+  session_id: string;
+  remote_peer_id: string;
+  local_manifest: SyncManifest;
+  remote_manifest: SyncManifest;
+  diff: ManifestDiff;
+  status: PendingSyncStatus;
+}
+
+export interface PreviewSyncResponse {
+  session_id: string;
+  diff: ManifestDiff;
+}
+
+export interface ApplyResult {
+  mods_added: string[];
+  mods_removed: string[];
+  mods_updated: string[];
+  errors: string[];
+}
+
+// P2P — mirrors services/p2p
+
+export interface P2pStatus {
+  is_running: boolean;
+  peer_id: string;
 }
 
 // Auth — mirrors Rust models/auth.rs

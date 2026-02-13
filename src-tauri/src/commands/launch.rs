@@ -12,6 +12,7 @@ pub async fn launch_instance(
     mc_svc: tauri::State<'_, MinecraftService>,
     loader_svc: tauri::State<'_, LoaderService>,
     db: tauri::State<'_, DatabaseService>,
+    app_handle: tauri::AppHandle,
     instance_id: String,
     java_path: String,
 ) -> AppResult<LaunchInfo> {
@@ -23,7 +24,9 @@ pub async fn launch_instance(
     // Fetch account (need auth token for Minecraft)
     let account = db
         .get_active_account()?
-        .ok_or_else(|| AppError::Custom("No active account. Please log in first.".to_string()))?;
+        .ok_or_else(|| {
+            AppError::Custom("No active account. Please log in first.".to_string())
+        })?;
 
     // Fetch version detail (needs cached manifest)
     let version_detail = mc_svc
@@ -40,7 +43,11 @@ pub async fn launch_instance(
         })?;
 
         let profile = loader_svc
-            .install_loader(&instance.loader, &instance.minecraft_version, loader_version)
+            .install_loader(
+                &instance.loader,
+                &instance.minecraft_version,
+                loader_version,
+            )
             .await?;
 
         Some(profile)
@@ -48,7 +55,7 @@ pub async fn launch_instance(
         None
     };
 
-    // Launch
+    // Launch (handles P2P stop, process monitoring, play time tracking)
     launch_svc
         .launch(
             &instance_id,
@@ -57,6 +64,7 @@ pub async fn launch_instance(
             loader_profile.as_ref(),
             &account,
             &java_path,
+            app_handle,
         )
         .await
 }
@@ -66,4 +74,11 @@ pub fn get_game_status(
     launch_svc: tauri::State<'_, LaunchService>,
 ) -> AppResult<GameStatus> {
     launch_svc.status()
+}
+
+#[tauri::command]
+pub fn kill_game(
+    launch_svc: tauri::State<'_, LaunchService>,
+) -> AppResult<()> {
+    launch_svc.kill_game()
 }
