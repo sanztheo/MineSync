@@ -116,8 +116,20 @@ impl UnifiedModClient {
                     empty_response(filters)
                 });
 
+                log::info!(
+                    "[UnifiedModClient] content_type={:?} | MR: {} hits | CF: {} hits",
+                    filters.content_type,
+                    mr.hits.len(),
+                    cf.hits.len()
+                );
+
                 let total_hits = mr.total_hits + cf.total_hits;
                 let merged = deduplicate_results(mr.hits, cf.hits);
+
+                log::info!(
+                    "[UnifiedModClient] After dedup: {} results",
+                    merged.len()
+                );
 
                 Ok(SearchResponse {
                     hits: merged,

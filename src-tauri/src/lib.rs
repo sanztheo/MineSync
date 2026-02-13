@@ -58,6 +58,13 @@ pub fn run() {
             // Mod platform client (CurseForge + Modrinth)
             // CurseForge API key is optional — pass None to use Modrinth only
             let cf_key = std::env::var("CURSEFORGE_API_KEY").ok();
+            if let Some(ref key) = cf_key {
+                log::info!("[INIT] CurseForge API key loaded: {}...{} (len={})",
+                    &key[..key.len().min(8)],
+                    &key[key.len().saturating_sub(4)..],
+                    key.len()
+                );
+            }
             app.manage(UnifiedModClient::new(cf_key));
 
             // P2P service (starts as None, activated via command)
