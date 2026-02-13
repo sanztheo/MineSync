@@ -1,6 +1,7 @@
 import {
   type ReactNode,
   createContext,
+  createElement,
   useCallback,
   useContext,
   useEffect,
@@ -51,10 +52,6 @@ function useProvideJavaRuntime(): JavaRuntimeContextValue {
   }, []);
 
   useEffect(() => {
-    void refreshStatus();
-  }, [refreshStatus]);
-
-  useEffect(() => {
     const poll = async (): Promise<void> => {
       try {
         const current = await getJavaInstallProgress();
@@ -72,7 +69,7 @@ function useProvideJavaRuntime(): JavaRuntimeContextValue {
     return () => {
       clearInterval(interval);
     };
-  }, []);
+  }, [refreshStatus]);
 
   const installJava = useCallback(async (): Promise<void> => {
     try {
@@ -115,11 +112,7 @@ export function JavaRuntimeProvider({
   children: ReactNode;
 }): ReactNode {
   const value = useProvideJavaRuntime();
-  return (
-    <JavaRuntimeContext.Provider value={value}>
-      {children}
-    </JavaRuntimeContext.Provider>
-  );
+  return createElement(JavaRuntimeContext.Provider, { value }, children);
 }
 
 export function useJavaRuntime(): JavaRuntimeContextValue {

@@ -4,6 +4,7 @@ use std::sync::{Arc, Mutex};
 use flate2::read::GzDecoder;
 use futures_util::StreamExt;
 use sha2::{Digest, Sha256};
+use tokio::io::AsyncReadExt;
 use tokio::io::AsyncWriteExt;
 
 use crate::errors::{AppError, AppResult};
@@ -53,6 +54,17 @@ impl JavaService {
 
     pub async fn install_runtime(&self) -> AppResult<JavaInstallResult> {
         let _guard = self.install_lock.lock().await;
+
+        let result = self.install_runtime_locked().await;
+        if let Err(err) = &result {
+            let _ = self.set_status(JavaRuntimeStatus::Error {
+                message: err.to_string(),
+            });
+        }
+        result
+    }
+
+    async fn install_runtime_locked(&self) -> AppResult<JavaInstallResult> {
 
         if let Some((java_path, major, source)) = self.resolve_existing_java()? {
             let ready = JavaRuntimeStatus::Ready {
@@ -353,7 +365,7 @@ async fn compute_sha256(path: &Path) -> AppResult<String> {
     let mut buffer = vec![0u8; 64 * 1024];
 
     loop {
-        let n = tokio::io::AsyncReadExt::read(&mut file, &mut buffer).await?;
+        let n = file.read(&mut buffer).await?;
         if n == 0 {
             break;
         }

@@ -11,7 +11,10 @@ import {
   Wifi,
   Info,
   ExternalLink,
+  Loader2,
+  Download,
 } from "lucide-react";
+import { useJavaRuntime } from "@/hooks/use-java-runtime";
 
 const MIN_RAM_MB = 1024;
 const MAX_RAM_MB = 16384;
@@ -44,6 +47,7 @@ export function Settings(): ReactNode {
   const [ramMb, setRamMb] = useState(DEFAULT_RAM_MB);
   const [p2pEnabled, setP2pEnabled] = useState(true);
   const [autoUpdate, setAutoUpdate] = useState(true);
+  const { status: javaStatus, installJava, isInstalling } = useJavaRuntime();
 
   return (
     <div className="flex flex-1 flex-col gap-6 p-6">
@@ -79,10 +83,36 @@ export function Settings(): ReactNode {
           icon={<HardDrive size={18} className="text-zinc-400" />}
           title="Java Runtime"
         >
-          <Input label="Java path" placeholder="Auto-detect" disabled />
+          <Input
+            label="Java path"
+            value={javaStatus.status === "ready" ? javaStatus.java_path : ""}
+            placeholder="Not installed"
+            disabled
+          />
           <p className="text-xs text-zinc-600">
-            Leave empty to auto-detect the installed Java runtime.
+            {javaStatus.status === "ready"
+              ? `Java ${String(javaStatus.major_version)} (${javaStatus.source})`
+              : "Java 21 requis pour lancer les instances."}
           </p>
+          <div>
+            <Button
+              size="sm"
+              variant="secondary"
+              icon={
+                isInstalling ? (
+                  <Loader2 size={14} className="animate-spin" />
+                ) : (
+                  <Download size={14} />
+                )
+              }
+              disabled={isInstalling}
+              onClick={() => {
+                void installJava();
+              }}
+            >
+              {isInstalling ? "Installing..." : "Install / Reinstall Java 21"}
+            </Button>
+          </div>
         </SettingsSection>
 
         {/* Memory / RAM */}
