@@ -184,6 +184,17 @@ impl UnifiedModClient {
         }
     }
 
+    /// Resolve CurseForge file IDs in batch via the CF API.
+    pub async fn get_cf_files_batch(
+        &self,
+        file_ids: &[u32],
+    ) -> AppResult<Vec<curseforge::CfResolvedFile>> {
+        let cf = self.curseforge.as_ref().ok_or_else(|| {
+            crate::errors::AppError::Custom("CurseForge API key not configured".to_string())
+        })?;
+        cf.get_files_batch(file_ids).await
+    }
+
     /// Resolve all required dependencies for a given version, recursively.
     ///
     /// Returns a flat list of all transitive required dependencies.

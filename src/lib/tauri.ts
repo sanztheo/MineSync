@@ -15,6 +15,10 @@ import type {
   PreviewSyncResponse,
   SyncManifest,
   ApplyResult,
+  ModInfo,
+  ModSource,
+  ModVersionInfo,
+  InstallProgress,
 } from "./types";
 
 export async function listInstances(): Promise<MinecraftInstance[]> {
@@ -164,4 +168,44 @@ export async function applySyncSession(
   sessionId: string,
 ): Promise<ApplyResult> {
   return invoke<ApplyResult>("apply_sync", { sessionId });
+}
+
+// Install commands — mirrors src-tauri/src/commands/install.rs
+
+export async function installMod(params: {
+  instanceId: string;
+  source: ModSource;
+  projectId: string;
+  versionId: string;
+}): Promise<ModInfo> {
+  return invoke<ModInfo>("install_mod", params);
+}
+
+export async function installModpack(params: {
+  source: ModSource;
+  projectId: string;
+  versionId: string;
+}): Promise<MinecraftInstance> {
+  return invoke<MinecraftInstance>("install_modpack", params);
+}
+
+export async function getInstallProgress(): Promise<InstallProgress> {
+  return invoke<InstallProgress>("get_install_progress");
+}
+
+export async function getModVersions(params: {
+  source: ModSource;
+  projectId: string;
+  gameVersion?: string;
+  loader?: string;
+}): Promise<ModVersionInfo[]> {
+  return invoke<ModVersionInfo[]>("get_mod_versions", params);
+}
+
+export async function listInstanceMods(instanceId: string): Promise<ModInfo[]> {
+  return invoke<ModInfo[]>("list_instance_mods", { instanceId });
+}
+
+export async function removeMod(modId: string): Promise<void> {
+  return invoke<void>("remove_mod", { modId });
 }

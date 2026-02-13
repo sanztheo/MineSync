@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { useDebounce } from "@/hooks/use-debounce";
 import { searchMods } from "@/lib/tauri";
+import { InstallModModal } from "@/components/install/InstallModModal";
 import type { ModSearchResult, SearchSort, ModSource } from "@/lib/types";
 
 // --- Constants ---
@@ -101,7 +102,13 @@ function FilterSelect({
   );
 }
 
-function ModCard({ mod }: { mod: ModSearchResult }): ReactNode {
+function ModCard({
+  mod,
+  onInstall,
+}: {
+  mod: ModSearchResult;
+  onInstall: (mod: ModSearchResult) => void;
+}): ReactNode {
   return (
     <Card hoverable className="flex items-start gap-4">
       {/* Icon */}
@@ -147,7 +154,14 @@ function ModCard({ mod }: { mod: ModSearchResult }): ReactNode {
         <span className="text-xs text-zinc-600">
           {formatDownloads(mod.downloads)}
         </span>
-        <Button size="sm" variant="secondary" icon={<Download size={12} />}>
+        <Button
+          size="sm"
+          variant="secondary"
+          icon={<Download size={12} />}
+          onClick={() => {
+            onInstall(mod);
+          }}
+        >
           Install
         </Button>
       </div>
@@ -216,6 +230,9 @@ export function BrowseMods(): ReactNode {
   const [totalHits, setTotalHits] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | undefined>(undefined);
+  const [selectedMod, setSelectedMod] = useState<ModSearchResult | undefined>(
+    undefined,
+  );
 
   const debouncedQuery = useDebounce(query, DEBOUNCE_DELAY_MS);
 
@@ -379,7 +396,11 @@ export function BrowseMods(): ReactNode {
           {/* Mod list */}
           <div className="flex flex-col gap-3">
             {results.map((mod) => (
-              <ModCard key={`${mod.source}-${mod.id}`} mod={mod} />
+              <ModCard
+                key={`${mod.source}-${mod.id}`}
+                mod={mod}
+                onInstall={setSelectedMod}
+              />
             ))}
           </div>
 
@@ -417,6 +438,17 @@ export function BrowseMods(): ReactNode {
             />
           )}
         </>
+      )}
+
+      {/* Install modal */}
+      {selectedMod !== undefined && (
+        <InstallModModal
+          open
+          onClose={() => {
+            setSelectedMod(undefined);
+          }}
+          mod={selectedMod}
+        />
       )}
     </div>
   );

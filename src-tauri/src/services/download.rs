@@ -234,10 +234,32 @@ impl DownloadService {
 // --- Helpers ---
 
 async fn is_file_cached(task: &DownloadTask) -> bool {
-    match tokio::fs::metadata(&task.dest).await {
-        Ok(meta) => meta.len() == task.size && task.size > 0,
-        Err(_) => false,
+    let meta = match tokio::fs::metadata(&task.dest).await {
+        Ok(m) => m,
+        Err(_) => return false,
+    };
+
+    if meta.len() != task.size || task.size == 0 {
+        return false;
     }
+
+    // Verify SHA1 when available to detect corrupted/tampered files
+    if let Some(ref expected_sha1) = task.sha1 {
+        let bytes = match tokio::fs::read(&task.dest).await {
+            Ok(b) => b,
+            Err(_) => return false,
+        };
+        let actual = compute_sha1(&bytes);
+        if actual != *expected_sha1 {
+            log::warn!(
+                "Cache SHA1 mismatch for {}, re-downloading",
+                task.dest.display()
+            );
+            return false;
+        }
+    }
+
+    true
 }
 
 fn compute_sha1(data: &[u8]) -> String {

@@ -187,6 +187,61 @@ export interface MinecraftProfile {
   uuid: string;
 }
 
+// Install — mirrors Rust models/install.rs
+
+export type InstallStage =
+  | { type: "fetching_info" }
+  | { type: "downloading_pack" }
+  | { type: "extracting_pack" }
+  | { type: "creating_instance" }
+  | { type: "downloading_minecraft" }
+  | { type: "installing_loader" }
+  | { type: "resolving_mods" }
+  | { type: "downloading_mods"; current: number; total: number }
+  | { type: "copying_overrides" }
+  | { type: "registering_mods" }
+  | { type: "completed" }
+  | { type: "failed"; message: string };
+
+export interface InstallProgress {
+  stage: InstallStage;
+  overall_percent: number;
+}
+
+// Mod versions — mirrors Rust models/mod_platform.rs
+
+export interface ModVersionInfo {
+  id: string;
+  project_id: string;
+  name: string;
+  version_number: string;
+  game_versions: string[];
+  loaders: string[];
+  files: ModVersionFile[];
+  dependencies: ModDependency[];
+  date_published: string;
+  source: ModSource;
+}
+
+export interface ModVersionFile {
+  url: string;
+  filename: string;
+  size: number;
+  hashes: Record<string, string>;
+  primary: boolean;
+}
+
+export type DependencyType =
+  | "required"
+  | "optional"
+  | "incompatible"
+  | "embedded";
+
+export interface ModDependency {
+  project_id: string;
+  dependency_type: DependencyType;
+}
+
 // Mod Platform — mirrors Rust models/mod_platform.rs
 
 export type SearchSort = "relevance" | "downloads" | "updated" | "newest";

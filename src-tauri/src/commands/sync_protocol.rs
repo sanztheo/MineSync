@@ -119,7 +119,16 @@ pub fn apply_sync(
 
     let result = apply_diff(&db, &pending.local_manifest.instance_id, &diff)?;
 
-    sync_service.complete_sync(&session_id)?;
+    if result.errors.is_empty() {
+        sync_service.complete_sync(&session_id)?;
+    } else {
+        // Mark as rejected so cleanup_finished can remove it and user can retry
+        log::warn!(
+            "Sync {session_id} failed with {} errors, marking as rejected",
+            result.errors.len()
+        );
+        sync_service.reject_sync(&session_id)?;
+    }
 
     Ok(result)
 }

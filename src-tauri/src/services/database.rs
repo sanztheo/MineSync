@@ -157,6 +157,8 @@ impl DatabaseService {
                 loader_version TEXT,
                 instance_path TEXT NOT NULL,
                 icon_path TEXT,
+                icon_url TEXT,
+                description TEXT,
                 last_played_at TEXT,
                 total_play_time INTEGER NOT NULL DEFAULT 0,
                 is_active INTEGER NOT NULL DEFAULT 1,
@@ -201,6 +203,11 @@ impl DatabaseService {
                 created_at TEXT NOT NULL DEFAULT (datetime('now'))
             );",
         )?;
+
+        // Migrations for existing DBs (ignore duplicate column errors)
+        let _ = conn.execute_batch("ALTER TABLE instances ADD COLUMN icon_url TEXT;");
+        let _ = conn.execute_batch("ALTER TABLE instances ADD COLUMN description TEXT;");
+
         Ok(())
     }
 
@@ -341,6 +348,16 @@ impl DatabaseService {
             .query_map(params![instance_id], row_to_mod)?
             .collect::<Result<Vec<_>, _>>()?;
         Ok(mods)
+    }
+
+    pub fn get_mod_by_id(&self, mod_id: &str) -> AppResult<Option<ModInfo>> {
+        let conn = self.conn()?;
+        let mut stmt = conn.prepare("SELECT * FROM instance_mods WHERE id = ?1 AND is_active = 1")?;
+        let mut rows = stmt.query_map(params![mod_id], row_to_mod)?;
+        match rows.next() {
+            Some(row) => Ok(Some(row?)),
+            None => Ok(None),
+        }
     }
 
     pub fn remove_mod_from_instance(&self, mod_id: &str) -> AppResult<()> {

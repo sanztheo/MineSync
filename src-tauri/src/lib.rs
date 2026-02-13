@@ -4,11 +4,12 @@ mod models;
 mod services;
 
 use commands::{
-    account, auth, instance, launch, loader, minecraft, mods, p2p, sync, sync_protocol,
+    account, auth, install, instance, launch, loader, minecraft, mods, p2p, sync, sync_protocol,
 };
 use services::auth::AuthService;
 use services::database::DatabaseService;
 use services::download::DownloadService;
+use services::install::InstallService;
 use services::launch::LaunchService;
 use services::loader::LoaderService;
 use services::minecraft::MinecraftService;
@@ -59,11 +60,7 @@ pub fn run() {
             // CurseForge API key is optional — pass None to use Modrinth only
             let cf_key = std::env::var("CURSEFORGE_API_KEY").ok();
             if let Some(ref key) = cf_key {
-                log::info!("[INIT] CurseForge API key loaded: {}...{} (len={})",
-                    &key[..key.len().min(8)],
-                    &key[key.len().saturating_sub(4)..],
-                    key.len()
-                );
+                log::info!("[INIT] CurseForge API key loaded (len={})", key.len());
             }
             app.manage(UnifiedModClient::new(cf_key));
 
@@ -73,6 +70,9 @@ pub fn run() {
 
             // Sync protocol service (manages pending syncs)
             app.manage(SyncProtocolService::new());
+
+            // Install service (mod + modpack installation)
+            app.manage(InstallService::new());
 
             Ok(())
         })
@@ -115,6 +115,11 @@ pub fn run() {
             launch::launch_instance,
             launch::get_game_status,
             launch::kill_game,
+            install::install_mod,
+            install::install_modpack,
+            install::get_install_progress,
+            install::list_instance_mods,
+            install::remove_mod,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

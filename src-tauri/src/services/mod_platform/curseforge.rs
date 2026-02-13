@@ -274,6 +274,64 @@ impl CurseForgeClient {
     }
 }
 
+// --- Batch file resolution ---
+
+#[derive(Debug, Clone)]
+pub struct CfResolvedFile {
+    pub project_id: u32,
+    pub file_id: u32,
+    pub file_name: String,
+    pub download_url: String,
+    pub file_size: u64,
+    pub sha1: Option<String>,
+}
+
+impl CurseForgeClient {
+    /// Resolve multiple file IDs in a single API call.
+    /// CurseForge API: POST /v1/mods/files { fileIds: [...] }
+    pub async fn get_files_batch(&self, file_ids: &[u32]) -> AppResult<Vec<CfResolvedFile>> {
+        let mut all_files = Vec::new();
+        const BATCH_SIZE: usize = 100;
+
+        for chunk in file_ids.chunks(BATCH_SIZE) {
+            let body = serde_json::json!({ "fileIds": chunk });
+            let response = self
+                .client
+                .post(format!("{BASE_URL}/v1/mods/files"))
+                .header("x-api-key", &self.api_key)
+                .json(&body)
+                .send()
+                .await?;
+
+            if !response.status().is_success() {
+                return Err(AppError::Custom(format!(
+                    "CurseForge batch files failed: HTTP {}",
+                    response.status()
+                )));
+            }
+
+            let batch: CfFilesResponse = response.json().await?;
+
+            for f in batch.data {
+                let url = f
+                    .download_url
+                    .unwrap_or_else(|| build_cf_download_url(f.id, &f.file_name));
+                let sha1 = f.hashes.iter().find(|h| h.algo == 1).map(|h| h.value.clone());
+                all_files.push(CfResolvedFile {
+                    project_id: 0, // Filled by caller from manifest mapping
+                    file_id: f.id,
+                    file_name: f.file_name,
+                    download_url: url,
+                    file_size: f.file_length,
+                    sha1,
+                });
+            }
+        }
+
+        Ok(all_files)
+    }
+}
+
 // --- Converters ---
 
 fn cf_mod_to_search_result(m: CfMod) -> ModSearchResult {
@@ -463,7 +521,7 @@ fn cf_type_to_loader(t: u32) -> String {
 }
 
 /// Build the download URL when CurseForge returns null
-fn build_cf_download_url(file_id: u32, file_name: &str) -> String {
+pub fn build_cf_download_url(file_id: u32, file_name: &str) -> String {
     let segment1 = file_id / 1000;
     let segment2 = file_id % 1000;
     format!("{CDN_BASE}/{segment1}/{segment2}/{file_name}")

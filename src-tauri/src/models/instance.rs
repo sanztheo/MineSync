@@ -10,6 +10,8 @@ pub struct MinecraftInstance {
     pub loader_version: Option<String>,
     pub instance_path: String,
     pub icon_path: Option<String>,
+    pub icon_url: Option<String>,
+    pub description: Option<String>,
     pub last_played_at: Option<DateTime<Utc>>,
     pub total_play_time: i64,
     pub is_active: bool,

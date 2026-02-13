@@ -1,4 +1,10 @@
-import { type ReactNode, useState, useCallback, useMemo } from "react";
+import {
+  type ReactNode,
+  useState,
+  useCallback,
+  useMemo,
+  useEffect,
+} from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -17,8 +23,13 @@ import {
   Plus,
 } from "lucide-react";
 import { useTauriCommand } from "@/hooks/use-tauri";
-import { getInstance, deleteInstance } from "@/lib/tauri";
-import type { ModLoader } from "@/lib/types";
+import {
+  getInstance,
+  deleteInstance,
+  listInstanceMods,
+  removeMod,
+} from "@/lib/tauri";
+import type { ModLoader, ModInfo } from "@/lib/types";
 
 // --- Constants ---
 
@@ -71,11 +82,49 @@ function TabBar({
   );
 }
 
-function ModsTab(): ReactNode {
+function ModsTab({ instanceId }: { instanceId: string }): ReactNode {
+  const [mods, setMods] = useState<ModInfo[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [removing, setRemoving] = useState<string | undefined>(undefined);
+
+  const fetchMods = useCallback(async (): Promise<void> => {
+    setLoading(true);
+    try {
+      const result = await listInstanceMods(instanceId);
+      setMods(result);
+    } catch {
+      // Silently handle — empty list shown
+      setMods([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [instanceId]);
+
+  useEffect(() => {
+    fetchMods();
+  }, [fetchMods]);
+
+  const handleRemove = useCallback(
+    async (modId: string): Promise<void> => {
+      setRemoving(modId);
+      try {
+        await removeMod(modId);
+        await fetchMods();
+      } catch {
+        // Silently handle
+      } finally {
+        setRemoving(undefined);
+      }
+    },
+    [fetchMods],
+  );
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-medium text-zinc-300">Installed Mods</h3>
+        <h3 className="text-sm font-medium text-zinc-300">
+          Installed Mods{mods.length > 0 ? ` (${String(mods.length)})` : ""}
+        </h3>
         <Link to="/mods">
           <Button size="sm" variant="secondary" icon={<Plus size={12} />}>
             Add Mods
@@ -83,13 +132,58 @@ function ModsTab(): ReactNode {
         </Link>
       </div>
 
-      <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border-default py-10 text-zinc-600">
-        <Package size={32} className="mb-2 text-zinc-700" />
-        <p className="text-sm">No mods installed</p>
-        <p className="text-xs text-zinc-700">
-          Browse and add mods from CurseForge or Modrinth
-        </p>
-      </div>
+      {loading && (
+        <div className="flex items-center justify-center py-8">
+          <Loader2 size={20} className="animate-spin text-accent" />
+          <span className="ml-2 text-sm text-zinc-500">Loading mods...</span>
+        </div>
+      )}
+
+      {!loading && mods.length === 0 && (
+        <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border-default py-10 text-zinc-600">
+          <Package size={32} className="mb-2 text-zinc-700" />
+          <p className="text-sm">No mods installed</p>
+          <p className="text-xs text-zinc-700">
+            Browse and add mods from CurseForge or Modrinth
+          </p>
+        </div>
+      )}
+
+      {!loading && mods.length > 0 && (
+        <div className="flex flex-col gap-2">
+          {mods.map((mod) => (
+            <div
+              key={mod.id}
+              className="flex items-center gap-3 rounded-lg border border-border-default bg-surface-800 px-4 py-3"
+            >
+              <Package size={16} className="shrink-0 text-zinc-500" />
+              <div className="flex flex-1 flex-col gap-0.5 overflow-hidden">
+                <span className="truncate text-sm font-medium text-zinc-200">
+                  {mod.name}
+                </span>
+                <span className="text-xs text-zinc-600">{mod.file_name}</span>
+              </div>
+              <Button
+                size="sm"
+                variant="ghost"
+                disabled={removing === mod.id}
+                icon={
+                  removing === mod.id ? (
+                    <Loader2 size={12} className="animate-spin" />
+                  ) : (
+                    <Trash2 size={12} />
+                  )
+                }
+                onClick={() => {
+                  handleRemove(mod.id);
+                }}
+              >
+                Remove
+              </Button>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -234,7 +328,7 @@ export function InstanceDetail(): ReactNode {
       <TabBar active={activeTab} onChange={setActiveTab} />
 
       {/* Tab content */}
-      {activeTab === "mods" && <ModsTab />}
+      {activeTab === "mods" && <ModsTab instanceId={instance.id} />}
       {activeTab === "files" && (
         <FilesTab instancePath={instance.instance_path} />
       )}

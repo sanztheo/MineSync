@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { useDebounce } from "@/hooks/use-debounce";
 import { searchModpacks } from "@/lib/tauri";
+import { InstallModpackModal } from "@/components/install/InstallModpackModal";
 import type { ModSearchResult, SearchSort, ModSource } from "@/lib/types";
 
 // --- Constants ---
@@ -101,7 +102,13 @@ function FilterSelect({
   );
 }
 
-function ModpackCard({ modpack }: { modpack: ModSearchResult }): ReactNode {
+function ModpackCard({
+  modpack,
+  onInstall,
+}: {
+  modpack: ModSearchResult;
+  onInstall: (modpack: ModSearchResult) => void;
+}): ReactNode {
   return (
     <Card hoverable className="flex items-start gap-4">
       {/* Icon */}
@@ -151,7 +158,14 @@ function ModpackCard({ modpack }: { modpack: ModSearchResult }): ReactNode {
         <span className="text-xs text-zinc-600">
           {formatDownloads(modpack.downloads)}
         </span>
-        <Button size="sm" variant="secondary" icon={<Download size={12} />}>
+        <Button
+          size="sm"
+          variant="secondary"
+          icon={<Download size={12} />}
+          onClick={() => {
+            onInstall(modpack);
+          }}
+        >
           Install
         </Button>
       </div>
@@ -220,6 +234,9 @@ export function BrowseModpacks(): ReactNode {
   const [totalHits, setTotalHits] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | undefined>(undefined);
+  const [selectedModpack, setSelectedModpack] = useState<
+    ModSearchResult | undefined
+  >(undefined);
 
   const debouncedQuery = useDebounce(query, DEBOUNCE_DELAY_MS);
 
@@ -387,6 +404,7 @@ export function BrowseModpacks(): ReactNode {
               <ModpackCard
                 key={`${modpack.source}-${modpack.id}`}
                 modpack={modpack}
+                onInstall={setSelectedModpack}
               />
             ))}
           </div>
@@ -425,6 +443,20 @@ export function BrowseModpacks(): ReactNode {
             />
           )}
         </>
+      )}
+
+      {/* Install modal */}
+      {selectedModpack !== undefined && (
+        <InstallModpackModal
+          open
+          onClose={() => {
+            setSelectedModpack(undefined);
+          }}
+          modpack={selectedModpack}
+          onInstalled={() => {
+            setSelectedModpack(undefined);
+          }}
+        />
       )}
     </div>
   );
