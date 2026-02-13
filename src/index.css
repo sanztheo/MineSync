@@ -1,0 +1,50 @@
+@import "tailwindcss";
+
+@theme {
+  --color-surface-900: #0c0c14;
+  --color-surface-800: #12121e;
+  --color-surface-700: #1a1a2e;
+  --color-surface-600: #242438;
+  --color-surface-500: #2e2e44;
+
+  --color-accent: #10b981;
+  --color-accent-hover: #059669;
+  --color-accent-muted: rgba(16, 185, 129, 0.15);
+
+  --color-border-default: #1e1e32;
+  --color-border-hover: #2a2a44;
+}
+
+/*
+ * Base styles for the Tauri window — no scrollbar on root,
+ * custom scrollbar on inner containers, no text selection on UI chrome.
+ */
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: var(--color-surface-900);
+  color: #e4e4ed;
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+}
+
+/* Custom scrollbar for dark theme */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #2a2a44;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #3a3a54;
+}
