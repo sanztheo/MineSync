@@ -6,15 +6,15 @@ import {
   Layers,
   RefreshCw,
   Settings,
-  type LucideIcon,
   User,
-} from "lucide-react";
+  type IconComponent,
+} from "@/components/ui/PixelIcon";
 import { getProfile } from "@/lib/tauri";
 import type { MinecraftProfile } from "@/lib/types";
 
 interface NavItemProps {
   to: string;
-  icon: LucideIcon;
+  icon: IconComponent;
   label: string;
 }
 

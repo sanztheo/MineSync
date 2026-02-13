@@ -17,7 +17,7 @@ import {
   User,
   Loader2,
   AlertCircle,
-} from "lucide-react";
+} from "@/components/ui/PixelIcon";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { startAuth, pollAuth, getProfile, logout } from "@/lib/tauri";
 import type {

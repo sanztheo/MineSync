@@ -1,4 +1,5 @@
 import { type ReactNode, useState, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/Input";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
@@ -12,7 +13,7 @@ import {
   Loader2,
   AlertCircle,
   SlidersHorizontal,
-} from "lucide-react";
+} from "@/components/ui/PixelIcon";
 import { useDebounce } from "@/hooks/use-debounce";
 import { searchModpacks } from "@/lib/tauri";
 import { InstallModpackModal } from "@/components/install/InstallModpackModal";
@@ -237,6 +238,7 @@ function Pagination({
 // --- Main Component ---
 
 export function BrowseModpacks(): ReactNode {
+  const navigate = useNavigate();
   const [query, setQuery] = useState("");
   const [sortBy, setSortBy] = useState<SearchSort>("relevance");
   const [loaderFilter, setLoaderFilter] = useState("");
@@ -497,8 +499,9 @@ export function BrowseModpacks(): ReactNode {
             setSelectedModpack(undefined);
           }}
           modpack={selectedModpack}
-          onInstalled={() => {
+          onInstalled={(instance) => {
             setSelectedModpack(undefined);
+            navigate(`/instance/${instance.id}`);
           }}
         />
       )}

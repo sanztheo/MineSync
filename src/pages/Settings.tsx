@@ -13,7 +13,7 @@ import {
   ExternalLink,
   Loader2,
   Download,
-} from "lucide-react";
+} from "@/components/ui/PixelIcon";
 import { useJavaRuntime } from "@/hooks/use-java-runtime";
 
 const MIN_RAM_MB = 1024;

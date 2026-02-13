@@ -18,7 +18,7 @@ import {
   ArrowUpDown,
   AlertTriangle,
   History,
-} from "lucide-react";
+} from "@/components/ui/PixelIcon";
 import {
   startP2p,
   stopP2p,

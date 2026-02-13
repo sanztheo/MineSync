@@ -34,7 +34,20 @@ function mapLaunchError(message: string): string {
   const lower = message.toLowerCase();
 
   if (lower.includes("failed to spawn java process")) {
-    return "Java introuvable. Installe Java 21 depuis la popup de démarrage.";
+    if (
+      lower.includes("os error 2") ||
+      lower.includes("no such file") ||
+      lower.includes("not found")
+    ) {
+      return "Java introuvable. Installe Java 21 depuis la popup de démarrage.";
+    }
+    if (lower.includes("permission denied") || lower.includes("os error 13")) {
+      return "Java trouvé, mais impossible de l'exécuter (permission refusée). Vérifie ton installation Java.";
+    }
+    if (lower.includes("argument list too long") || lower.includes("os error 7")) {
+      return "Le lancement a échoué: commande Java trop longue. Réessaie avec une instance plus légère.";
+    }
+    return `Échec du démarrage Java: ${message}`;
   }
   if (lower.includes("java 21 runtime is missing")) {
     return "Java 21 n'est pas encore installé. Utilise la popup de démarrage pour l'installer.";

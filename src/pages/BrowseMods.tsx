@@ -12,7 +12,7 @@ import {
   Loader2,
   AlertCircle,
   SlidersHorizontal,
-} from "lucide-react";
+} from "@/components/ui/PixelIcon";
 import { useDebounce } from "@/hooks/use-debounce";
 import { searchMods } from "@/lib/tauri";
 import { InstallModModal } from "@/components/install/InstallModModal";

@@ -1,5 +1,5 @@
 import { type ReactNode, useEffect, useRef } from "react";
-import { X } from "lucide-react";
+import { X } from "@/components/ui/PixelIcon";
 
 interface ModalProps {
   open: boolean;

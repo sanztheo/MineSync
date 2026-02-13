@@ -183,7 +183,8 @@ impl JavaService {
 
         if let Some(major) = probe_java_major("java")? {
             if major >= REQUIRED_JAVA_MAJOR {
-                return Ok(Some(("java".to_string(), major, "system".to_string())));
+                let java_cmd = resolve_system_java_cmd().unwrap_or_else(|| "java".to_string());
+                return Ok(Some((java_cmd, major, "system".to_string())));
             }
         }
 
@@ -489,9 +490,28 @@ fn find_java_binary(root: &Path) -> Option<PathBuf> {
     None
 }
 
+fn resolve_system_java_cmd() -> Option<String> {
+    let path_var = std::env::var_os("PATH")?;
+    let java_name = if cfg!(target_os = "windows") {
+        "java.exe"
+    } else {
+        "java"
+    };
+
+    for dir in std::env::split_paths(&path_var) {
+        let candidate = dir.join(java_name);
+        if candidate.is_file() {
+            return Some(candidate.to_string_lossy().to_string());
+        }
+    }
+
+    None
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::ffi::OsString;
 
     fn make_service() -> JavaService {
         let app_dir = std::env::temp_dir().join(format!("minesync-java-test-{}", uuid::Uuid::new_v4()));
@@ -540,6 +560,36 @@ mod tests {
         assert!(
             matches!(status, JavaRuntimeStatus::Installing { .. }),
             "expected installing while lock is held, got: {status:?}"
+        );
+    }
+
+    #[test]
+    fn resolve_system_java_cmd_returns_absolute_binary_path_when_present_in_path() {
+        let temp_dir = std::env::temp_dir().join(format!("minesync-java-path-test-{}", uuid::Uuid::new_v4()));
+        std::fs::create_dir_all(&temp_dir).expect("create temp dir");
+
+        let java_path = if cfg!(target_os = "windows") {
+            temp_dir.join("java.exe")
+        } else {
+            temp_dir.join("java")
+        };
+        std::fs::write(&java_path, b"").expect("create fake java binary");
+
+        let old_path = std::env::var_os("PATH");
+        std::env::set_var("PATH", OsString::from(&temp_dir));
+
+        let resolved = resolve_system_java_cmd();
+
+        if let Some(old) = old_path {
+            std::env::set_var("PATH", old);
+        } else {
+            std::env::remove_var("PATH");
+        }
+
+        assert_eq!(
+            resolved,
+            Some(java_path.to_string_lossy().to_string()),
+            "expected resolver to return absolute java path from PATH"
         );
     }
 }

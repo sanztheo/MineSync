@@ -16,7 +16,7 @@ import {
   ChevronRight,
   Boxes,
   X,
-} from "lucide-react";
+} from "@/components/ui/PixelIcon";
 import {
   getModVersions,
   installModpack,
@@ -27,6 +27,7 @@ import type {
   ModVersionInfo,
   InstallProgress,
   InstallStage,
+  MinecraftInstance,
 } from "@/lib/types";
 
 const POLL_INTERVAL_MS = 500;
@@ -35,7 +36,7 @@ interface InstallModpackModalProps {
   open: boolean;
   onClose: () => void;
   modpack: ModSearchResult;
-  onInstalled: () => void;
+  onInstalled: (instance: MinecraftInstance) => void;
 }
 
 type Step = "select_version" | "installing" | "done" | "error";
@@ -136,7 +137,7 @@ export function InstallModpackModal({
       }, POLL_INTERVAL_MS);
 
       try {
-        await installModpack({
+        const installedInstance = await installModpack({
           source: modpack.source,
           projectId: modpack.id,
           versionId: version.id,
@@ -145,7 +146,7 @@ export function InstallModpackModal({
           modpackDescription: modpack.description,
         });
         setStep("done");
-        onInstalled();
+        onInstalled(installedInstance);
       } catch (err: unknown) {
         setErrorMsg(err instanceof Error ? err.message : String(err));
         setStep("error");
@@ -171,7 +172,11 @@ export function InstallModpackModal({
   }, [onClose]);
 
   return (
-    <Modal open={open} onClose={handleClose} title={`Install ${modpack.name}`}>
+    <Modal
+      open={open}
+      onClose={step === "installing" ? () => {} : handleClose}
+      title={`Install ${modpack.name}`}
+    >
       <div className="flex flex-col gap-4">
         {/* Modpack info header */}
         <div

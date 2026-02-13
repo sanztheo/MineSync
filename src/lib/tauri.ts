@@ -92,7 +92,6 @@ export async function createInstance(params: {
   minecraftVersion: string;
   loader: string | undefined;
   loaderVersion: string | undefined;
-  instancePath: string;
 }): Promise<MinecraftInstance> {
   return invoke<MinecraftInstance>("create_instance", params);
 }

@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { AlertCircle, Download, Loader2 } from "lucide-react";
+import { AlertCircle, Download, Loader2 } from "@/components/ui/PixelIcon";
 import { Button } from "@/components/ui/Button";
 import { useJavaRuntime } from "@/hooks/use-java-runtime";
 

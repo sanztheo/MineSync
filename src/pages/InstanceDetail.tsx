@@ -22,7 +22,7 @@ import {
   AlertCircle,
   Plus,
   Square,
-} from "lucide-react";
+} from "@/components/ui/PixelIcon";
 import { useTauriCommand } from "@/hooks/use-tauri";
 import { useInstallProgress } from "@/hooks/use-install-progress";
 import {

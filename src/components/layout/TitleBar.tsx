@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Minus, Square, X } from "lucide-react";
+import { Minus, Square, X } from "@/components/ui/PixelIcon";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import logoSvg from "@/assets/logo.svg";
 

@@ -14,7 +14,7 @@ import {
   Gamepad2,
   Trash2,
   MoreVertical,
-} from "lucide-react";
+} from "@/components/ui/PixelIcon";
 import { useTauriCommand } from "@/hooks/use-tauri";
 import { useInstallProgress } from "@/hooks/use-install-progress";
 import {
@@ -352,7 +352,6 @@ function CreateInstanceModal({
         minecraftVersion: mcVersion,
         loader: loader !== "vanilla" ? loader : undefined,
         loaderVersion: undefined,
-        instancePath: `~/.minesync/instances/${name.trim().toLowerCase().replace(/\s+/g, "-")}`,
       });
       setName("");
       setMcVersion("");

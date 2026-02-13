@@ -8,7 +8,12 @@ import {
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
-import { Loader2, CheckCircle2, AlertCircle, Download } from "lucide-react";
+import {
+  Loader2,
+  CheckCircle2,
+  AlertCircle,
+  Download,
+} from "@/components/ui/PixelIcon";
 import { listInstances, getModVersions, installMod } from "@/lib/tauri";
 import type {
   ModSearchResult,
