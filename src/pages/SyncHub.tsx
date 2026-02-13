@@ -73,7 +73,7 @@ function P2pStatusBar({
             </p>
             {isRunning && status?.peer_id !== "" && (
               <p className="font-mono text-[10px] text-gray-400">
-                {status?.peer_id.slice(0, 16)}\u2026
+                {status?.peer_id.slice(0, 16)}…
               </p>
             )}
           </div>
@@ -93,7 +93,7 @@ function P2pStatusBar({
             )
           }
         >
-          {toggling ? "Connecting\u2026" : isRunning ? "Disconnect" : "Connect"}
+          {toggling ? "Connecting…" : isRunning ? "Disconnect" : "Connect"}
         </Button>
       </CardContent>
     </Card>
@@ -172,10 +172,10 @@ function ShareSection({
               color: "rgba(55, 53, 47, 0.85)",
             }}
           >
-            <option value="">Select an instance\u2026</option>
+            <option value="">Select an instance…</option>
             {instances.map((inst) => (
               <option key={inst.id} value={inst.id}>
-                {inst.name} \u2014 {inst.minecraft_version}
+                {inst.name} — {inst.minecraft_version}
               </option>
             ))}
           </select>
@@ -217,7 +217,7 @@ function ShareSection({
               )
             }
           >
-            {sharing ? "Generating\u2026" : "Generate Share Code"}
+            {sharing ? "Generating…" : "Generate Share Code"}
           </Button>
         )}
 
@@ -296,7 +296,7 @@ function JoinSection({ p2pRunning }: { p2pRunning: boolean }): ReactNode {
               )
             }
           >
-            {joining ? "Joining\u2026" : "Join"}
+            {joining ? "Joining…" : "Join"}
           </Button>
         </div>
 
@@ -304,7 +304,7 @@ function JoinSection({ p2pRunning }: { p2pRunning: boolean }): ReactNode {
           <div className="flex items-center gap-2 rounded-md bg-[rgba(221,237,234,1)] px-3 py-2">
             <Check size={14} className="text-[#0F7B6C]" />
             <span className="text-xs text-[#0F7B6C]">
-              Connected! Waiting for sync data\u2026
+              Connected! Waiting for sync data…
             </span>
           </div>
         )}
@@ -364,7 +364,7 @@ function DiffPreviewModal({
               )
             }
           >
-            {confirming ? "Syncing\u2026" : "Confirm Sync"}
+            {confirming ? "Syncing…" : "Confirm Sync"}
           </Button>
         </>
       }
@@ -479,7 +479,7 @@ function UpdateSection({ updates }: { updates: ModUpdate[] }): ReactNode {
           <li key={u.mod_name} className="text-xs text-gray-600">
             {u.mod_name}{" "}
             <span className="text-gray-400">
-              {u.local_version} \u2192 {u.remote_version}
+              {u.local_version} → {u.remote_version}
             </span>
           </li>
         ))}

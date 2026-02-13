@@ -165,7 +165,7 @@ export function InstallModModal({
                   className="ml-2 text-sm"
                   style={{ color: "rgba(55, 53, 47, 0.65)" }}
                 >
-                  Loading instances\u2026
+                  Loading instances…
                 </span>
               </div>
             )}
@@ -251,7 +251,7 @@ export function InstallModModal({
                   className="ml-2 text-sm"
                   style={{ color: "rgba(55, 53, 47, 0.65)" }}
                 >
-                  Loading versions\u2026
+                  Loading versions…
                 </span>
               </div>
             )}
@@ -317,7 +317,7 @@ export function InstallModModal({
               style={{ color: "rgba(55, 53, 47, 0.45)" }}
             />
             <p className="text-sm" style={{ color: "rgba(55, 53, 47, 0.65)" }}>
-              Installing mod\u2026
+              Installing mod…
             </p>
           </div>
         )}

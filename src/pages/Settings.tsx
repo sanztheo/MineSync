@@ -121,12 +121,10 @@ export function Settings(): ReactNode {
               }
               disabled={isInstalling}
               onClick={() => {
-                void installJava();
+                void installJava({ nonBlockingIfReady: true });
               }}
             >
-              {isInstalling
-                ? "Installing\u2026"
-                : "Install / Reinstall Java 21"}
+              {isInstalling ? "Installing…" : "Install / Reinstall Java 21"}
             </Button>
           </div>
         </SettingsSection>

@@ -74,25 +74,25 @@ function formatPlayTime(seconds: number): string {
 function shortStageLabel(stage: InstallStage): string {
   switch (stage.type) {
     case "fetching_info":
-      return "Fetching info\u2026";
+      return "Fetching info…";
     case "downloading_pack":
-      return "Downloading pack\u2026";
+      return "Downloading pack…";
     case "extracting_pack":
-      return "Extracting\u2026";
+      return "Extracting…";
     case "creating_instance":
-      return "Creating\u2026";
+      return "Creating…";
     case "downloading_minecraft":
-      return "Downloading MC\u2026";
+      return "Downloading MC…";
     case "installing_loader":
-      return "Installing loader\u2026";
+      return "Installing loader…";
     case "resolving_mods":
-      return "Resolving mods\u2026";
+      return "Resolving mods…";
     case "downloading_mods":
       return `Mods ${String(stage.current)}/${String(stage.total)}`;
     case "copying_overrides":
-      return "Copying files\u2026";
+      return "Copying files…";
     case "registering_mods":
-      return "Registering\u2026";
+      return "Registering…";
     case "completed":
       return "Done!";
     case "failed":
@@ -115,7 +115,7 @@ function gameStatusBadge(
     return { label: "Running", variant: "success" };
   }
   if (isGamePreparingStatus(status)) {
-    return { label: "Preparing\u2026", variant: "info" };
+    return { label: "Preparing…", variant: "info" };
   }
   if (isGameCrashedStatus(status)) {
     return { label: "Crashed", variant: "danger" };
@@ -209,7 +209,7 @@ function InstanceCard({
             </div>
             <span className="text-[11px] text-gray-400">
               {isInstalling
-                ? "Installing\u2026"
+                ? "Installing…"
                 : formatPlayTime(instance.total_play_time)}
             </span>
           </div>
@@ -231,7 +231,7 @@ function InstanceCard({
                   disabled
                   icon={<Loader2 size={12} className="animate-spin" />}
                 >
-                  Preparing launch\u2026
+                  Preparing launch…
                 </Button>
                 <div className="h-2 w-full overflow-hidden rounded-full bg-gray-100">
                   <div
@@ -389,7 +389,7 @@ function CreateInstanceModal({
               )
             }
           >
-            {creating ? "Creating\u2026" : "Create"}
+            {creating ? "Creating…" : "Create"}
           </Button>
         </>
       }
@@ -397,7 +397,7 @@ function CreateInstanceModal({
       <div className="flex flex-col gap-4">
         <Input
           label="Instance name"
-          placeholder="My Modpack\u2026"
+          placeholder="My Modpack…"
           value={name}
           onChange={(e) => {
             setName(e.target.value);
@@ -411,9 +411,7 @@ function CreateInstanceModal({
           {versionsLoading ? (
             <div className="flex items-center gap-2 py-2">
               <Loader2 size={14} className="animate-spin text-gray-400" />
-              <span className="text-xs text-gray-500">
-                Loading versions\u2026
-              </span>
+              <span className="text-xs text-gray-500">Loading versions…</span>
             </div>
           ) : versionsError !== undefined ? (
             <div className="flex items-center gap-2 rounded-lg bg-red-50 px-3 py-2">
@@ -439,7 +437,7 @@ function CreateInstanceModal({
                 color: "rgba(55, 53, 47, 0.85)",
               }}
             >
-              <option value="">Select version\u2026</option>
+              <option value="">Select version…</option>
               {releaseVersions.map((v) => (
                 <option key={v.id} value={v.id}>
                   {v.id}
@@ -557,9 +555,7 @@ export function Home(): ReactNode {
             className="animate-spin"
             style={{ color: "rgba(55, 53, 47, 0.45)" }}
           />
-          <span className="ml-3 text-sm text-gray-500">
-            Loading instances\u2026
-          </span>
+          <span className="ml-3 text-sm text-gray-500">Loading instances…</span>
         </div>
       )}
 
@@ -633,8 +629,8 @@ export function Home(): ReactNode {
               <AlertCircle size={18} className="text-amber-500" />
             </div>
             <span className="text-sm text-amber-700">
-              Java 21 n&apos;est pas pr\u00eat. Termine l&apos;installation via
-              la popup avant de lancer une instance.
+              Java 21 n&apos;est pas prêt. Termine l&apos;installation via la
+              popup avant de lancer une instance.
             </span>
           </div>
         </Card>
@@ -650,8 +646,7 @@ export function Home(): ReactNode {
                 style={{ color: "rgba(55, 53, 47, 0.45)" }}
               />
               <span className="text-sm font-medium text-gray-700">
-                T\u00e9l\u00e9chargement Minecraft en cours avant
-                lancement\u2026
+                Téléchargement Minecraft en cours avant lancement…
               </span>
             </div>
             <div className="h-2 w-full overflow-hidden rounded-full bg-gray-100">
@@ -741,7 +736,7 @@ export function Home(): ReactNode {
                 )
               }
             >
-              {deleting ? "Deleting\u2026" : "Delete"}
+              {deleting ? "Deleting…" : "Delete"}
             </Button>
           </>
         }

@@ -310,7 +310,7 @@ export function BrowseMods(): ReactNode {
       <div className="flex items-end gap-3">
         <div className="flex-1">
           <Input
-            placeholder="Search mods\u2026"
+            placeholder="Search mods…"
             icon={<Search size={16} />}
             value={query}
             onChange={(e) => {
@@ -379,9 +379,7 @@ export function BrowseMods(): ReactNode {
             className="animate-spin"
             style={{ color: "rgba(55, 53, 47, 0.45)" }}
           />
-          <span className="ml-3 text-sm text-gray-500">
-            Searching mods\u2026
-          </span>
+          <span className="ml-3 text-sm text-gray-500">Searching mods…</span>
         </div>
       )}
 

@@ -313,7 +313,7 @@ export function BrowseModpacks(): ReactNode {
       <div className="flex items-end gap-3">
         <div className="flex-1">
           <Input
-            placeholder="Search modpacks\u2026"
+            placeholder="Search modpacks…"
             icon={<Search size={16} />}
             value={query}
             onChange={(e) => {
@@ -383,7 +383,7 @@ export function BrowseModpacks(): ReactNode {
             style={{ color: "rgba(55, 53, 47, 0.45)" }}
           />
           <span className="ml-3 text-sm text-gray-500">
-            Searching modpacks\u2026
+            Searching modpacks…
           </span>
         </div>
       )}

@@ -73,7 +73,7 @@ export function JavaSetupModal(): ReactNode {
                 className="text-sm"
                 style={{ color: "rgba(55, 53, 47, 0.65)" }}
               >
-                Installation Java ({stage ?? "working"})\u2026
+                Installation Java ({stage ?? "working"})…
               </span>
             </div>
             <div
@@ -112,7 +112,7 @@ export function JavaSetupModal(): ReactNode {
               void installJava();
             }}
           >
-            {isInstalling ? "Installation\u2026" : "Installer Java 21"}
+            {isInstalling ? "Installation…" : "Installer Java 21"}
           </Button>
         </div>
       </div>

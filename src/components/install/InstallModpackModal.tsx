@@ -43,25 +43,25 @@ type Step = "select_version" | "installing" | "done" | "error";
 function stageLabel(stage: InstallStage): string {
   switch (stage.type) {
     case "fetching_info":
-      return "Fetching modpack info\u2026";
+      return "Fetching modpack info…";
     case "downloading_pack":
-      return "Downloading modpack archive\u2026";
+      return "Downloading modpack archive…";
     case "extracting_pack":
-      return "Extracting archive\u2026";
+      return "Extracting archive…";
     case "creating_instance":
-      return "Creating instance\u2026";
+      return "Creating instance…";
     case "downloading_minecraft":
-      return "Downloading Minecraft\u2026";
+      return "Downloading Minecraft…";
     case "installing_loader":
-      return "Installing mod loader\u2026";
+      return "Installing mod loader…";
     case "resolving_mods":
-      return "Resolving mod downloads\u2026";
+      return "Resolving mod downloads…";
     case "downloading_mods":
-      return `Downloading mods (${String(stage.current)}/${String(stage.total)})\u2026`;
+      return `Downloading mods (${String(stage.current)}/${String(stage.total)})…`;
     case "copying_overrides":
-      return "Copying overrides\u2026";
+      return "Copying overrides…";
     case "registering_mods":
-      return "Registering mods\u2026";
+      return "Registering mods…";
     case "completed":
       return "Installation complete!";
     case "failed":
@@ -235,7 +235,7 @@ export function InstallModpackModal({
                   className="ml-2 text-sm"
                   style={{ color: "rgba(55, 53, 47, 0.65)" }}
                 >
-                  Loading versions\u2026
+                  Loading versions…
                 </span>
               </div>
             )}
@@ -318,7 +318,7 @@ export function InstallModpackModal({
               className="text-sm font-semibold"
               style={{ color: "rgba(55, 53, 47, 0.85)" }}
             >
-              Installing modpack\u2026
+              Installing modpack…
             </p>
             {progress !== undefined && (
               <>
@@ -348,8 +348,7 @@ export function InstallModpackModal({
               </>
             )}
             <p className="text-xs" style={{ color: "rgba(55, 53, 47, 0.45)" }}>
-              You can close this dialog \u2014 installation continues in
-              background.
+              You can close this dialog — installation continues in background.
             </p>
             <Button
               size="sm"

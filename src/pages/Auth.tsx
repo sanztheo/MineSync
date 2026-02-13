@@ -100,7 +100,7 @@ function DeviceCodeDisplay({ info }: { info: DeviceCodeInfo }): ReactNode {
             style={{ color: "rgba(55, 53, 47, 0.45)" }}
           />
           <span className="text-xs text-gray-500">
-            Waiting for you to sign in on Microsoft\u2026
+            Waiting for you to sign in on Microsoft…
           </span>
         </div>
       </CardContent>
@@ -281,7 +281,7 @@ export function Auth(): ReactNode {
               style={{ color: "rgba(55, 53, 47, 0.45)" }}
             />
             <span className="text-sm text-gray-500">
-              Starting authentication\u2026
+              Starting authentication…
             </span>
           </CardContent>
         </Card>

@@ -71,25 +71,25 @@ const LOADER_BADGE_VARIANT: Record<
 function stageLabel(stage: InstallStage): string {
   switch (stage.type) {
     case "fetching_info":
-      return "Fetching modpack info\u2026";
+      return "Fetching modpack info…";
     case "downloading_pack":
-      return "Downloading modpack archive\u2026";
+      return "Downloading modpack archive…";
     case "extracting_pack":
-      return "Extracting archive\u2026";
+      return "Extracting archive…";
     case "creating_instance":
-      return "Creating instance\u2026";
+      return "Creating instance…";
     case "downloading_minecraft":
-      return "Downloading Minecraft\u2026";
+      return "Downloading Minecraft…";
     case "installing_loader":
-      return "Installing mod loader\u2026";
+      return "Installing mod loader…";
     case "resolving_mods":
-      return "Resolving mod downloads\u2026";
+      return "Resolving mod downloads…";
     case "downloading_mods":
-      return `Downloading mods (${String(stage.current)}/${String(stage.total)})\u2026`;
+      return `Downloading mods (${String(stage.current)}/${String(stage.total)})…`;
     case "copying_overrides":
-      return "Copying overrides\u2026";
+      return "Copying overrides…";
     case "registering_mods":
-      return "Registering mods\u2026";
+      return "Registering mods…";
     case "completed":
       return "Installation complete!";
     case "failed":
@@ -218,7 +218,7 @@ function ModsTab({
             className="animate-spin"
             style={{ color: "rgba(55, 53, 47, 0.45)" }}
           />
-          <span className="ml-2 text-sm text-gray-500">Loading mods\u2026</span>
+          <span className="ml-2 text-sm text-gray-500">Loading mods…</span>
         </div>
       )}
 
@@ -409,9 +409,7 @@ export function InstanceDetail(): ReactNode {
           className="animate-spin"
           style={{ color: "rgba(55, 53, 47, 0.45)" }}
         />
-        <span className="ml-3 text-sm text-gray-500">
-          Loading instance\u2026
-        </span>
+        <span className="ml-3 text-sm text-gray-500">Loading instance…</span>
       </div>
     );
   }
@@ -464,7 +462,7 @@ export function InstanceDetail(): ReactNode {
           </div>
         </div>
 
-        {/* Action buttons \u2014 or progress bar if installing */}
+        {/* Action buttons — or progress bar if installing */}
         {isInstalling && installProgress !== undefined ? (
           <div className="flex items-center gap-3">
             <div className="flex flex-col items-end gap-1">
@@ -475,7 +473,7 @@ export function InstanceDetail(): ReactNode {
                   style={{ color: "rgba(55, 53, 47, 0.45)" }}
                 />
                 <span className="text-sm font-semibold text-gray-700">
-                  Installing\u2026
+                  Installing…
                 </span>
               </div>
               <span className="text-xs text-gray-500">
@@ -503,7 +501,7 @@ export function InstanceDetail(): ReactNode {
                   className="animate-spin"
                   style={{ color: "rgba(55, 53, 47, 0.45)" }}
                 />
-                <span>Preparing\u2026</span>
+                <span>Preparing…</span>
               </div>
             )}
 
@@ -525,7 +523,7 @@ export function InstanceDetail(): ReactNode {
             {isLaunchingThisInstance && downloadProgress !== undefined && (
               <div className="flex w-56 flex-col items-end gap-1">
                 <span className="text-xs text-gray-500">
-                  Downloading Minecraft files before launch\u2026
+                  Downloading Minecraft files before launch…
                 </span>
                 <div className="h-2 w-full overflow-hidden rounded-full bg-gray-100">
                   <div
@@ -593,7 +591,7 @@ export function InstanceDetail(): ReactNode {
         <div className="flex items-center gap-2 rounded-md bg-amber-50 px-3 py-2">
           <AlertCircle size={14} className="text-amber-500" />
           <span className="text-xs text-amber-700">
-            Java 21 n&apos;est pas pr\u00eat. Termine l&apos;installation via la
+            Java 21 n&apos;est pas prêt. Termine l&apos;installation via la
             popup pour lancer cette instance.
           </span>
         </div>
@@ -612,10 +610,7 @@ export function InstanceDetail(): ReactNode {
                 className="animate-spin"
                 style={{ color: "rgba(55, 53, 47, 0.45)" }}
               />
-              <span>
-                T\u00e9l\u00e9chargement Minecraft en cours avant
-                lancement\u2026
-              </span>
+              <span>Téléchargement Minecraft en cours avant lancement…</span>
             </div>
             <div className="h-2 w-full overflow-hidden rounded-full bg-gray-100">
               <div
@@ -706,7 +701,7 @@ export function InstanceDetail(): ReactNode {
                 )
               }
             >
-              {deleting ? "Deleting\u2026" : "Delete Instance"}
+              {deleting ? "Deleting…" : "Delete Instance"}
             </Button>
           </>
         }
