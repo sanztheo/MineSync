@@ -5,13 +5,14 @@ use serde::Deserialize;
 use crate::errors::{AppError, AppResult};
 use crate::models::mod_info::ModSource;
 use crate::models::mod_platform::{
-    DependencyType, ModDependency, ModDetails, ModSearchResult, ModVersionFile, ModVersionInfo,
-    SearchFilters, SearchResponse, SearchSort,
+    ContentType, DependencyType, ModDependency, ModDetails, ModSearchResult, ModVersionFile,
+    ModVersionInfo, SearchFilters, SearchResponse, SearchSort,
 };
 
 const BASE_URL: &str = "https://api.curseforge.com";
 const MINECRAFT_GAME_ID: u32 = 432;
 const CLASS_ID_MODS: u32 = 6;
+const CLASS_ID_MODPACKS: u32 = 4471;
 
 // CurseForge download URL fallback when API returns null
 const CDN_BASE: &str = "https://edge.forgecdn.net/files";
@@ -155,9 +156,14 @@ impl CurseForgeClient {
             _ => "desc",
         };
 
+        let class_id = match filters.content_type {
+            ContentType::Mod => CLASS_ID_MODS,
+            ContentType::Modpack => CLASS_ID_MODPACKS,
+        };
+
         let mut params: Vec<(&str, String)> = vec![
             ("gameId", MINECRAFT_GAME_ID.to_string()),
-            ("classId", CLASS_ID_MODS.to_string()),
+            ("classId", class_id.to_string()),
             ("searchFilter", filters.query.clone()),
             ("sortField", sort_field.to_string()),
             ("sortOrder", sort_order.to_string()),

@@ -3,6 +3,7 @@ import { NavLink, Link } from "react-router-dom";
 import {
   Gamepad2,
   Package,
+  Boxes,
   RefreshCw,
   Settings,
   type LucideIcon,
@@ -20,6 +21,7 @@ interface NavItemProps {
 const NAV_ITEMS: readonly NavItemProps[] = [
   { to: "/", icon: Gamepad2, label: "Home" },
   { to: "/mods", icon: Package, label: "Browse Mods" },
+  { to: "/modpacks", icon: Boxes, label: "Modpacks" },
   { to: "/sync", icon: RefreshCw, label: "Sync Hub" },
 ] as const;
 

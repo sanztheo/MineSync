@@ -92,6 +92,7 @@ pub fn run() {
             p2p::share_modpack,
             p2p::join_via_code,
             mods::search_mods,
+            mods::search_modpacks,
             mods::get_mod_details,
             mods::get_mod_versions,
             mods::resolve_mod_dependencies,

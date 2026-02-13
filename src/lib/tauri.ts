@@ -71,6 +71,12 @@ export async function searchMods(
   return invoke<SearchResponse>("search_mods", { filters });
 }
 
+export async function searchModpacks(
+  filters: SearchFilters,
+): Promise<SearchResponse> {
+  return invoke<SearchResponse>("search_modpacks", { filters });
+}
+
 // Instance commands — mirrors src-tauri/src/commands/instance.rs
 
 export async function createInstance(params: {

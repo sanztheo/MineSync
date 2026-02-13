@@ -191,6 +191,8 @@ export interface MinecraftProfile {
 
 export type SearchSort = "relevance" | "downloads" | "updated" | "newest";
 
+export type ContentType = "mod" | "modpack";
+
 export interface SearchFilters {
   query: string;
   game_version: string | undefined;
@@ -199,6 +201,7 @@ export interface SearchFilters {
   sort: SearchSort;
   offset: number;
   limit: number;
+  content_type?: ContentType;
 }
 
 export interface SearchResponse {

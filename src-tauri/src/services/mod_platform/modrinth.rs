@@ -5,8 +5,8 @@ use serde::Deserialize;
 use crate::errors::{AppError, AppResult};
 use crate::models::mod_info::ModSource;
 use crate::models::mod_platform::{
-    DependencyType, ModDependency, ModDetails, ModSearchResult, ModVersionFile, ModVersionInfo,
-    SearchFilters, SearchResponse, SearchSort,
+    ContentType, DependencyType, ModDependency, ModDetails, ModSearchResult, ModVersionFile,
+    ModVersionInfo, SearchFilters, SearchResponse, SearchSort,
 };
 
 const BASE_URL: &str = "https://api.modrinth.com/v2";
@@ -124,6 +124,7 @@ impl ModrinthClient {
         };
 
         let facets = build_facets(
+            &filters.content_type,
             filters.game_version.as_deref(),
             filters.loader.as_deref(),
             filters.category.as_deref(),
@@ -358,11 +359,16 @@ fn mr_version_to_info(v: MrVersion) -> ModVersionInfo {
 /// Facets use AND between groups, OR within groups:
 /// `[["project_type:mod"],["versions:1.20.1"],["categories:fabric"]]`
 fn build_facets(
+    content_type: &ContentType,
     game_version: Option<&str>,
     loader: Option<&str>,
     category: Option<&str>,
 ) -> String {
-    let mut groups: Vec<String> = vec!["[\"project_type:mod\"]".to_string()];
+    let project_type = match content_type {
+        ContentType::Mod => "mod",
+        ContentType::Modpack => "modpack",
+    };
+    let mut groups: Vec<String> = vec![format!("[\"project_type:{project_type}\"]")];
 
     if let Some(gv) = game_version {
         groups.push(format!("[\"versions:{gv}\"]"));

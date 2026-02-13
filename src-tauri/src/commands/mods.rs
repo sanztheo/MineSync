@@ -1,6 +1,8 @@
 use crate::errors::AppResult;
 use crate::models::mod_info::ModSource;
-use crate::models::mod_platform::{ModDetails, ModVersionInfo, SearchFilters, SearchResponse};
+use crate::models::mod_platform::{
+    ContentType, ModDetails, ModVersionInfo, SearchFilters, SearchResponse,
+};
 use crate::services::mod_platform::UnifiedModClient;
 
 #[tauri::command]
@@ -8,6 +10,16 @@ pub async fn search_mods(
     client: tauri::State<'_, UnifiedModClient>,
     filters: SearchFilters,
 ) -> AppResult<SearchResponse> {
+    client.search_mods(&filters).await
+}
+
+#[tauri::command]
+pub async fn search_modpacks(
+    client: tauri::State<'_, UnifiedModClient>,
+    filters: SearchFilters,
+) -> AppResult<SearchResponse> {
+    let mut filters = filters;
+    filters.content_type = ContentType::Modpack;
     client.search_mods(&filters).await
 }
 

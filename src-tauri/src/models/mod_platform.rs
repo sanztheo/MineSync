@@ -4,6 +4,14 @@ use super::mod_info::ModSource;
 
 // --- Search ---
 
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[serde(rename_all = "snake_case")]
+pub enum ContentType {
+    #[default]
+    Mod,
+    Modpack,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SearchFilters {
     pub query: String,
@@ -13,6 +21,8 @@ pub struct SearchFilters {
     pub sort: SearchSort,
     pub offset: u32,
     pub limit: u32,
+    #[serde(default)]
+    pub content_type: ContentType,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

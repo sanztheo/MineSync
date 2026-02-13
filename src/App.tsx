@@ -4,6 +4,7 @@ import { TitleBar } from "@/components/layout/TitleBar";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Home } from "@/pages/Home";
 import { BrowseMods } from "@/pages/BrowseMods";
+import { BrowseModpacks } from "@/pages/BrowseModpacks";
 import { SyncHub } from "@/pages/SyncHub";
 import { Settings } from "@/pages/Settings";
 import { InstanceDetail } from "@/pages/InstanceDetail";
@@ -20,6 +21,7 @@ export function App(): ReactNode {
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/mods" element={<BrowseMods />} />
+              <Route path="/modpacks" element={<BrowseModpacks />} />
               <Route path="/sync" element={<SyncHub />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/auth" element={<Auth />} />
