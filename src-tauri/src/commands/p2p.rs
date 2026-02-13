@@ -1,4 +1,5 @@
 use std::sync::Arc;
+use tauri::Manager;
 use tokio::sync::Mutex;
 
 use crate::errors::{AppError, AppResult};

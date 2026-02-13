@@ -125,7 +125,7 @@ pub async fn run(
             cmd = commands.recv() => {
                 match cmd {
                     Some(command) => {
-                        handle_command(command, &mut shared_manifests, &events);
+                        handle_command(command, &mut swarm, &mut shared_manifests, &events);
                     }
                     None => {
                         log::info!("Command channel closed, shutting down swarm");
@@ -146,6 +146,7 @@ pub async fn run(
 
 fn handle_command(
     command: P2pCommand,
+    swarm: &mut Swarm<MineSyncBehaviour>,
     shared_manifests: &mut HashMap<String, SyncManifest>,
     events: &broadcast::Sender<P2pEvent>,
 ) {
@@ -160,7 +161,11 @@ fn handle_command(
             // Dialing will be handled when we have relay addresses
         }
         P2pCommand::RequestManifest(peer_id) => {
-            log::info!("Manifest request for peer: {peer_id}");
+            log::info!("Sending manifest request to peer: {peer_id}");
+            let _request_id = swarm
+                .behaviour_mut()
+                .manifest_exchange
+                .send_request(&peer_id, ManifestRequest::GetManifest);
         }
         P2pCommand::Shutdown => {
             log::info!("Shutdown command received");
@@ -199,7 +204,7 @@ fn handle_swarm_event(
 
 fn handle_behaviour_event(
     event: MineSyncBehaviourEvent,
-    _swarm: &mut Swarm<MineSyncBehaviour>,
+    swarm: &mut Swarm<MineSyncBehaviour>,
     shared_manifests: &HashMap<String, SyncManifest>,
     events: &broadcast::Sender<P2pEvent>,
 ) {
@@ -219,7 +224,7 @@ fn handle_behaviour_event(
         MineSyncBehaviourEvent::ManifestExchange(
             request_response::Event::Message { peer, message }
         ) => {
-            handle_manifest_message(peer, message, shared_manifests, events);
+            handle_manifest_message(peer, message, swarm, shared_manifests, events);
         }
         _ => {}
     }
@@ -228,42 +233,63 @@ fn handle_behaviour_event(
 fn handle_manifest_message(
     peer: PeerId,
     message: request_response::Message<ManifestRequest, ManifestResponse>,
+    swarm: &mut Swarm<MineSyncBehaviour>,
     shared_manifests: &HashMap<String, SyncManifest>,
     events: &broadcast::Sender<P2pEvent>,
 ) {
     match message {
         request_response::Message::Request { request, channel, .. } => {
-            match request {
-                ManifestRequest::GetManifest => {
-                    // Return the first shared manifest (MVP: single active share)
-                    let response = shared_manifests
-                        .values()
-                        .next()
-                        .map(|m| ManifestResponse::Manifest(m.clone()))
-                        .unwrap_or(ManifestResponse::NoManifest);
-
-                    log::info!("Manifest requested by {peer}, responding");
-                    // Response is sent via the channel
-                    let _ = channel;
-                    // Note: actual send requires swarm.behaviour_mut().manifest_exchange.send_response(channel, response)
-                    // This will be wired when we pass &mut swarm properly
-                    let _ = response;
-                }
-            }
+            handle_incoming_request(peer, request, channel, swarm, shared_manifests);
         }
         request_response::Message::Response { response, .. } => {
-            match response {
-                ManifestResponse::Manifest(manifest) => {
-                    log::info!("Received manifest from {peer}");
-                    let _ = events.send(P2pEvent::ManifestReceived {
-                        peer_id: peer.to_string(),
-                        manifest,
-                    });
-                }
-                ManifestResponse::NoManifest => {
-                    log::info!("Peer {peer} has no manifest to share");
-                }
+            handle_incoming_response(peer, response, events);
+        }
+    }
+}
+
+fn handle_incoming_request(
+    peer: PeerId,
+    request: ManifestRequest,
+    channel: request_response::ResponseChannel<ManifestResponse>,
+    swarm: &mut Swarm<MineSyncBehaviour>,
+    shared_manifests: &HashMap<String, SyncManifest>,
+) {
+    match request {
+        ManifestRequest::GetManifest => {
+            let response = shared_manifests
+                .values()
+                .next()
+                .map(|m| ManifestResponse::Manifest(m.clone()))
+                .unwrap_or(ManifestResponse::NoManifest);
+
+            log::info!("Manifest requested by {peer}, responding");
+
+            if let Err(resp) = swarm
+                .behaviour_mut()
+                .manifest_exchange
+                .send_response(channel, response)
+            {
+                log::error!("Failed to send manifest response to {peer}: {resp:?}");
             }
+        }
+    }
+}
+
+fn handle_incoming_response(
+    peer: PeerId,
+    response: ManifestResponse,
+    events: &broadcast::Sender<P2pEvent>,
+) {
+    match response {
+        ManifestResponse::Manifest(manifest) => {
+            log::info!("Received manifest from {peer}");
+            let _ = events.send(P2pEvent::ManifestReceived {
+                peer_id: peer.to_string(),
+                manifest,
+            });
+        }
+        ManifestResponse::NoManifest => {
+            log::info!("Peer {peer} has no manifest to share");
         }
     }
 }

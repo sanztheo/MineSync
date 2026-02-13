@@ -55,3 +55,23 @@ export interface SyncModEntry {
   source_id: string | undefined;
   file_hash: string | undefined;
 }
+
+// Auth — mirrors Rust models/auth.rs
+
+export interface DeviceCodeInfo {
+  user_code: string;
+  verification_uri: string;
+  expires_in: number;
+  message: string;
+}
+
+export type AuthPollResult =
+  | { status: "pending" }
+  | { status: "success"; username: string; uuid: string }
+  | { status: "expired" }
+  | { status: "error"; message: string };
+
+export interface MinecraftProfile {
+  username: string;
+  uuid: string;
+}
