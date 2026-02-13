@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { type ReactNode, useState, useEffect } from "react";
 import { NavLink, Link } from "react-router-dom";
 import {
   Gamepad2,
@@ -8,6 +8,8 @@ import {
   type LucideIcon,
   User,
 } from "lucide-react";
+import { getProfile } from "@/lib/tauri";
+import type { MinecraftProfile } from "@/lib/types";
 
 interface NavItemProps {
   to: string;
@@ -40,18 +42,52 @@ function NavItem({ to, icon: Icon, label }: NavItemProps): ReactNode {
   );
 }
 
+const SKIN_BASE_URL = "https://mc-heads.net/avatar";
+
 function PlayerBadge(): ReactNode {
+  const [profile, setProfile] = useState<MinecraftProfile | undefined>(
+    undefined,
+  );
+
+  useEffect(() => {
+    const load = async (): Promise<void> => {
+      try {
+        const p = await getProfile();
+        setProfile(p);
+      } catch {
+        // No profile yet
+      }
+    };
+    load();
+
+    // Re-check profile periodically (picks up login/logout from Auth page)
+    const interval = setInterval(load, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <Link
       to="/auth"
       className="flex items-center gap-3 rounded-lg px-3 py-2 transition-colors hover:bg-surface-600"
     >
-      <div className="flex h-8 w-8 items-center justify-center rounded-md bg-surface-600">
-        <User size={16} className="text-zinc-400" />
-      </div>
+      {profile !== undefined ? (
+        <img
+          src={`${SKIN_BASE_URL}/${profile.uuid}/32`}
+          alt={profile.username}
+          className="h-8 w-8 rounded-md"
+        />
+      ) : (
+        <div className="flex h-8 w-8 items-center justify-center rounded-md bg-surface-600">
+          <User size={16} className="text-zinc-400" />
+        </div>
+      )}
       <div className="flex flex-col">
-        <span className="text-xs font-medium text-zinc-300">Player</span>
-        <span className="text-[10px] text-zinc-600">Not signed in</span>
+        <span className="text-xs font-medium text-zinc-300">
+          {profile !== undefined ? profile.username : "Player"}
+        </span>
+        <span className="text-[10px] text-zinc-600">
+          {profile !== undefined ? "Connected" : "Not signed in"}
+        </span>
       </div>
     </Link>
   );
