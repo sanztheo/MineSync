@@ -4,6 +4,7 @@ import {
   getDownloadProgress,
   getGameStatus,
   getInstance,
+  getJavaPath,
   killGame,
   launchInstance,
   listMcVersions,
@@ -33,7 +34,10 @@ function mapLaunchError(message: string): string {
   const lower = message.toLowerCase();
 
   if (lower.includes("failed to spawn java process")) {
-    return "Java introuvable. Installe Java 17+ puis vérifie que `java` est disponible dans le PATH.";
+    return "Java introuvable. Installe Java 21 depuis la popup de démarrage.";
+  }
+  if (lower.includes("java 21 runtime is missing")) {
+    return "Java 21 n'est pas encore installé. Utilise la popup de démarrage pour l'installer.";
   }
   if (lower.includes("a game instance is already running")) {
     return "Un jeu est déjà en cours d'exécution.";
@@ -260,7 +264,8 @@ export function useGameStatus(): UseGameStatusResult {
         setPendingDownload(false);
         setDownloadProgress(undefined);
 
-        await launchInstance(instanceId);
+        const javaPath = await getJavaPath();
+        await launchInstance(instanceId, javaPath);
         await refreshStatus();
       } catch (err: unknown) {
         setPendingDownload(false);

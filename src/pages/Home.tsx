@@ -23,6 +23,7 @@ import {
   isGamePreparingStatus,
   isGameRunningStatus,
 } from "@/hooks/use-game-status";
+import { useJavaRuntime } from "@/hooks/use-java-runtime";
 import {
   listInstances,
   listMcVersions,
@@ -474,12 +475,14 @@ export function Home(): ReactNode {
     downloadProgress,
     activeInstanceId,
   } = useGameStatus();
+  const { isReady: isJavaReady } = useJavaRuntime();
   const [createOpen, setCreateOpen] = useState(false);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | undefined>(
     undefined,
   );
   const [deleting, setDeleting] = useState(false);
-  const actionsLocked = isRunning || isPreparing || isDownloadingBeforeLaunch;
+  const actionsLocked =
+    isRunning || isPreparing || isDownloadingBeforeLaunch || !isJavaReady;
 
   const handleDelete = useCallback(async (): Promise<void> => {
     if (deleteConfirmId === undefined) return;
@@ -583,6 +586,18 @@ export function Home(): ReactNode {
           <div className="flex items-center gap-3 p-4">
             <AlertCircle size={18} className="shrink-0 text-red-400" />
             <span className="text-sm text-red-300">{launchError}</span>
+          </div>
+        </Card>
+      )}
+
+      {!isJavaReady && (
+        <Card className="border-amber-900/30">
+          <div className="flex items-center gap-3 p-4">
+            <AlertCircle size={18} className="shrink-0 text-amber-400" />
+            <span className="text-sm text-amber-200">
+              Java 21 n&apos;est pas prêt. Termine l&apos;installation via la
+              popup avant de lancer une instance.
+            </span>
           </div>
         </Card>
       )}

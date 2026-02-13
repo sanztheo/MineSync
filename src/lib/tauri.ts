@@ -21,6 +21,8 @@ import type {
   InstallProgress,
   GameStatus,
   LaunchInfo,
+  JavaRuntimeStatus,
+  JavaInstallResult,
 } from "./types";
 
 export async function listInstances(): Promise<MinecraftInstance[]> {
@@ -115,10 +117,13 @@ export async function getDownloadProgress(): Promise<DownloadProgress> {
 
 // Launch commands — mirrors src-tauri/src/commands/launch.rs
 
-export async function launchInstance(instanceId: string): Promise<LaunchInfo> {
+export async function launchInstance(
+  instanceId: string,
+  javaPath: string,
+): Promise<LaunchInfo> {
   return invoke<LaunchInfo>("launch_instance", {
     instanceId,
-    javaPath: "java",
+    javaPath,
   });
 }
 
@@ -128,6 +133,24 @@ export async function getGameStatus(): Promise<GameStatus> {
 
 export async function killGame(): Promise<void> {
   return invoke<void>("kill_game");
+}
+
+// Java commands — mirrors src-tauri/src/commands/java.rs
+
+export async function getJavaStatus(): Promise<JavaRuntimeStatus> {
+  return invoke<JavaRuntimeStatus>("get_java_status");
+}
+
+export async function getJavaInstallProgress(): Promise<JavaRuntimeStatus> {
+  return invoke<JavaRuntimeStatus>("get_java_install_progress");
+}
+
+export async function installJavaRuntime(): Promise<JavaInstallResult> {
+  return invoke<JavaInstallResult>("install_java_runtime");
+}
+
+export async function getJavaPath(): Promise<string> {
+  return invoke<string>("get_java_path");
 }
 
 // P2P commands — mirrors src-tauri/src/commands/p2p.rs

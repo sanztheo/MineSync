@@ -4,12 +4,14 @@ mod models;
 mod services;
 
 use commands::{
-    account, auth, install, instance, launch, loader, minecraft, mods, p2p, sync, sync_protocol,
+    account, auth, install, instance, java, launch, loader, minecraft, mods, p2p, sync,
+    sync_protocol,
 };
 use services::auth::AuthService;
 use services::database::DatabaseService;
 use services::download::DownloadService;
 use services::install::InstallService;
+use services::java::JavaService;
 use services::launch::LaunchService;
 use services::loader::LoaderService;
 use services::minecraft::MinecraftService;
@@ -56,6 +58,9 @@ pub fn run() {
             // Game launcher
             app.manage(LaunchService::new(app_dir.clone()));
 
+            // Java runtime manager (portable Java 21)
+            app.manage(JavaService::new(app_dir.clone()));
+
             // Mod platform client (CurseForge + Modrinth)
             // CurseForge API key is optional — pass None to use Modrinth only
             let cf_key = std::env::var("CURSEFORGE_API_KEY").ok();
@@ -93,6 +98,10 @@ pub fn run() {
             minecraft::list_mc_versions,
             minecraft::download_version,
             minecraft::get_download_progress,
+            java::get_java_status,
+            java::get_java_install_progress,
+            java::install_java_runtime,
+            java::get_java_path,
             p2p::start_p2p,
             p2p::stop_p2p,
             p2p::get_p2p_status,

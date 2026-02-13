@@ -63,6 +63,31 @@ export interface LaunchInfo {
   minecraft_version: string;
 }
 
+// Java runtime — mirrors models/java.rs
+
+export type JavaRuntimeStatus =
+  | {
+      status: "ready";
+      java_path: string;
+      major_version: number;
+      source: string;
+    }
+  | { status: "missing" }
+  | {
+      status: "installing";
+      stage: string;
+      percent: number;
+      downloaded_bytes: number;
+      total_bytes: number | null;
+    }
+  | { status: "error"; message: string };
+
+export interface JavaInstallResult {
+  java_path: string;
+  major_version: number;
+  install_dir: string;
+}
+
 export interface ModInfo {
   id: string;
   instance_id: string;
