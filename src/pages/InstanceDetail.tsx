@@ -31,6 +31,7 @@ import {
   isGameCrashedStatus,
   useGameStatus,
 } from "@/hooks/use-game-status";
+import { useJavaRuntime } from "@/hooks/use-java-runtime";
 import {
   getInstance,
   deleteInstance,
@@ -318,6 +319,7 @@ export function InstanceDetail(): ReactNode {
     isDownloadingBeforeLaunch,
     activeInstanceId,
   } = useGameStatus();
+  const { isReady: isJavaReady } = useJavaRuntime();
   const isLaunchingThisInstance =
     isDownloadingBeforeLaunch && activeInstanceId === id;
   const runningPid = getRunningPid(gameStatus);
@@ -481,7 +483,12 @@ export function InstanceDetail(): ReactNode {
             <div className="flex items-center gap-2">
               <Button
                 icon={<Play size={14} />}
-                disabled={isPreparing || isRunning || isDownloadingBeforeLaunch}
+                disabled={
+                  isPreparing ||
+                  isRunning ||
+                  isDownloadingBeforeLaunch ||
+                  !isJavaReady
+                }
                 onClick={handleLaunch}
               >
                 Launch
@@ -518,6 +525,16 @@ export function InstanceDetail(): ReactNode {
         <div className="flex items-center gap-2 rounded-lg bg-red-900/20 px-3 py-2">
           <AlertCircle size={14} className="text-red-400" />
           <span className="text-xs text-red-300">{launchError}</span>
+        </div>
+      )}
+
+      {!isJavaReady && (
+        <div className="flex items-center gap-2 rounded-lg bg-amber-900/20 px-3 py-2">
+          <AlertCircle size={14} className="text-amber-400" />
+          <span className="text-xs text-amber-300">
+            Java 21 n&apos;est pas prêt. Termine l&apos;installation via la popup
+            pour lancer cette instance.
+          </span>
         </div>
       )}
 
