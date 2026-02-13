@@ -124,6 +124,8 @@ pub fn run() {
             launch::launch_instance,
             launch::get_game_status,
             launch::kill_game,
+            launch::get_crash_log,
+            launch::clear_crash_log,
             install::install_mod,
             install::install_modpack,
             install::get_install_progress,

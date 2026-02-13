@@ -21,6 +21,7 @@ import type {
   InstallProgress,
   GameStatus,
   LaunchInfo,
+  CrashLog,
   JavaRuntimeStatus,
   JavaInstallResult,
 } from "./types";
@@ -132,6 +133,15 @@ export async function getGameStatus(): Promise<GameStatus> {
 
 export async function killGame(): Promise<void> {
   return invoke<void>("kill_game");
+}
+
+export async function getCrashLog(): Promise<CrashLog | undefined> {
+  const result = await invoke<CrashLog | null>("get_crash_log");
+  return result ?? undefined;
+}
+
+export async function clearCrashLog(): Promise<void> {
+  return invoke<void>("clear_crash_log");
 }
 
 // Java commands — mirrors src-tauri/src/commands/java.rs

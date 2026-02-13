@@ -1,6 +1,6 @@
 use crate::errors::{AppError, AppResult};
 use crate::models::instance::ModLoader;
-use crate::models::launch::{GameStatus, LaunchInfo};
+use crate::models::launch::{CrashLog, GameStatus, LaunchInfo};
 use crate::services::database::DatabaseService;
 use crate::services::launch::LaunchService;
 use crate::services::loader::LoaderService;
@@ -75,4 +75,16 @@ pub fn get_game_status(launch_svc: tauri::State<'_, LaunchService>) -> AppResult
 #[tauri::command]
 pub fn kill_game(launch_svc: tauri::State<'_, LaunchService>) -> AppResult<()> {
     launch_svc.kill_game()
+}
+
+#[tauri::command]
+pub fn get_crash_log(
+    launch_svc: tauri::State<'_, LaunchService>,
+) -> AppResult<Option<CrashLog>> {
+    launch_svc.get_crash_log()
+}
+
+#[tauri::command]
+pub fn clear_crash_log(launch_svc: tauri::State<'_, LaunchService>) -> AppResult<()> {
+    launch_svc.clear_crash_log()
 }

@@ -1,10 +1,18 @@
-import { type ReactNode, useState, useCallback, useMemo } from "react";
+import {
+  type ReactNode,
+  useState,
+  useCallback,
+  useMemo,
+  useEffect,
+  useRef,
+} from "react";
 import { Link } from "react-router-dom";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
+import { CrashLogModal } from "@/components/CrashLogModal";
 import {
   Plus,
   Play,
@@ -29,6 +37,8 @@ import {
   listMcVersions,
   createInstance,
   deleteInstance,
+  getCrashLog,
+  clearCrashLog,
 } from "@/lib/tauri";
 import type {
   MinecraftInstance,
@@ -38,6 +48,7 @@ import type {
   InstallStage,
   DownloadProgress,
   GameStatus,
+  CrashLog,
 } from "@/lib/types";
 
 // --- Constants ---
@@ -507,6 +518,57 @@ export function Home(): ReactNode {
   const actionsLocked =
     isRunning || isPreparing || isDownloadingBeforeLaunch || !isJavaReady;
 
+  // Crash log modal state
+  const [crashModalOpen, setCrashModalOpen] = useState(false);
+  const [crashLog, setCrashLog] = useState<CrashLog | undefined>(undefined);
+  const [crashLogLoading, setCrashLogLoading] = useState(false);
+  // Track if we already auto-opened the modal for the current crash
+  const crashAutoOpened = useRef(false);
+
+  // Auto-open crash modal when a crash is detected
+  useEffect(() => {
+    if (isGameCrashedStatus(gameStatus) && !crashAutoOpened.current) {
+      crashAutoOpened.current = true;
+      setCrashLogLoading(true);
+      setCrashModalOpen(true);
+      void getCrashLog()
+        .then((log) => {
+          setCrashLog(log);
+        })
+        .catch(() => {
+          // If we can't get the log, still show the modal with basic info
+          setCrashLog(undefined);
+        })
+        .finally(() => {
+          setCrashLogLoading(false);
+        });
+    } else if (!isGameCrashedStatus(gameStatus)) {
+      // Reset when no longer crashed
+      crashAutoOpened.current = false;
+    }
+  }, [gameStatus]);
+
+  const handleCloseCrashModal = useCallback((): void => {
+    setCrashModalOpen(false);
+    setCrashLog(undefined);
+    void clearCrashLog();
+  }, []);
+
+  const handleOpenCrashModal = useCallback((): void => {
+    setCrashLogLoading(true);
+    setCrashModalOpen(true);
+    void getCrashLog()
+      .then((log) => {
+        setCrashLog(log);
+      })
+      .catch(() => {
+        setCrashLog(undefined);
+      })
+      .finally(() => {
+        setCrashLogLoading(false);
+      });
+  }, []);
+
   const handleDelete = useCallback(async (): Promise<void> => {
     if (deleteConfirmId === undefined) return;
     setDeleting(true);
@@ -666,16 +728,23 @@ export function Home(): ReactNode {
       {isGameCrashedStatus(gameStatus) && (
         <Card>
           <div className="flex items-center gap-3 p-1">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-red-50">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-red-50">
               <AlertCircle size={18} className="text-red-500" />
             </div>
-            <span className="text-sm text-red-600">
-              Crash au lancement
-              {gameStatus.crashed.exit_code !== null
-                ? ` (code ${String(gameStatus.crashed.exit_code)})`
-                : ""}
-              : {gameStatus.crashed.message}
-            </span>
+            <div className="flex flex-1 flex-col gap-0.5">
+              <span className="text-sm font-medium text-red-600">
+                Crash au lancement
+                {gameStatus.crashed.exit_code !== null
+                  ? ` (code ${String(gameStatus.crashed.exit_code)})`
+                  : ""}
+              </span>
+              <span className="text-xs text-red-400">
+                {gameStatus.crashed.message}
+              </span>
+            </div>
+            <Button size="sm" variant="danger" onClick={handleOpenCrashModal}>
+              Voir les logs
+            </Button>
           </div>
         </Card>
       )}
@@ -745,6 +814,14 @@ export function Home(): ReactNode {
           data. This action cannot be undone.
         </p>
       </Modal>
+
+      {/* Crash log modal */}
+      <CrashLogModal
+        open={crashModalOpen}
+        onClose={handleCloseCrashModal}
+        crashLog={crashLog}
+        loading={crashLogLoading}
+      />
     </div>
   );
 }

@@ -23,6 +23,18 @@ pub struct LaunchInfo {
     pub minecraft_version: String,
 }
 
+/// Crash log data captured from a crashed game process.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CrashLog {
+    pub exit_code: Option<i32>,
+    pub stdout: String,
+    pub stderr: String,
+    pub timestamp: String,
+    pub instance_id: String,
+    /// AI-generated analysis of the crash (populated by frontend).
+    pub analysis: Option<String>,
+}
+
 /// Configuration for launching a Minecraft instance.
 #[derive(Debug, Clone)]
 pub struct LaunchConfig {

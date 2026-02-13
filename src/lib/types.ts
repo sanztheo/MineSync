@@ -63,6 +63,15 @@ export interface LaunchInfo {
   minecraft_version: string;
 }
 
+export interface CrashLog {
+  exit_code: number | null;
+  stdout: string;
+  stderr: string;
+  timestamp: string;
+  instance_id: string;
+  analysis: string | null;
+}
+
 // Java runtime — mirrors models/java.rs
 
 export type JavaRuntimeStatus =

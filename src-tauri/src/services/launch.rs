@@ -6,7 +6,7 @@ use tauri::Manager;
 
 use crate::errors::{AppError, AppResult};
 use crate::models::account::Account;
-use crate::models::launch::{GameStatus, LaunchConfig, LaunchInfo};
+use crate::models::launch::{CrashLog, GameStatus, LaunchConfig, LaunchInfo};
 use crate::models::loader::LoaderProfile;
 use crate::services::database::DatabaseService;
 use crate::services::minecraft::VersionDetail;
@@ -16,6 +16,9 @@ const LAUNCHER_NAME: &str = "MineSync";
 const LAUNCHER_VERSION: &str = "1.0.0";
 const DEFAULT_MAX_MEMORY: &str = "2G";
 const DEFAULT_MIN_MEMORY: &str = "512M";
+
+/// Maximum bytes to capture from stdout/stderr to avoid unbounded memory usage.
+const MAX_LOG_CAPTURE_BYTES: usize = 512 * 1024; // 512 KB
 
 // Classpath separator: `;` on Windows, `:` on Unix
 #[cfg(target_os = "windows")]
@@ -30,6 +33,8 @@ pub struct LaunchService {
     base_dir: PathBuf,
     state: Arc<Mutex<GameStatus>>,
     kill_tx: Mutex<Option<tokio::sync::watch::Sender<bool>>>,
+    /// Last crash log captured from stdout/stderr of a crashed game process.
+    last_crash_log: Arc<Mutex<Option<CrashLog>>>,
 }
 
 impl LaunchService {
@@ -38,11 +43,31 @@ impl LaunchService {
             base_dir,
             state: Arc::new(Mutex::new(GameStatus::Idle)),
             kill_tx: Mutex::new(None),
+            last_crash_log: Arc::new(Mutex::new(None)),
         }
     }
 
     pub fn status(&self) -> AppResult<GameStatus> {
         Ok(self.lock_state()?.clone())
+    }
+
+    /// Retrieve the last crash log, if any.
+    pub fn get_crash_log(&self) -> AppResult<Option<CrashLog>> {
+        let guard = self
+            .last_crash_log
+            .lock()
+            .map_err(|e| AppError::Custom(format!("Crash log lock poisoned: {e}")))?;
+        Ok(guard.clone())
+    }
+
+    /// Clear the stored crash log (e.g. after the user dismisses it).
+    pub fn clear_crash_log(&self) -> AppResult<()> {
+        let mut guard = self
+            .last_crash_log
+            .lock()
+            .map_err(|e| AppError::Custom(format!("Crash log lock poisoned: {e}")))?;
+        *guard = None;
+        Ok(())
     }
 
     /// Launch a Minecraft instance.
@@ -131,6 +156,7 @@ impl LaunchService {
 
         // Spawn background monitor
         let state = Arc::clone(&self.state);
+        let crash_log_store = Arc::clone(&self.last_crash_log);
         let instance_id_owned = instance_id.to_string();
         let started_at = Instant::now();
 
@@ -139,6 +165,7 @@ impl LaunchService {
                 child,
                 kill_rx,
                 state,
+                crash_log_store,
                 &instance_id_owned,
                 started_at,
                 app_handle,
@@ -271,6 +298,7 @@ impl LaunchService {
             format!("-Dminecraft.launcher.brand={LAUNCHER_NAME}"),
             format!("-Dminecraft.launcher.version={LAUNCHER_VERSION}"),
         ];
+        args.extend(platform_jvm_args());
 
         // Extract string-only JVM args from version JSON
         if let Some(ref arguments) = version_detail.arguments {
@@ -374,10 +402,36 @@ async fn monitor_game_process(
     mut child: tokio::process::Child,
     mut kill_rx: tokio::sync::watch::Receiver<bool>,
     state: Arc<Mutex<GameStatus>>,
+    crash_log_store: Arc<Mutex<Option<CrashLog>>>,
     instance_id: &str,
     started_at: Instant,
     app_handle: tauri::AppHandle,
 ) {
+    use tokio::io::AsyncReadExt;
+
+    // Take ownership of stdout/stderr before entering select!
+    let mut stdout_handle = child.stdout.take();
+    let mut stderr_handle = child.stderr.take();
+
+    // Spawn tasks to capture stdout/stderr concurrently
+    let stdout_task = tokio::spawn(async move {
+        let mut buf = Vec::new();
+        if let Some(ref mut stdout) = stdout_handle {
+            let mut limited = stdout.take(MAX_LOG_CAPTURE_BYTES as u64);
+            let _ = limited.read_to_end(&mut buf).await;
+        }
+        String::from_utf8_lossy(&buf).to_string()
+    });
+
+    let stderr_task = tokio::spawn(async move {
+        let mut buf = Vec::new();
+        if let Some(ref mut stderr) = stderr_handle {
+            let mut limited = stderr.take(MAX_LOG_CAPTURE_BYTES as u64);
+            let _ = limited.read_to_end(&mut buf).await;
+        }
+        String::from_utf8_lossy(&buf).to_string()
+    });
+
     // Wait for either natural exit or kill signal
     let exit_code = tokio::select! {
         result = child.wait() => {
@@ -414,10 +468,16 @@ async fn monitor_game_process(
         }
     };
 
+    // Collect captured output (may already be finished or still draining)
+    let stdout_text = stdout_task.await.unwrap_or_default();
+    let stderr_text = stderr_task.await.unwrap_or_default();
+
     let elapsed_seconds = started_at.elapsed().as_secs() as i64;
 
     // Update game state
     let killed_by_user = exit_code == Some(-9);
+    let is_crash = !killed_by_user && exit_code.is_some();
+
     let new_state = match exit_code {
         None | Some(-9) => GameStatus::Idle,
         Some(code) => GameStatus::Crashed {
@@ -428,6 +488,26 @@ async fn monitor_game_process(
 
     if let Ok(mut guard) = state.lock() {
         *guard = new_state;
+    }
+
+    // Store crash log if the game crashed
+    if is_crash {
+        let crash_log = CrashLog {
+            exit_code,
+            stdout: stdout_text,
+            stderr: stderr_text,
+            timestamp: chrono::Utc::now().to_rfc3339(),
+            instance_id: instance_id.to_string(),
+            analysis: None,
+        };
+        if let Ok(mut guard) = crash_log_store.lock() {
+            *guard = Some(crash_log);
+        }
+    } else {
+        // Clear previous crash log on clean exit
+        if let Ok(mut guard) = crash_log_store.lock() {
+            *guard = None;
+        }
     }
 
     // Update play time in DB
@@ -585,5 +665,40 @@ fn extract_jvm_arg_key(arg: &str) -> String {
         arg[..4].to_string()
     } else {
         arg.to_string()
+    }
+}
+
+fn platform_jvm_args() -> Vec<String> {
+    #[cfg(target_os = "macos")]
+    {
+        vec!["-XstartOnFirstThread".to_string()]
+    }
+    #[cfg(not(target_os = "macos"))]
+    {
+        Vec::new()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::platform_jvm_args;
+
+    #[test]
+    fn platform_jvm_args_include_macos_main_thread_flag_only_on_macos() {
+        let has_first_thread_flag = platform_jvm_args()
+            .iter()
+            .any(|arg| arg == "-XstartOnFirstThread");
+
+        if cfg!(target_os = "macos") {
+            assert!(
+                has_first_thread_flag,
+                "macOS launches must include -XstartOnFirstThread for GLFW"
+            );
+        } else {
+            assert!(
+                !has_first_thread_flag,
+                "Non-macOS launches should not force -XstartOnFirstThread"
+            );
+        }
     }
 }
