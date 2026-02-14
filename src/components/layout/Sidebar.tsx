@@ -33,8 +33,8 @@ function NavItem({ to, icon: Icon, label }: NavItemProps): ReactNode {
       className={({ isActive }) =>
         `flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-sm transition-colors duration-150 ${
           isActive
-            ? "bg-[rgba(55,53,47,0.08)] font-medium text-[rgba(55,53,47,1)]"
-            : "font-normal text-[rgba(55,53,47,0.65)] hover:bg-[rgba(55,53,47,0.04)]"
+            ? "bg-[var(--color-notion-bg-hover)] font-medium text-[var(--color-notion-text)]"
+            : "font-normal text-[var(--color-notion-text-secondary)] hover:bg-[var(--color-notion-bg-hover)]"
         }`
       }
     >
@@ -69,7 +69,7 @@ function PlayerBadge(): ReactNode {
   return (
     <Link
       to="/auth"
-      className="flex items-center gap-2.5 rounded-md px-2.5 py-1.5 transition-colors duration-150 hover:bg-[rgba(55,53,47,0.04)]"
+      className="flex items-center gap-2.5 rounded-md px-2.5 py-1.5 transition-colors duration-150 hover:bg-[var(--color-notion-bg-hover)]"
     >
       {profile !== undefined ? (
         <img
@@ -82,21 +82,21 @@ function PlayerBadge(): ReactNode {
       ) : (
         <div
           className="flex h-7 w-7 items-center justify-center rounded-md"
-          style={{ background: "rgba(55, 53, 47, 0.08)" }}
+          style={{ background: "var(--color-notion-bg-hover)" }}
         >
-          <User size={14} style={{ color: "rgba(55, 53, 47, 0.45)" }} />
+          <User size={14} style={{ color: "var(--color-notion-text-tertiary)" }} />
         </div>
       )}
       <div className="flex flex-col">
         <span
           className="text-sm font-medium"
-          style={{ color: "rgba(55, 53, 47, 0.85)" }}
+          style={{ color: "var(--color-notion-text)" }}
         >
           {profile !== undefined ? profile.username : "Player"}
         </span>
         <span
           className="text-[11px]"
-          style={{ color: "rgba(55, 53, 47, 0.45)" }}
+          style={{ color: "var(--color-notion-text-tertiary)" }}
         >
           {profile !== undefined ? "Connected" : "Not signed in"}
         </span>
@@ -108,10 +108,9 @@ function PlayerBadge(): ReactNode {
 export function Sidebar(): ReactNode {
   return (
     <aside
-      className="flex w-[240px] shrink-0 flex-col bg-[rgba(247,246,243,1)]"
-      style={{ borderRight: "1px solid rgba(55, 53, 47, 0.09)" }}
+      className="flex w-[240px] shrink-0 flex-col bg-[var(--color-notion-bg-secondary)]"
+      style={{ borderRight: "1px solid var(--color-notion-border-light)" }}
     >
-      {/* Main navigation */}
       <nav className="flex flex-1 flex-col gap-0.5 px-2 py-3">
         {NAV_ITEMS.map((item) => (
           <NavItem
@@ -123,10 +122,9 @@ export function Sidebar(): ReactNode {
         ))}
       </nav>
 
-      {/* Bottom section */}
       <div
         className="flex flex-col gap-0.5 px-2 py-3"
-        style={{ borderTop: "1px solid rgba(55, 53, 47, 0.09)" }}
+        style={{ borderTop: "1px solid var(--color-notion-border-light)" }}
       >
         <NavItem to="/settings" icon={Settings} label="Settings" />
         <PlayerBadge />

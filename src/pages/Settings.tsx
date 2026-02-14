@@ -15,6 +15,7 @@ import {
   Download,
 } from "@/components/ui/PixelIcon";
 import { useJavaRuntime } from "@/hooks/use-java-runtime";
+import { useTheme } from "@/hooks/use-theme";
 
 const MIN_RAM_MB = 1024;
 const MAX_RAM_MB = 16384;
@@ -31,11 +32,11 @@ function SettingsSection({
   children: ReactNode;
 }): ReactNode {
   return (
-    <Card className="bg-white">
+    <Card>
       <CardHeader>
         <div className="flex items-center gap-2">
           {icon}
-          <h3 className="font-medium text-gray-900">{title}</h3>
+          <h3 className="font-medium text-[var(--color-notion-text)]">{title}</h3>
         </div>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">{children}</CardContent>
@@ -48,23 +49,46 @@ export function Settings(): ReactNode {
   const [p2pEnabled, setP2pEnabled] = useState(true);
   const [autoUpdate, setAutoUpdate] = useState(true);
   const { status: javaStatus, installJava, isInstalling } = useJavaRuntime();
+  const { theme, setTheme } = useTheme();
 
   return (
     <div className="flex flex-1 flex-col gap-6 p-7">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
-        <p className="text-sm text-gray-600">Configure MineSync</p>
+        <h1 className="text-2xl font-bold text-[var(--color-notion-text)]">Settings</h1>
+        <p className="text-sm text-[var(--color-notion-text-secondary)]">
+          Configure MineSync
+        </p>
       </div>
 
       <div className="flex flex-col gap-4">
-        {/* Installation directory */}
         <SettingsSection
           icon={
             <div
               className="flex h-9 w-9 items-center justify-center rounded-md"
-              style={{ background: "rgba(35,131,226,0.1)" }}
+              style={{ background: "var(--color-accent-blue-bg)" }}
             >
-              <FolderOpen size={18} className="text-[#2383E2]" />
+              <FolderOpen size={18} style={{ color: "var(--color-accent-blue)" }} />
+            </div>
+          }
+          title="Appearance"
+        >
+          <Toggle
+            checked={theme === "dark"}
+            onChange={(enabled) => {
+              setTheme(enabled ? "dark" : "light");
+            }}
+            label="Dark mode"
+            description="Use a Notion-inspired dark interface"
+          />
+        </SettingsSection>
+
+        <SettingsSection
+          icon={
+            <div
+              className="flex h-9 w-9 items-center justify-center rounded-md"
+              style={{ background: "var(--color-accent-blue-bg)" }}
+            >
+              <FolderOpen size={18} style={{ color: "var(--color-accent-blue)" }} />
             </div>
           }
           title="Game Directory"
@@ -85,14 +109,13 @@ export function Settings(): ReactNode {
           </div>
         </SettingsSection>
 
-        {/* Java Runtime */}
         <SettingsSection
           icon={
             <div
               className="flex h-9 w-9 items-center justify-center rounded-md"
-              style={{ background: "rgba(251,243,219,1)" }}
+              style={{ background: "var(--color-accent-yellow-bg)" }}
             >
-              <HardDrive size={18} className="text-[#DFAB01]" />
+              <HardDrive size={18} style={{ color: "var(--color-accent-yellow)" }} />
             </div>
           }
           title="Java Runtime"
@@ -103,7 +126,7 @@ export function Settings(): ReactNode {
             placeholder="Not installed"
             disabled
           />
-          <p className="text-xs text-gray-600">
+          <p className="text-xs text-[var(--color-notion-text-secondary)]">
             {javaStatus.status === "ready"
               ? `Java ${String(javaStatus.major_version)} (${javaStatus.source})`
               : "Java 21 requis pour lancer les instances."}
@@ -129,14 +152,13 @@ export function Settings(): ReactNode {
           </div>
         </SettingsSection>
 
-        {/* Memory / RAM */}
         <SettingsSection
           icon={
             <div
               className="flex h-9 w-9 items-center justify-center rounded-md"
-              style={{ background: "rgba(221,237,234,1)" }}
+              style={{ background: "var(--color-accent-green-bg)" }}
             >
-              <Cpu size={18} className="text-[#0F7B6C]" />
+              <Cpu size={18} style={{ color: "var(--color-accent-green)" }} />
             </div>
           }
           title="Memory Allocation"
@@ -150,19 +172,18 @@ export function Settings(): ReactNode {
             unit=" MB"
             onChange={setRamMb}
           />
-          <p className="text-xs text-gray-600">
+          <p className="text-xs text-[var(--color-notion-text-secondary)]">
             Recommended: 4096 MB for modded, 2048 MB for vanilla.
           </p>
         </SettingsSection>
 
-        {/* Network / P2P */}
         <SettingsSection
           icon={
             <div
               className="flex h-9 w-9 items-center justify-center rounded-md"
-              style={{ background: "rgba(232,222,238,1)" }}
+              style={{ background: "var(--color-accent-purple-bg)" }}
             >
-              <Wifi size={18} className="text-[#9065B0]" />
+              <Wifi size={18} style={{ color: "var(--color-accent-purple)" }} />
             </div>
           }
           title="Network"
@@ -181,19 +202,23 @@ export function Settings(): ReactNode {
           />
         </SettingsSection>
 
-        {/* About */}
         <SettingsSection
           icon={
-            <div className="flex h-9 w-9 items-center justify-center rounded-md bg-gray-100">
-              <Info size={18} className="text-gray-600" />
+            <div
+              className="flex h-9 w-9 items-center justify-center rounded-md"
+              style={{ background: "var(--color-notion-bg-tertiary)" }}
+            >
+              <Info size={18} style={{ color: "var(--color-notion-text-secondary)" }} />
             </div>
           }
           title="About"
         >
-          <div className="flex flex-col gap-2 text-sm text-gray-600">
+          <div className="flex flex-col gap-2 text-sm text-[var(--color-notion-text-secondary)]">
             <div className="flex items-center justify-between">
               <span>MineSync</span>
-              <span className="font-mono text-xs text-gray-500">v0.1.0</span>
+              <span className="font-mono text-xs text-[var(--color-notion-text-tertiary)]">
+                v0.1.0
+              </span>
             </div>
             <p>Minecraft Launcher with P2P Mod Sync</p>
             <div className="flex gap-3 pt-1">
@@ -201,7 +226,7 @@ export function Settings(): ReactNode {
                 href="https://github.com/minesync"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-xs text-[#2383E2] transition-colors hover:underline"
+                className="inline-flex items-center gap-1 text-xs text-[var(--color-accent-blue)] transition-colors hover:underline"
               >
                 GitHub <ExternalLink size={10} />
               </a>

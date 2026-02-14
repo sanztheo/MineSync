@@ -1,8 +1,22 @@
 @import "tailwindcss";
 
 @theme {
-  /* ── Notion-inspired palette ── */
-  --color-notion-bg: #FFFFFF;
+  --shadow-sm: rgba(15, 15, 15, 0.05) 0px 0px 0px 1px, rgba(15, 15, 15, 0.1)
+    0px 3px 6px, rgba(15, 15, 15, 0.2) 0px 9px 24px;
+  --shadow-md: rgba(15, 15, 15, 0.05) 0px 0px 0px 1px, rgba(15, 15, 15, 0.1)
+    0px 5px 10px, rgba(15, 15, 15, 0.2) 0px 15px 40px;
+  --shadow-lg: rgba(15, 15, 15, 0.1) 0px 15px 35px, rgba(15, 15, 15, 0.05)
+    0px 5px 15px;
+  --shadow-soft: rgba(15, 15, 15, 0.04) 0px 0px 0px 1px, rgba(15, 15, 15, 0.06)
+    0px 2px 4px;
+  --shadow-elevated: rgba(15, 15, 15, 0.05) 0px 0px 0px 1px,
+    rgba(15, 15, 15, 0.1) 0px 3px 6px, rgba(15, 15, 15, 0.15) 0px 6px 16px;
+}
+
+:root,
+:root[data-theme="light"] {
+  color-scheme: light;
+  --color-notion-bg: #ffffff;
   --color-notion-bg-secondary: rgba(247, 246, 243, 1);
   --color-notion-bg-tertiary: rgba(242, 241, 238, 1);
   --color-notion-bg-hover: rgba(55, 53, 47, 0.08);
@@ -17,29 +31,72 @@
   --color-notion-border-light: rgba(55, 53, 47, 0.09);
   --color-notion-border-strong: rgba(55, 53, 47, 0.24);
 
-  /* ── Accent colors ── */
-  --color-accent-blue: #2383E2;
-  --color-accent-red: #E03E3E;
-  --color-accent-green: #0F7B6C;
-  --color-accent-yellow: #DFAB01;
-  --color-accent-purple: #9065B0;
+  --color-accent-blue: #2383e2;
+  --color-accent-blue-bg: rgba(35, 131, 226, 0.1);
+  --color-accent-red: #e03e3e;
+  --color-accent-red-bg: rgba(251, 236, 221, 1);
+  --color-accent-yellow: #dfab01;
+  --color-accent-yellow-bg: rgba(251, 243, 219, 1);
+  --color-accent-green: #0f7b6c;
+  --color-accent-green-bg: rgba(221, 237, 234, 1);
+  --color-accent-purple: #9065b0;
+  --color-accent-purple-bg: rgba(232, 222, 238, 1);
 
-  /* ── Dark button palette ── */
-  --color-btn-primary: #222222;
-  --color-btn-primary-hover: #333333;
-  --color-btn-primary-active: #1a1a1a;
+  --color-btn-primary: rgba(35, 131, 226, 1);
+  --color-btn-primary-hover: rgba(35, 131, 226, 0.85);
+  --color-btn-primary-active: rgba(35, 131, 226, 0.75);
 
-  /* ── Notion shadows ── */
-  --shadow-sm: rgba(15, 15, 15, 0.05) 0px 0px 0px 1px, rgba(15, 15, 15, 0.1) 0px 3px 6px, rgba(15, 15, 15, 0.2) 0px 9px 24px;
-  --shadow-md: rgba(15, 15, 15, 0.05) 0px 0px 0px 1px, rgba(15, 15, 15, 0.1) 0px 5px 10px, rgba(15, 15, 15, 0.2) 0px 15px 40px;
-  --shadow-lg: rgba(15, 15, 15, 0.1) 0px 15px 35px, rgba(15, 15, 15, 0.05) 0px 5px 15px;
-  --shadow-soft: rgba(15, 15, 15, 0.04) 0px 0px 0px 1px, rgba(15, 15, 15, 0.06) 0px 2px 4px;
-  --shadow-elevated: rgba(15, 15, 15, 0.05) 0px 0px 0px 1px, rgba(15, 15, 15, 0.1) 0px 3px 6px, rgba(15, 15, 15, 0.15) 0px 6px 16px;
+  --focus-ring: rgba(35, 131, 226, 0.3);
+  --focus-ring-strong: rgba(35, 131, 226, 0.1);
+
+  --shadow-sm-theme: var(--shadow-sm);
+  --shadow-md-theme: var(--shadow-md);
+  --shadow-lg-theme: var(--shadow-lg);
 }
 
-/*
- * Base — Notion system font stack, warm off-white background.
- */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --color-notion-bg: rgb(25, 25, 25);
+  --color-notion-bg-secondary: rgb(32, 32, 32);
+  --color-notion-bg-tertiary: rgb(37, 37, 37);
+  --color-notion-bg-hover: rgba(255, 255, 255, 0.055);
+  --color-notion-bg-active: rgba(255, 255, 255, 0.1);
+
+  --color-notion-text: rgba(255, 255, 255, 0.9);
+  --color-notion-text-secondary: rgba(255, 255, 255, 0.6);
+  --color-notion-text-tertiary: rgba(255, 255, 255, 0.4);
+  --color-notion-text-disabled: rgba(255, 255, 255, 0.3);
+
+  --color-notion-border: rgba(255, 255, 255, 0.13);
+  --color-notion-border-light: rgba(255, 255, 255, 0.07);
+  --color-notion-border-strong: rgba(255, 255, 255, 0.18);
+
+  --color-accent-blue: #529cca;
+  --color-accent-blue-bg: rgba(82, 156, 202, 0.15);
+  --color-accent-red: #ff6d6d;
+  --color-accent-red-bg: rgba(255, 109, 109, 0.15);
+  --color-accent-yellow: #ffd666;
+  --color-accent-yellow-bg: rgba(255, 214, 102, 0.15);
+  --color-accent-green: #4dbda1;
+  --color-accent-green-bg: rgba(77, 189, 161, 0.15);
+  --color-accent-purple: #b39dd8;
+  --color-accent-purple-bg: rgba(179, 157, 216, 0.15);
+
+  --color-btn-primary: rgba(35, 131, 226, 1);
+  --color-btn-primary-hover: rgba(35, 131, 226, 0.85);
+  --color-btn-primary-active: rgba(35, 131, 226, 0.75);
+
+  --focus-ring: rgba(35, 131, 226, 0.4);
+  --focus-ring-strong: rgba(82, 156, 202, 0.15);
+
+  --shadow-sm-theme: rgba(0, 0, 0, 0.2) 0px 0px 0px 1px,
+    rgba(0, 0, 0, 0.3) 0px 3px 6px, rgba(0, 0, 0, 0.4) 0px 9px 24px;
+  --shadow-md-theme: rgba(0, 0, 0, 0.2) 0px 0px 0px 1px,
+    rgba(0, 0, 0, 0.3) 0px 5px 10px, rgba(0, 0, 0, 0.5) 0px 15px 40px;
+  --shadow-lg-theme: rgba(0, 0, 0, 0.4) 0px 15px 35px,
+    rgba(0, 0, 0, 0.2) 0px 5px 15px;
+}
+
 html,
 body,
 #root {
@@ -58,7 +115,10 @@ body,
   line-height: 1.5;
 }
 
-/* ── Scrollbar ── */
+* {
+  box-sizing: border-box;
+}
+
 ::-webkit-scrollbar {
   width: 6px;
 }
@@ -68,22 +128,21 @@ body,
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(55, 53, 47, 0.16);
+  background: var(--color-notion-border);
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(55, 53, 47, 0.3);
+  background: var(--color-notion-border-strong);
 }
 
-/* ── Selection ── */
 ::selection {
-  background: rgba(35, 131, 226, 0.15);
+  background: var(--color-accent-blue-bg);
 }
 
-/* ── Select styling ── */
 select {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='rgba(55,53,47,0.45)' viewBox='0 0 16 16'%3E%3Cpath d='M4.646 6.646a.5.5 0 0 1 .708 0L8 9.293l2.646-2.647a.5.5 0 0 1 .708.708l-3 3a.5.5 0 0 1-.708 0l-3-3a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' viewBox='0 0 16 16'%3E%3Cpath d='M4.646 6.646a.5.5 0 0 1 .708 0L8 9.293l2.646-2.647a.5.5 0 0 1 .708.708l-3 3a.5.5 0 0 1-.708 0l-3-3a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
+  color: var(--color-notion-text-secondary);
   background-repeat: no-repeat;
   background-position: right 10px center;
   -webkit-appearance: none;
@@ -91,15 +150,14 @@ select {
   padding-right: 32px;
 }
 
-/* ── Range slider ── */
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  background: white;
+  background: var(--color-notion-bg);
   border: 2px solid var(--color-btn-primary);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
   cursor: pointer;
   margin-top: -5px;
 }
