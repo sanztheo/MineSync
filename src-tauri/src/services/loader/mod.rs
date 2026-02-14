@@ -8,6 +8,7 @@ use std::path::PathBuf;
 use crate::errors::{AppError, AppResult};
 use crate::models::instance::ModLoader;
 use crate::models::loader::{LoaderProfile, LoaderVersionEntry};
+use crate::services::download::{DownloadService, DownloadTask};
 
 use self::fabric::FabricInstaller;
 use self::forge::ForgeInstaller;
@@ -80,5 +81,46 @@ impl LoaderService {
                 "Vanilla does not require loader installation".to_string(),
             )),
         }
+    }
+
+    /// Download all libraries referenced in a loader profile.
+    ///
+    /// For each `LoaderLibrary`, checks if the JAR already exists under
+    /// `{base_dir}/libraries/{path}`. Missing files with a non-empty URL
+    /// are queued and downloaded in parallel via `DownloadService`.
+    pub async fn download_loader_libraries(
+        &self,
+        profile: &LoaderProfile,
+        download_service: &DownloadService,
+    ) -> AppResult<()> {
+        let libs_root = self.base_dir.join("libraries");
+
+        let tasks: Vec<DownloadTask> = profile
+            .libraries
+            .iter()
+            .filter(|lib| !lib.url.is_empty())
+            .filter_map(|lib| {
+                let dest = libs_root.join(&lib.path);
+                if dest.exists() {
+                    return None;
+                }
+                Some(DownloadTask {
+                    url: lib.url.clone(),
+                    dest,
+                    sha1: lib.sha1.clone(),
+                    size: lib.size,
+                })
+            })
+            .collect();
+
+        if tasks.is_empty() {
+            return Ok(());
+        }
+
+        log::info!(
+            "[LOADER] Downloading {} loader libraries",
+            tasks.len()
+        );
+        download_service.download_all(tasks).await
     }
 }

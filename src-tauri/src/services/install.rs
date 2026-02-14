@@ -246,12 +246,16 @@ impl InstallService {
             let mc_tasks = mc_service.resolve_downloads(&detail).await?;
             download_service.download_all(mc_tasks).await?;
 
-            // 6. Install mod loader (if not Vanilla)
+            // 6. Install mod loader (if not Vanilla) + download loader libraries
             if instance.loader != ModLoader::Vanilla {
                 self.set_progress(InstallStage::InstallingLoader, 35.0)?;
                 if let Some(ref lv) = pack_info.loader_version {
-                    loader_service
+                    let loader_profile = loader_service
                         .install_loader(&instance.loader, &pack_info.mc_version, lv)
+                        .await?;
+
+                    loader_service
+                        .download_loader_libraries(&loader_profile, download_service)
                         .await?;
                 }
             }
@@ -271,11 +275,27 @@ impl InstallService {
             )?;
             let mod_tasks: Vec<DownloadTask> = mod_downloads
                 .iter()
-                .map(|m| DownloadTask {
-                    url: m.url.clone(),
-                    dest: instance_path.join("mods").join(&m.filename),
-                    sha1: m.sha1.clone(),
-                    size: m.size,
+                .map(|m| {
+                    // Use the full relative path when available (Modrinth packs
+                    // place files in mods/, shaderpacks/, resourcepacks/, etc.).
+                    // CurseForge packs always go into mods/.
+                    //
+                    // Defence-in-depth: validate again at download time even though
+                    // resolve_mr_mods already sanitises.  If the path is rejected
+                    // here, fall back to mods/ to avoid skipping the file entirely.
+                    let dest = match m.relative_path {
+                        Some(ref rp) => match safe_relative_path(rp) {
+                            Some(safe) => instance_path.join(safe),
+                            None => instance_path.join("mods").join(&m.filename),
+                        },
+                        None => instance_path.join("mods").join(&m.filename),
+                    };
+                    DownloadTask {
+                        url: m.url.clone(),
+                        dest,
+                        sha1: m.sha1.clone(),
+                        size: m.size,
+                    }
                 })
                 .collect();
             download_service.download_all(mod_tasks).await?;
@@ -285,6 +305,12 @@ impl InstallService {
             let overrides_dir = extract_dir.join(&pack_info.overrides_folder);
             if overrides_dir.exists() {
                 copy_dir_recursive(&overrides_dir, &instance_path).await?;
+            }
+
+            // 9b. Copy client-overrides (Modrinth packs — takes priority over overrides)
+            let client_overrides_dir = extract_dir.join("client-overrides");
+            if client_overrides_dir.exists() {
+                copy_dir_recursive(&client_overrides_dir, &instance_path).await?;
             }
 
             Ok((instance, mod_downloads))
@@ -399,6 +425,10 @@ impl InstallService {
 struct ModDownloadInfo {
     url: String,
     filename: String,
+    /// Relative path inside the instance directory (e.g. "mods/sodium.jar",
+    /// "shaderpacks/BSL.zip"). Used to place files in the correct subdirectory.
+    /// When `None`, falls back to `mods/{filename}`.
+    relative_path: Option<String>,
     size: u64,
     sha1: Option<String>,
     name: String,
@@ -540,6 +570,7 @@ async fn resolve_cf_mods(
         downloads.push(ModDownloadInfo {
             url: f.download_url,
             filename: f.file_name.clone(),
+            relative_path: None,
             size: f.file_size,
             sha1: f.sha1,
             name: f.file_name,
@@ -566,9 +597,13 @@ fn resolve_mr_mods(index: &MrIndex) -> Vec<ModDownloadInfo> {
                 .unwrap_or(&f.path)
                 .to_string();
 
+            // Validate path to prevent traversal (CVE-2023-25303 / CVE-2023-25307)
+            let validated_path = safe_relative_path(&f.path)?;
+
             Some(ModDownloadInfo {
                 url: url.clone(),
                 filename: filename.clone(),
+                relative_path: Some(validated_path.to_string_lossy().to_string()),
                 size: f.file_size,
                 sha1: Some(f.hashes.sha1.clone()),
                 name: filename,
@@ -577,6 +612,43 @@ fn resolve_mr_mods(index: &MrIndex) -> Vec<ModDownloadInfo> {
             })
         })
         .collect()
+}
+
+// --- Path safety ---
+
+/// Sanitise a relative path from an untrusted source (e.g. Modrinth `path`
+/// field in `modrinth.index.json`).
+///
+/// Rejects absolute paths, `..` components and any sequence that would escape
+/// the target directory — the same class of vulnerability as CVE-2023-25303
+/// (ATLauncher) and CVE-2023-25307 (mrpack-install).
+///
+/// Returns `None` if the path is malicious or empty.
+fn safe_relative_path(raw: &str) -> Option<PathBuf> {
+    let candidate = Path::new(raw);
+
+    // Reject absolute paths
+    if candidate.has_root() {
+        return None;
+    }
+
+    // Rebuild component-by-component, rejecting `..` and empty segments
+    let mut sanitised = PathBuf::new();
+    for component in candidate.components() {
+        match component {
+            std::path::Component::Normal(seg) => sanitised.push(seg),
+            // Allow `.` (current dir) — harmless
+            std::path::Component::CurDir => {}
+            // Reject `..`, prefix (`C:\`), and root (`/`)
+            _ => return None,
+        }
+    }
+
+    if sanitised.as_os_str().is_empty() {
+        return None;
+    }
+
+    Some(sanitised)
 }
 
 // --- ZIP extraction ---

@@ -356,6 +356,102 @@ function InstanceCard({
   );
 }
 
+/**
+ * Ghost card shown in the instance grid while a modpack is being installed
+ * but the instance hasn't been persisted to the DB yet.
+ * Mirrors the Modrinth launcher pattern: install → navigate to Home → see progress.
+ */
+function InstallingCard({
+  progress,
+}: {
+  progress: InstallProgress;
+}): ReactNode {
+  return (
+    <div className="group relative">
+      <Card className="flex flex-col gap-3">
+        {/* Icon area with progress overlay */}
+        <div className="relative flex h-28 items-center justify-center overflow-hidden rounded-lg bg-[var(--color-notion-bg-tertiary)]">
+          {progress.modpack_icon_url !== undefined ? (
+            <img
+              src={progress.modpack_icon_url}
+              alt={progress.modpack_name ?? "Installing modpack"}
+              className="h-full w-full object-cover"
+              loading="lazy"
+            />
+          ) : (
+            <Gamepad2
+              size={32}
+              style={{ color: "var(--color-notion-text-disabled)" }}
+            />
+          )}
+
+          {/* Progress overlay — always shown on ghost card */}
+          <div
+            className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 rounded-lg backdrop-blur-sm"
+            style={{ background: "rgba(0, 0, 0, 0.65)" }}
+          >
+            <Loader2
+              size={20}
+              className="animate-spin"
+              style={{ color: "var(--color-notion-text-tertiary)" }}
+            />
+            <span
+              className="text-[10px] font-semibold"
+              style={{ color: "var(--color-notion-text-secondary)" }}
+            >
+              {shortStageLabel(progress.stage)}
+            </span>
+            <div
+              className="mx-4 h-2 w-3/4 overflow-hidden rounded-full"
+              style={{ background: "var(--color-notion-bg-hover)" }}
+            >
+              <div
+                className="h-full rounded-full bg-[var(--color-accent-blue)] transition-all duration-300"
+                style={{
+                  width: `${String(Math.min(100, progress.overall_percent))}%`,
+                }}
+              />
+            </div>
+            <span
+              className="text-[10px] font-medium"
+              style={{ color: "var(--color-notion-text-tertiary)" }}
+            >
+              {progress.overall_percent.toFixed(0)}%
+            </span>
+          </div>
+        </div>
+
+        {/* Info */}
+        <div className="flex flex-col gap-1.5">
+          <h3
+            className="truncate text-sm font-bold"
+            style={{ color: "var(--color-notion-text)" }}
+          >
+            {progress.modpack_name ?? "Installing modpack…"}
+          </h3>
+          <span
+            className="text-[11px]"
+            style={{ color: "var(--color-notion-text-tertiary)" }}
+          >
+            Installing…
+          </span>
+        </div>
+
+        {/* Disabled action */}
+        <div className="flex flex-col gap-2 pt-1">
+          <Button
+            size="sm"
+            disabled
+            icon={<Loader2 size={12} className="animate-spin" />}
+          >
+            Installing
+          </Button>
+        </div>
+      </Card>
+    </div>
+  );
+}
+
 function CreateInstanceModal({
   open,
   onClose,
@@ -572,7 +668,7 @@ export function Home(): ReactNode {
     error,
     refetch,
   } = useTauriCommand(listInstances);
-  const { progress: installProgress } = useInstallProgress();
+  const { progress: installProgress, isInstalling } = useInstallProgress();
   const {
     status: gameStatus,
     launch,
@@ -662,6 +758,21 @@ export function Home(): ReactNode {
     [instances],
   );
 
+  // Show ghost card when installing and no matching instance exists in the grid yet
+  const showGhostCard =
+    isInstalling &&
+    installProgress !== undefined &&
+    !activeInstances.some((i) => i.id === installProgress.instance_id);
+
+  // Auto-refetch instances when installation finishes so the real card replaces the ghost
+  const prevInstallingRef = useRef(false);
+  useEffect(() => {
+    if (prevInstallingRef.current && !isInstalling) {
+      refetch();
+    }
+    prevInstallingRef.current = isInstalling;
+  }, [isInstalling, refetch]);
+
   return (
     <div className="flex flex-1 flex-col gap-6 p-7">
       {/* Header */}
@@ -736,6 +847,11 @@ export function Home(): ReactNode {
       {/* Instance grid */}
       {!loading && error === undefined && (
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {/* Ghost card for modpack being installed (not yet in DB) */}
+          {showGhostCard && installProgress !== undefined && (
+            <InstallingCard progress={installProgress} />
+          )}
+
           {activeInstances.map((instance) => (
             <InstanceCard
               key={instance.id}
@@ -893,35 +1009,38 @@ export function Home(): ReactNode {
         </Card>
       )}
 
-      {/* Empty state */}
-      {!loading && error === undefined && activeInstances.length === 0 && (
-        <div
-          className="flex flex-col items-center justify-center py-16"
-          style={{ color: "var(--color-notion-text-tertiary)" }}
-        >
+      {/* Empty state — hidden when ghost card is visible */}
+      {!loading &&
+        error === undefined &&
+        activeInstances.length === 0 &&
+        !showGhostCard && (
           <div
-            className="mb-4 flex h-20 w-20 items-center justify-center rounded-lg"
-            style={{ background: "var(--color-notion-bg-tertiary)" }}
+            className="flex flex-col items-center justify-center py-16"
+            style={{ color: "var(--color-notion-text-tertiary)" }}
           >
-            <Gamepad2
-              size={36}
-              style={{ color: "var(--color-notion-text-disabled)" }}
-            />
+            <div
+              className="mb-4 flex h-20 w-20 items-center justify-center rounded-lg"
+              style={{ background: "var(--color-notion-bg-tertiary)" }}
+            >
+              <Gamepad2
+                size={36}
+                style={{ color: "var(--color-notion-text-disabled)" }}
+              />
+            </div>
+            <p
+              className="text-sm font-semibold"
+              style={{ color: "var(--color-notion-text-tertiary)" }}
+            >
+              No instances yet
+            </p>
+            <p
+              className="mt-1 text-xs"
+              style={{ color: "var(--color-notion-text-tertiary)" }}
+            >
+              Create your first modpack to get started!
+            </p>
           </div>
-          <p
-            className="text-sm font-semibold"
-            style={{ color: "var(--color-notion-text-tertiary)" }}
-          >
-            No instances yet
-          </p>
-          <p
-            className="mt-1 text-xs"
-            style={{ color: "var(--color-notion-text-tertiary)" }}
-          >
-            Create your first modpack to get started!
-          </p>
-        </div>
-      )}
+        )}
 
       {/* Create modal */}
       <CreateInstanceModal

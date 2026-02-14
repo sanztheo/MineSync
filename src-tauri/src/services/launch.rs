@@ -247,6 +247,10 @@ impl LaunchService {
     }
 
     /// Build the classpath from vanilla libraries + loader libraries + client.jar.
+    ///
+    /// When a loader provides a library with the same `group:artifact` as a
+    /// vanilla library (e.g. ASM), the loader version wins and the vanilla one
+    /// is excluded to prevent "duplicate classes on classpath" errors.
     fn build_classpath(
         &self,
         version_detail: &VersionDetail,
@@ -255,8 +259,25 @@ impl LaunchService {
         let lib_dir = self.base_dir.join("libraries");
         let mut classpath: Vec<String> = Vec::new();
 
-        // Vanilla libraries (already filtered by OS during download)
+        // Collect loader library artifact keys (group:artifact) for dedup
+        let loader_artifact_keys: std::collections::HashSet<String> =
+            match loader_profile {
+                Some(lp) => lp
+                    .libraries
+                    .iter()
+                    .filter_map(|lib| maven_artifact_key(&lib.name))
+                    .collect(),
+                None => std::collections::HashSet::new(),
+            };
+
+        // Vanilla libraries — skip those overridden by the loader
         for lib in &version_detail.libraries {
+            if let Some(key) = maven_artifact_key(&lib.name) {
+                if loader_artifact_keys.contains(&key) {
+                    continue;
+                }
+            }
+
             if let Some(ref downloads) = lib.downloads {
                 if let Some(ref artifact) = downloads.artifact {
                     if let Some(ref path) = artifact.path {
@@ -266,7 +287,7 @@ impl LaunchService {
             }
         }
 
-        // Loader libraries
+        // Loader libraries (take priority)
         if let Some(lp) = loader_profile {
             for lib in &lp.libraries {
                 classpath.push(lib_dir.join(&lib.path).to_string_lossy().to_string());
@@ -665,6 +686,19 @@ fn extract_jvm_arg_key(arg: &str) -> String {
         arg[..4].to_string()
     } else {
         arg.to_string()
+    }
+}
+
+/// Extract the `group:artifact` key from a Maven coordinate string.
+///
+/// Maven coordinates follow the format `group:artifact:version[:classifier]`.
+/// Returns `Some("group:artifact")` for deduplication, or `None` if malformed.
+fn maven_artifact_key(name: &str) -> Option<String> {
+    let parts: Vec<&str> = name.split(':').collect();
+    if parts.len() >= 2 {
+        Some(format!("{}:{}", parts[0], parts[1]))
+    } else {
+        None
     }
 }
 

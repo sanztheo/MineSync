@@ -323,6 +323,15 @@ function ModsTab({
 }
 
 function FilesTab({ instancePath }: { instancePath: string }): ReactNode {
+  const handleOpenFolder = useCallback(async (): Promise<void> => {
+    try {
+      const { revealItemInDir } = await import("@tauri-apps/plugin-opener");
+      await revealItemInDir(instancePath);
+    } catch {
+      // Silently handle — folder may not exist yet
+    }
+  }, [instancePath]);
+
   return (
     <div className="flex flex-col gap-4">
       <Card>
@@ -360,6 +369,7 @@ function FilesTab({ instancePath }: { instancePath: string }): ReactNode {
               size="sm"
               variant="secondary"
               icon={<FolderOpen size={14} />}
+              onClick={handleOpenFolder}
             >
               Open Folder
             </Button>
@@ -656,12 +666,7 @@ export function InstanceDetail(): ReactNode {
             <div className="flex items-center gap-2">
               <Button
                 icon={<Play size={14} />}
-                disabled={
-                  isPreparing ||
-                  isRunning ||
-                  isDownloadingBeforeLaunch ||
-                  !isJavaReady
-                }
+                disabled={isPreparing || isRunning || isDownloadingBeforeLaunch}
                 onClick={handleLaunch}
               >
                 Launch

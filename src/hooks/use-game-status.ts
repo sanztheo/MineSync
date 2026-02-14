@@ -4,7 +4,6 @@ import {
   getDownloadProgress,
   getGameStatus,
   getInstance,
-  getJavaPath,
   killGame,
   launchInstance,
   listMcVersions,
@@ -44,7 +43,10 @@ function mapLaunchError(message: string): string {
     if (lower.includes("permission denied") || lower.includes("os error 13")) {
       return "Java trouvé, mais impossible de l'exécuter (permission refusée). Vérifie ton installation Java.";
     }
-    if (lower.includes("argument list too long") || lower.includes("os error 7")) {
+    if (
+      lower.includes("argument list too long") ||
+      lower.includes("os error 7")
+    ) {
       return "Le lancement a échoué: commande Java trop longue. Réessaie avec une instance plus légère.";
     }
     return `Échec du démarrage Java: ${message}`;
@@ -99,7 +101,9 @@ export function isGameIdleStatus(status: GameStatus): status is "idle" {
   return status === "idle";
 }
 
-export function isGamePreparingStatus(status: GameStatus): status is "preparing" {
+export function isGamePreparingStatus(
+  status: GameStatus,
+): status is "preparing" {
   return status === "preparing";
 }
 
@@ -277,8 +281,7 @@ export function useGameStatus(): UseGameStatusResult {
         setPendingDownload(false);
         setDownloadProgress(undefined);
 
-        const javaPath = await getJavaPath();
-        await launchInstance(instanceId, javaPath);
+        await launchInstance(instanceId);
         await refreshStatus();
       } catch (err: unknown) {
         setPendingDownload(false);

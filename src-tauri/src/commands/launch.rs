@@ -2,6 +2,8 @@ use crate::errors::{AppError, AppResult};
 use crate::models::instance::ModLoader;
 use crate::models::launch::{CrashLog, GameStatus, LaunchInfo};
 use crate::services::database::DatabaseService;
+use crate::services::download::DownloadService;
+use crate::services::java::JavaService;
 use crate::services::launch::LaunchService;
 use crate::services::loader::LoaderService;
 use crate::services::minecraft::MinecraftService;
@@ -11,10 +13,12 @@ pub async fn launch_instance(
     launch_svc: tauri::State<'_, LaunchService>,
     mc_svc: tauri::State<'_, MinecraftService>,
     loader_svc: tauri::State<'_, LoaderService>,
+    download_svc: tauri::State<'_, DownloadService>,
+    java_svc: tauri::State<'_, JavaService>,
     db: tauri::State<'_, DatabaseService>,
     app_handle: tauri::AppHandle,
     instance_id: String,
-    java_path: String,
+    java_path: Option<String>,
 ) -> AppResult<LaunchInfo> {
     // Fetch instance from DB
     let instance = db
@@ -26,12 +30,18 @@ pub async fn launch_instance(
         .get_active_account()?
         .ok_or_else(|| AppError::Custom("No active account. Please log in first.".to_string()))?;
 
+    // Auto-detect Java if not provided
+    let java = match java_path {
+        Some(ref p) if !p.is_empty() => p.clone(),
+        _ => java_svc.get_java_path().await?,
+    };
+
     // Fetch version detail (needs cached manifest)
     let version_detail = mc_svc
         .fetch_version_detail(&instance.minecraft_version)
         .await?;
 
-    // Install loader if needed
+    // Install loader if needed + download loader libraries
     let loader_profile = if instance.loader != ModLoader::Vanilla {
         let loader_version = instance.loader_version.as_deref().ok_or_else(|| {
             AppError::Custom(format!(
@@ -48,6 +58,11 @@ pub async fn launch_instance(
             )
             .await?;
 
+        // Download loader library JARs that are missing from disk
+        loader_svc
+            .download_loader_libraries(&profile, &download_svc)
+            .await?;
+
         Some(profile)
     } else {
         None
@@ -61,7 +76,7 @@ pub async fn launch_instance(
             &version_detail,
             loader_profile.as_ref(),
             &account,
-            &java_path,
+            &java,
             app_handle,
         )
         .await

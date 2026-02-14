@@ -119,11 +119,11 @@ export async function getDownloadProgress(): Promise<DownloadProgress> {
 
 export async function launchInstance(
   instanceId: string,
-  javaPath: string,
+  javaPath?: string,
 ): Promise<LaunchInfo> {
   return invoke<LaunchInfo>("launch_instance", {
     instanceId,
-    javaPath,
+    javaPath: javaPath ?? null,
   });
 }
 

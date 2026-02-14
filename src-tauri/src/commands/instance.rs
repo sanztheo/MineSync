@@ -47,7 +47,19 @@ pub fn create_instance(
 }
 
 #[tauri::command]
-pub fn delete_instance(db: tauri::State<'_, DatabaseService>, id: String) -> AppResult<()> {
+pub async fn delete_instance(db: tauri::State<'_, DatabaseService>, id: String) -> AppResult<()> {
+    // Fetch instance path before soft-deleting so we can remove files on disk
+    if let Some(instance) = db.get_instance(&id)? {
+        let path = Path::new(&instance.instance_path);
+        if path.exists() {
+            tokio::fs::remove_dir_all(path).await.map_err(|e| {
+                AppError::Custom(format!(
+                    "Failed to remove instance directory {}: {e}",
+                    instance.instance_path
+                ))
+            })?;
+        }
+    }
     db.delete_instance(&id)
 }
 
