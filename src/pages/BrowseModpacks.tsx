@@ -82,7 +82,10 @@ function FilterSelect({
 }): ReactNode {
   return (
     <div className="flex flex-col gap-1">
-      <span className="text-[10px] font-medium uppercase tracking-wider text-gray-500">
+      <span
+        className="text-[10px] font-medium uppercase tracking-wider"
+        style={{ color: "var(--color-notion-text-tertiary)" }}
+      >
         {label}
       </span>
       <select
@@ -90,10 +93,11 @@ function FilterSelect({
         onChange={(e) => {
           onChange(e.target.value);
         }}
-        className="rounded-[5px] bg-white px-2.5 py-1.5 text-xs"
+        className="rounded-[5px] px-2.5 py-1.5 text-xs"
         style={{
-          border: "1px solid rgba(55, 53, 47, 0.16)",
-          color: "rgba(55, 53, 47, 0.85)",
+          background: "var(--color-notion-bg-secondary)",
+          border: "1px solid var(--color-notion-border)",
+          color: "var(--color-notion-text)",
         }}
       >
         <option value="">All</option>
@@ -127,9 +131,12 @@ function ModpackCard({
       ) : (
         <div
           className="flex h-12 w-12 shrink-0 items-center justify-center rounded-md"
-          style={{ background: "rgba(55, 53, 47, 0.08)" }}
+          style={{ background: "var(--color-notion-bg-hover)" }}
         >
-          <Boxes size={20} className="text-gray-500" />
+          <Boxes
+            size={20}
+            style={{ color: "var(--color-notion-text-tertiary)" }}
+          />
         </div>
       )}
 
@@ -138,7 +145,7 @@ function ModpackCard({
         <div className="flex items-center gap-2">
           <h3
             className="truncate text-sm font-semibold"
-            style={{ color: "rgba(55, 53, 47, 1)" }}
+            style={{ color: "var(--color-notion-text)" }}
           >
             {modpack.name}
           </h3>
@@ -146,8 +153,16 @@ function ModpackCard({
             {modpack.source}
           </Badge>
         </div>
-        <span className="text-xs text-gray-500">by {modpack.author}</span>
-        <p className="line-clamp-2 text-xs text-gray-600">
+        <span
+          className="text-xs"
+          style={{ color: "var(--color-notion-text-tertiary)" }}
+        >
+          by {modpack.author}
+        </span>
+        <p
+          className="line-clamp-2 text-xs"
+          style={{ color: "var(--color-notion-text-secondary)" }}
+        >
           {modpack.description}
         </p>
         {modpack.loaders.length > 0 && (
@@ -157,8 +172,8 @@ function ModpackCard({
                 key={loader}
                 className="rounded px-1.5 py-0.5 text-[10px]"
                 style={{
-                  background: "rgba(55, 53, 47, 0.08)",
-                  color: "rgba(55, 53, 47, 0.45)",
+                  background: "var(--color-notion-bg-hover)",
+                  color: "var(--color-notion-text-tertiary)",
                 }}
               >
                 {loader}
@@ -170,7 +185,10 @@ function ModpackCard({
 
       {/* Actions */}
       <div className="flex shrink-0 flex-col items-end gap-2">
-        <span className="text-xs text-gray-600">
+        <span
+          className="text-xs"
+          style={{ color: "var(--color-notion-text-secondary)" }}
+        >
           {formatDownloads(modpack.downloads)}
         </span>
         <Button
@@ -217,7 +235,10 @@ function Pagination({
       >
         Previous
       </Button>
-      <span className="text-xs text-gray-500">
+      <span
+        className="text-xs"
+        style={{ color: "var(--color-notion-text-tertiary)" }}
+      >
         Page {currentPage} of {totalPages}
       </span>
       <Button
@@ -304,11 +325,16 @@ export function BrowseModpacks(): ReactNode {
       <div>
         <h1
           className="text-2xl font-semibold text-pretty"
-          style={{ color: "rgba(55, 53, 47, 1)" }}
+          style={{ color: "var(--color-notion-text)" }}
         >
           Browse Modpacks
         </h1>
-        <p className="text-sm text-gray-600">Search CurseForge and Modrinth</p>
+        <p
+          className="text-sm"
+          style={{ color: "var(--color-notion-text-secondary)" }}
+        >
+          Search CurseForge and Modrinth
+        </p>
       </div>
 
       {/* Search bar + filter toggle */}
@@ -338,8 +364,11 @@ export function BrowseModpacks(): ReactNode {
       {/* Filters bar */}
       {showFilters && (
         <div
-          className="flex flex-wrap items-end gap-4 rounded-lg bg-white p-4"
-          style={{ border: "1px solid rgba(55, 53, 47, 0.09)" }}
+          className="flex flex-wrap items-end gap-4 rounded-lg p-4"
+          style={{
+            background: "var(--color-notion-bg)",
+            border: "1px solid var(--color-notion-border-light)",
+          }}
         >
           <FilterSelect
             label="Sort by"
@@ -382,9 +411,12 @@ export function BrowseModpacks(): ReactNode {
           <Loader2
             size={24}
             className="animate-spin"
-            style={{ color: "rgba(55, 53, 47, 0.45)" }}
+            style={{ color: "var(--color-notion-text-tertiary)" }}
           />
-          <span className="ml-3 text-sm text-gray-500">
+          <span
+            className="ml-3 text-sm"
+            style={{ color: "var(--color-notion-text-tertiary)" }}
+          >
             Searching modpacks…
           </span>
         </div>
@@ -395,17 +427,29 @@ export function BrowseModpacks(): ReactNode {
         <Card
           className="rounded-lg"
           style={{
-            background: "rgba(251, 236, 221, 1)",
-            border: "1px solid rgba(55, 53, 47, 0.09)",
+            background: "var(--color-accent-red-bg)",
+            border: "1px solid var(--color-notion-border-light)",
           }}
         >
           <div className="flex items-center gap-3 p-4">
-            <AlertCircle size={18} className="shrink-0 text-red-600" />
+            <AlertCircle
+              size={18}
+              className="shrink-0"
+              style={{ color: "var(--color-accent-red)" }}
+            />
             <div className="flex flex-1 flex-col gap-0.5">
-              <span className="text-sm font-medium text-red-600">
+              <span
+                className="text-sm font-medium"
+                style={{ color: "var(--color-accent-red)" }}
+              >
                 Search failed
               </span>
-              <span className="text-xs text-gray-600">{error}</span>
+              <span
+                className="text-xs"
+                style={{ color: "var(--color-notion-text-secondary)" }}
+              >
+                {error}
+              </span>
             </div>
             <Button
               size="sm"
@@ -426,7 +470,10 @@ export function BrowseModpacks(): ReactNode {
           {/* Results count */}
           {results.length > 0 && (
             <div className="flex items-center justify-between">
-              <span className="text-xs text-gray-600">
+              <span
+                className="text-xs"
+                style={{ color: "var(--color-notion-text-secondary)" }}
+              >
                 {totalHits.toLocaleString()} results found
               </span>
             </div>
@@ -448,14 +495,23 @@ export function BrowseModpacks(): ReactNode {
             <div className="flex flex-col items-center justify-center py-12">
               <div
                 className="mb-3 flex h-16 w-16 items-center justify-center rounded-lg"
-                style={{ background: "rgba(55, 53, 47, 0.04)" }}
+                style={{ background: "var(--color-notion-bg-hover)" }}
               >
-                <Boxes size={40} className="text-gray-400" />
+                <Boxes
+                  size={40}
+                  style={{ color: "var(--color-notion-text-tertiary)" }}
+                />
               </div>
-              <p className="text-sm text-gray-600">
+              <p
+                className="text-sm"
+                style={{ color: "var(--color-notion-text-secondary)" }}
+              >
                 No modpacks found for &quot;{debouncedQuery}&quot;
               </p>
-              <p className="text-xs text-gray-500">
+              <p
+                className="text-xs"
+                style={{ color: "var(--color-notion-text-tertiary)" }}
+              >
                 Try different keywords or filters
               </p>
             </div>
@@ -466,14 +522,23 @@ export function BrowseModpacks(): ReactNode {
             <div className="flex flex-col items-center justify-center py-12">
               <div
                 className="mb-3 flex h-16 w-16 items-center justify-center rounded-lg"
-                style={{ background: "rgba(55, 53, 47, 0.04)" }}
+                style={{ background: "var(--color-notion-bg-hover)" }}
               >
-                <Search size={40} className="text-gray-400" />
+                <Search
+                  size={40}
+                  style={{ color: "var(--color-notion-text-tertiary)" }}
+                />
               </div>
-              <p className="text-sm text-gray-600">
+              <p
+                className="text-sm"
+                style={{ color: "var(--color-notion-text-secondary)" }}
+              >
                 Search for modpacks to get started
               </p>
-              <p className="text-xs text-gray-500">
+              <p
+                className="text-xs"
+                style={{ color: "var(--color-notion-text-tertiary)" }}
+              >
                 Results from CurseForge and Modrinth
               </p>
             </div>

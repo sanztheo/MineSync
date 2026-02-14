@@ -180,8 +180,11 @@ export function InstallModpackModal({
       <div className="flex flex-col gap-4">
         {/* Modpack info header */}
         <div
-          className="flex items-start gap-3 rounded-md bg-white p-3"
-          style={{ border: "1px solid rgba(55, 53, 47, 0.09)" }}
+          className="flex items-start gap-3 rounded-md p-3"
+          style={{
+            background: "var(--color-notion-bg)",
+            border: "1px solid var(--color-notion-border-light)",
+          }}
         >
           {modpack.icon_url !== undefined ? (
             <img
@@ -193,28 +196,31 @@ export function InstallModpackModal({
           ) : (
             <div
               className="flex h-12 w-12 shrink-0 items-center justify-center rounded-md"
-              style={{ background: "rgba(55, 53, 47, 0.08)" }}
+              style={{ background: "var(--color-notion-bg-hover)" }}
             >
-              <Boxes size={20} style={{ color: "rgba(55, 53, 47, 0.45)" }} />
+              <Boxes
+                size={20}
+                style={{ color: "var(--color-notion-text-tertiary)" }}
+              />
             </div>
           )}
           <div className="flex flex-1 flex-col gap-0.5 overflow-hidden">
             <h3
               className="truncate text-sm font-semibold"
-              style={{ color: "rgba(55, 53, 47, 1)" }}
+              style={{ color: "var(--color-notion-text)" }}
             >
               {modpack.name}
             </h3>
             <span
               className="text-xs"
-              style={{ color: "rgba(55, 53, 47, 0.65)" }}
+              style={{ color: "var(--color-notion-text-secondary)" }}
             >
               by {modpack.author}
             </span>
             {modpack.description !== "" && (
               <p
                 className="line-clamp-2 text-xs"
-                style={{ color: "rgba(55, 53, 47, 0.45)" }}
+                style={{ color: "var(--color-notion-text-tertiary)" }}
               >
                 {modpack.description}
               </p>
@@ -225,7 +231,10 @@ export function InstallModpackModal({
         {/* Version selection */}
         {step === "select_version" && (
           <>
-            <p className="text-sm" style={{ color: "rgba(55, 53, 47, 0.65)" }}>
+            <p
+              className="text-sm"
+              style={{ color: "var(--color-notion-text-secondary)" }}
+            >
               Select a version to install:
             </p>
 
@@ -234,11 +243,11 @@ export function InstallModpackModal({
                 <Loader2
                   size={20}
                   className="animate-spin"
-                  style={{ color: "rgba(55, 53, 47, 0.45)" }}
+                  style={{ color: "var(--color-notion-text-tertiary)" }}
                 />
                 <span
                   className="ml-2 text-sm"
-                  style={{ color: "rgba(55, 53, 47, 0.65)" }}
+                  style={{ color: "var(--color-notion-text-secondary)" }}
                 >
                   Loading versions…
                 </span>
@@ -254,12 +263,12 @@ export function InstallModpackModal({
                       onClick={() => {
                         startInstall(v);
                       }}
-                      className="flex items-center gap-3 rounded-md px-3 py-2.5 text-left transition-colors duration-150 hover:bg-[rgba(55,53,47,0.04)]"
+                      className="flex items-center gap-3 rounded-md px-3 py-2.5 text-left transition-colors duration-150 hover:bg-[var(--color-notion-bg-hover)]"
                     >
                       <div className="flex flex-1 flex-col gap-0.5 overflow-hidden">
                         <span
                           className="truncate text-sm font-medium"
-                          style={{ color: "rgba(55, 53, 47, 0.85)" }}
+                          style={{ color: "var(--color-notion-text)" }}
                         >
                           {v.name}
                         </span>
@@ -278,7 +287,7 @@ export function InstallModpackModal({
                       </div>
                       <ChevronRight
                         size={16}
-                        style={{ color: "rgba(55, 53, 47, 0.3)" }}
+                        style={{ color: "var(--color-notion-text-disabled)" }}
                       />
                     </button>
                   ))}
@@ -289,7 +298,7 @@ export function InstallModpackModal({
             {!loadingVersions && versions.length === 0 && (
               <p
                 className="py-4 text-center text-sm"
-                style={{ color: "rgba(55, 53, 47, 0.65)" }}
+                style={{ color: "var(--color-notion-text-secondary)" }}
               >
                 No versions found
               </p>
@@ -299,11 +308,17 @@ export function InstallModpackModal({
               <div
                 className="flex items-center gap-2 rounded-md p-3"
                 style={{
-                  background: "rgba(251, 236, 221, 1)",
+                  background: "var(--color-accent-red-bg)",
                 }}
               >
-                <AlertCircle size={16} style={{ color: "#E03E3E" }} />
-                <span className="text-xs" style={{ color: "#E03E3E" }}>
+                <AlertCircle
+                  size={16}
+                  style={{ color: "var(--color-accent-red)" }}
+                />
+                <span
+                  className="text-xs"
+                  style={{ color: "var(--color-accent-red)" }}
+                >
                   {errorMsg}
                 </span>
               </div>
@@ -317,11 +332,11 @@ export function InstallModpackModal({
             <Loader2
               size={32}
               className="animate-spin"
-              style={{ color: "rgba(55, 53, 47, 0.45)" }}
+              style={{ color: "var(--color-notion-text-tertiary)" }}
             />
             <p
               className="text-sm font-semibold"
-              style={{ color: "rgba(55, 53, 47, 0.85)" }}
+              style={{ color: "var(--color-notion-text)" }}
             >
               Installing modpack…
             </p>
@@ -329,30 +344,34 @@ export function InstallModpackModal({
               <>
                 <p
                   className="text-xs"
-                  style={{ color: "rgba(55, 53, 47, 0.65)" }}
+                  style={{ color: "var(--color-notion-text-secondary)" }}
                 >
                   {stageLabel(progress.stage)}
                 </p>
                 <div
                   className="h-1.5 w-full overflow-hidden rounded-full"
-                  style={{ background: "rgba(55, 53, 47, 0.08)" }}
+                  style={{ background: "var(--color-notion-bg-hover)" }}
                 >
                   <div
-                    className="h-full rounded-full bg-[#222222] transition-all duration-300"
+                    className="h-full rounded-full transition-all duration-300"
                     style={{
                       width: `${String(Math.min(100, progress.overall_percent))}%`,
+                      background: "var(--color-accent-blue)",
                     }}
                   />
                 </div>
                 <span
                   className="text-xs font-medium"
-                  style={{ color: "rgba(55, 53, 47, 0.45)" }}
+                  style={{ color: "var(--color-notion-text-tertiary)" }}
                 >
                   {progress.overall_percent.toFixed(0)}%
                 </span>
               </>
             )}
-            <p className="text-xs" style={{ color: "rgba(55, 53, 47, 0.45)" }}>
+            <p
+              className="text-xs"
+              style={{ color: "var(--color-notion-text-tertiary)" }}
+            >
               You can close this dialog — installation continues in background.
             </p>
             <Button
@@ -371,13 +390,16 @@ export function InstallModpackModal({
           <div className="flex flex-col items-center gap-4 py-6">
             <div
               className="flex h-14 w-14 items-center justify-center rounded-md"
-              style={{ background: "rgba(221, 237, 234, 1)" }}
+              style={{ background: "var(--color-accent-green-bg)" }}
             >
-              <CheckCircle2 size={28} style={{ color: "#0F7B6C" }} />
+              <CheckCircle2
+                size={28}
+                style={{ color: "var(--color-accent-green)" }}
+              />
             </div>
             <p
               className="text-sm font-semibold"
-              style={{ color: "rgba(55, 53, 47, 0.85)" }}
+              style={{ color: "var(--color-notion-text)" }}
             >
               Instance created successfully!
             </p>
@@ -392,17 +414,23 @@ export function InstallModpackModal({
           <div className="flex flex-col items-center gap-4 py-6">
             <div
               className="flex h-14 w-14 items-center justify-center rounded-md"
-              style={{ background: "rgba(251, 236, 221, 1)" }}
+              style={{ background: "var(--color-accent-red-bg)" }}
             >
-              <AlertCircle size={28} style={{ color: "#E03E3E" }} />
+              <AlertCircle
+                size={28}
+                style={{ color: "var(--color-accent-red)" }}
+              />
             </div>
-            <p className="text-sm font-semibold" style={{ color: "#E03E3E" }}>
+            <p
+              className="text-sm font-semibold"
+              style={{ color: "var(--color-accent-red)" }}
+            >
               Installation failed
             </p>
             {errorMsg !== undefined && (
               <p
                 className="max-w-sm text-center text-xs"
-                style={{ color: "rgba(55, 53, 47, 0.65)" }}
+                style={{ color: "var(--color-notion-text-secondary)" }}
               >
                 {errorMsg}
               </p>

@@ -117,7 +117,7 @@ function TabBar({
   return (
     <div
       className="flex gap-1 rounded-md p-1"
-      style={{ background: "rgba(242, 241, 238, 1)" }}
+      style={{ background: "var(--color-notion-bg-tertiary)" }}
     >
       {TABS.map((tab) => (
         <button
@@ -126,16 +126,17 @@ function TabBar({
             onChange(tab.id);
           }}
           className={`rounded-md px-4 py-2 text-sm font-semibold transition-all duration-150 ${
-            active === tab.id ? "bg-white" : "text-gray-500 hover:text-gray-700"
+            active === tab.id ? "" : "hover:bg-[var(--color-notion-bg-hover)]"
           }`}
           style={
             active === tab.id
               ? {
-                  color: "rgba(55, 53, 47, 1)",
+                  color: "var(--color-notion-text)",
+                  background: "var(--color-notion-bg)",
                   boxShadow:
-                    "rgba(15,15,15,0.04) 0px 0px 0px 1px, rgba(15,15,15,0.06) 0px 2px 4px",
+                    "var(--shadow-soft, rgba(15,15,15,0.04) 0px 0px 0px 1px, rgba(15,15,15,0.06) 0px 2px 4px)",
                 }
-              : undefined
+              : { color: "var(--color-notion-text-tertiary)" }
           }
         >
           {tab.label}
@@ -190,7 +191,10 @@ function ModsTab({
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-gray-700">
+        <h3
+          className="text-sm font-semibold"
+          style={{ color: "var(--color-notion-text-secondary)" }}
+        >
           Installed Mods{mods.length > 0 ? ` (${String(mods.length)})` : ""}
         </h3>
         {actionsDisabled ? (
@@ -216,22 +220,44 @@ function ModsTab({
           <Loader2
             size={20}
             className="animate-spin"
-            style={{ color: "rgba(55, 53, 47, 0.45)" }}
+            style={{ color: "var(--color-notion-text-tertiary)" }}
           />
-          <span className="ml-2 text-sm text-gray-500">Loading mods…</span>
+          <span
+            className="ml-2 text-sm"
+            style={{ color: "var(--color-notion-text-tertiary)" }}
+          >
+            Loading mods…
+          </span>
         </div>
       )}
 
       {!loading && mods.length === 0 && (
         <div
-          className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed py-10 text-gray-400"
-          style={{ borderColor: "rgba(55, 53, 47, 0.16)" }}
+          className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed py-10"
+          style={{
+            borderColor: "var(--color-notion-border)",
+            color: "var(--color-notion-text-tertiary)",
+          }}
         >
-          <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-lg bg-gray-100">
-            <Package size={24} className="text-gray-300" />
+          <div
+            className="mb-3 flex h-14 w-14 items-center justify-center rounded-lg"
+            style={{ background: "var(--color-notion-bg-tertiary)" }}
+          >
+            <Package
+              size={24}
+              style={{ color: "var(--color-notion-text-disabled)" }}
+            />
           </div>
-          <p className="text-sm font-medium text-gray-500">No mods installed</p>
-          <p className="text-xs text-gray-400">
+          <p
+            className="text-sm font-medium"
+            style={{ color: "var(--color-notion-text-tertiary)" }}
+          >
+            No mods installed
+          </p>
+          <p
+            className="text-xs"
+            style={{ color: "var(--color-notion-text-tertiary)" }}
+          >
             Browse and add mods from CurseForge or Modrinth
           </p>
         </div>
@@ -242,20 +268,34 @@ function ModsTab({
           {mods.map((mod) => (
             <div
               key={mod.id}
-              className="flex items-center gap-3 rounded-md bg-white px-3 py-2.5"
-              style={{ border: "1px solid rgba(55, 53, 47, 0.09)" }}
+              className="flex items-center gap-3 rounded-md px-3 py-2.5"
+              style={{
+                background: "var(--color-notion-bg)",
+                border: "1px solid var(--color-notion-border)",
+              }}
             >
               <div
                 className="flex h-8 w-8 items-center justify-center rounded-md"
-                style={{ background: "rgba(35,131,226,0.1)" }}
+                style={{ background: "var(--color-accent-blue-bg)" }}
               >
-                <Package size={14} className="text-blue-500" />
+                <Package
+                  size={14}
+                  style={{ color: "var(--color-accent-blue)" }}
+                />
               </div>
               <div className="flex flex-1 flex-col gap-0.5 overflow-hidden">
-                <span className="truncate text-sm font-semibold text-gray-800">
+                <span
+                  className="truncate text-sm font-semibold"
+                  style={{ color: "var(--color-notion-text)" }}
+                >
                   {mod.name}
                 </span>
-                <span className="text-xs text-gray-400">{mod.file_name}</span>
+                <span
+                  className="text-xs"
+                  style={{ color: "var(--color-notion-text-tertiary)" }}
+                >
+                  {mod.file_name}
+                </span>
               </div>
               <Button
                 size="sm"
@@ -290,15 +330,29 @@ function FilesTab({ instancePath }: { instancePath: string }): ReactNode {
           <div className="flex items-center gap-2">
             <div
               className="flex h-8 w-8 items-center justify-center rounded-md"
-              style={{ background: "rgba(35,131,226,0.1)" }}
+              style={{ background: "var(--color-accent-blue-bg)" }}
             >
-              <FolderOpen size={14} className="text-blue-500" />
+              <FolderOpen
+                size={14}
+                style={{ color: "var(--color-accent-blue)" }}
+              />
             </div>
-            <h3 className="font-semibold text-gray-800">Instance Directory</h3>
+            <h3
+              className="font-semibold"
+              style={{ color: "var(--color-notion-text)" }}
+            >
+              Instance Directory
+            </h3>
           </div>
         </CardHeader>
         <CardContent className="flex flex-col gap-3">
-          <p className="rounded-lg bg-gray-50 px-3 py-2 font-mono text-xs text-gray-500">
+          <p
+            className="rounded-lg px-3 py-2 font-mono text-xs"
+            style={{
+              background: "var(--color-notion-bg-secondary)",
+              color: "var(--color-notion-text-tertiary)",
+            }}
+          >
             {instancePath}
           </p>
           <div>
@@ -322,14 +376,28 @@ function SettingsTab(): ReactNode {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-md bg-gray-100">
-              <Settings size={14} className="text-gray-500" />
+            <div
+              className="flex h-8 w-8 items-center justify-center rounded-md"
+              style={{ background: "var(--color-notion-bg-tertiary)" }}
+            >
+              <Settings
+                size={14}
+                style={{ color: "var(--color-notion-text-tertiary)" }}
+              />
             </div>
-            <h3 className="font-semibold text-gray-800">Instance Settings</h3>
+            <h3
+              className="font-semibold"
+              style={{ color: "var(--color-notion-text)" }}
+            >
+              Instance Settings
+            </h3>
           </div>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-gray-500">
+          <p
+            className="text-sm"
+            style={{ color: "var(--color-notion-text-tertiary)" }}
+          >
             Per-instance JVM arguments and RAM allocation coming soon.
           </p>
         </CardContent>
@@ -407,9 +475,14 @@ export function InstanceDetail(): ReactNode {
         <Loader2
           size={24}
           className="animate-spin"
-          style={{ color: "rgba(55, 53, 47, 0.45)" }}
+          style={{ color: "var(--color-notion-text-tertiary)" }}
         />
-        <span className="ml-3 text-sm text-gray-500">Loading instance…</span>
+        <span
+          className="ml-3 text-sm"
+          style={{ color: "var(--color-notion-text-tertiary)" }}
+        >
+          Loading instance…
+        </span>
       </div>
     );
   }
@@ -418,10 +491,18 @@ export function InstanceDetail(): ReactNode {
   if (error !== undefined || instance === undefined) {
     return (
       <div className="flex flex-1 flex-col items-center justify-center gap-4">
-        <div className="flex h-16 w-16 items-center justify-center rounded-lg bg-red-50">
-          <AlertCircle size={32} className="text-red-500" />
+        <div
+          className="flex h-16 w-16 items-center justify-center rounded-lg"
+          style={{ background: "var(--color-accent-red-bg)" }}
+        >
+          <AlertCircle size={32} style={{ color: "var(--color-accent-red)" }} />
         </div>
-        <p className="text-sm text-gray-500">{error ?? "Instance not found"}</p>
+        <p
+          className="text-sm"
+          style={{ color: "var(--color-notion-text-tertiary)" }}
+        >
+          {error ?? "Instance not found"}
+        </p>
         <Link to="/">
           <Button variant="secondary" size="sm" icon={<ArrowLeft size={14} />}>
             Back to Home
@@ -437,7 +518,8 @@ export function InstanceDetail(): ReactNode {
       <div className="flex items-center gap-4">
         <Link
           to="/"
-          className="flex h-9 w-9 items-center justify-center rounded-md text-gray-400 transition-all hover:bg-gray-100 hover:text-gray-600"
+          className="flex h-9 w-9 items-center justify-center rounded-md transition-all hover:bg-[var(--color-notion-bg-hover)]"
+          style={{ color: "var(--color-notion-text-tertiary)" }}
         >
           <ArrowLeft size={18} />
         </Link>
@@ -453,10 +535,18 @@ export function InstanceDetail(): ReactNode {
         )}
 
         <div className="flex-1">
-          <h1 className="text-2xl font-bold text-gray-900">{instance.name}</h1>
+          <h1
+            className="text-2xl font-bold"
+            style={{ color: "var(--color-notion-text)" }}
+          >
+            {instance.name}
+          </h1>
           <div className="flex items-center gap-2">
             <Badge variant={loaderVariant}>{instance.loader}</Badge>
-            <span className="text-sm text-gray-500">
+            <span
+              className="text-sm"
+              style={{ color: "var(--color-notion-text-tertiary)" }}
+            >
               {instance.minecraft_version}
             </span>
           </div>
@@ -470,24 +560,36 @@ export function InstanceDetail(): ReactNode {
                 <Loader2
                   size={14}
                   className="animate-spin"
-                  style={{ color: "rgba(55, 53, 47, 0.45)" }}
+                  style={{ color: "var(--color-notion-text-tertiary)" }}
                 />
-                <span className="text-sm font-semibold text-gray-700">
+                <span
+                  className="text-sm font-semibold"
+                  style={{ color: "var(--color-notion-text-secondary)" }}
+                >
                   Installing…
                 </span>
               </div>
-              <span className="text-xs text-gray-500">
+              <span
+                className="text-xs"
+                style={{ color: "var(--color-notion-text-tertiary)" }}
+              >
                 {stageLabel(installProgress.stage)}
               </span>
-              <div className="h-2 w-48 overflow-hidden rounded-full bg-gray-100">
+              <div
+                className="h-2 w-48 overflow-hidden rounded-full"
+                style={{ background: "var(--color-notion-bg-tertiary)" }}
+              >
                 <div
-                  className="h-full rounded-full bg-[#222222] transition-all duration-300"
+                  className="h-full rounded-full bg-[var(--color-accent-blue)] transition-all duration-300"
                   style={{
                     width: `${String(Math.min(100, installProgress.overall_percent))}%`,
                   }}
                 />
               </div>
-              <span className="text-[10px] font-medium text-gray-400">
+              <span
+                className="text-[10px] font-medium"
+                style={{ color: "var(--color-notion-text-tertiary)" }}
+              >
                 {installProgress.overall_percent.toFixed(0)}%
               </span>
             </div>
@@ -495,11 +597,14 @@ export function InstanceDetail(): ReactNode {
         ) : (
           <div className="flex flex-col items-end gap-2">
             {isPreparing && (
-              <div className="flex items-center gap-2 text-xs text-gray-500">
+              <div
+                className="flex items-center gap-2 text-xs"
+                style={{ color: "var(--color-notion-text-tertiary)" }}
+              >
                 <Loader2
                   size={12}
                   className="animate-spin"
-                  style={{ color: "rgba(55, 53, 47, 0.45)" }}
+                  style={{ color: "var(--color-notion-text-tertiary)" }}
                 />
                 <span>Preparing…</span>
               </div>
@@ -522,18 +627,27 @@ export function InstanceDetail(): ReactNode {
 
             {isLaunchingThisInstance && downloadProgress !== undefined && (
               <div className="flex w-56 flex-col items-end gap-1">
-                <span className="text-xs text-gray-500">
+                <span
+                  className="text-xs"
+                  style={{ color: "var(--color-notion-text-tertiary)" }}
+                >
                   Downloading Minecraft files before launch…
                 </span>
-                <div className="h-2 w-full overflow-hidden rounded-full bg-gray-100">
+                <div
+                  className="h-2 w-full overflow-hidden rounded-full"
+                  style={{ background: "var(--color-notion-bg-tertiary)" }}
+                >
                   <div
-                    className="h-full rounded-full bg-[#222222] transition-all duration-300"
+                    className="h-full rounded-full bg-[var(--color-accent-blue)] transition-all duration-300"
                     style={{
                       width: `${String(getDownloadPercent(downloadProgress))}%`,
                     }}
                   />
                 </div>
-                <span className="text-[10px] font-medium text-gray-400">
+                <span
+                  className="text-[10px] font-medium"
+                  style={{ color: "var(--color-notion-text-tertiary)" }}
+                >
                   {getDownloadPercent(downloadProgress).toFixed(0)}%
                 </span>
               </div>
@@ -577,20 +691,42 @@ export function InstanceDetail(): ReactNode {
 
       {/* Description */}
       {instance.description !== undefined && (
-        <p className="text-sm text-gray-500">{instance.description}</p>
+        <p
+          className="text-sm"
+          style={{ color: "var(--color-notion-text-tertiary)" }}
+        >
+          {instance.description}
+        </p>
       )}
 
       {launchError !== undefined && (
-        <div className="flex items-center gap-2 rounded-md bg-red-50 px-3 py-2">
-          <AlertCircle size={14} className="text-red-500" />
-          <span className="text-xs text-red-600">{launchError}</span>
+        <div
+          className="flex items-center gap-2 rounded-md px-3 py-2"
+          style={{ background: "var(--color-accent-red-bg)" }}
+        >
+          <AlertCircle size={14} style={{ color: "var(--color-accent-red)" }} />
+          <span
+            className="text-xs"
+            style={{ color: "var(--color-accent-red)" }}
+          >
+            {launchError}
+          </span>
         </div>
       )}
 
       {!isJavaReady && (
-        <div className="flex items-center gap-2 rounded-md bg-amber-50 px-3 py-2">
-          <AlertCircle size={14} className="text-amber-500" />
-          <span className="text-xs text-amber-700">
+        <div
+          className="flex items-center gap-2 rounded-md px-3 py-2"
+          style={{ background: "var(--color-accent-yellow-bg)" }}
+        >
+          <AlertCircle
+            size={14}
+            style={{ color: "var(--color-accent-yellow)" }}
+          />
+          <span
+            className="text-xs"
+            style={{ color: "var(--color-accent-yellow)" }}
+          >
             Java 21 n&apos;est pas prêt. Termine l&apos;installation via la
             popup pour lancer cette instance.
           </span>
@@ -601,35 +737,55 @@ export function InstanceDetail(): ReactNode {
         !isLaunchingThisInstance &&
         downloadProgress !== undefined && (
           <div
-            className="flex flex-col gap-1 rounded-md bg-white p-3"
-            style={{ border: "1px solid rgba(55, 53, 47, 0.09)" }}
+            className="flex flex-col gap-1 rounded-md p-3"
+            style={{
+              background: "var(--color-notion-bg)",
+              border: "1px solid var(--color-notion-border)",
+            }}
           >
-            <div className="flex items-center gap-2 text-xs text-gray-600">
+            <div
+              className="flex items-center gap-2 text-xs"
+              style={{ color: "var(--color-notion-text-secondary)" }}
+            >
               <Loader2
                 size={12}
                 className="animate-spin"
-                style={{ color: "rgba(55, 53, 47, 0.45)" }}
+                style={{ color: "var(--color-notion-text-tertiary)" }}
               />
               <span>Téléchargement Minecraft en cours avant lancement…</span>
             </div>
-            <div className="h-2 w-full overflow-hidden rounded-full bg-gray-100">
+            <div
+              className="h-2 w-full overflow-hidden rounded-full"
+              style={{ background: "var(--color-notion-bg-tertiary)" }}
+            >
               <div
-                className="h-full rounded-full bg-[#222222] transition-all duration-300"
+                className="h-full rounded-full bg-[var(--color-accent-blue)] transition-all duration-300"
                 style={{
                   width: `${String(getDownloadPercent(downloadProgress))}%`,
                 }}
               />
             </div>
-            <span className="text-[10px] font-medium text-gray-400">
+            <span
+              className="text-[10px] font-medium"
+              style={{ color: "var(--color-notion-text-tertiary)" }}
+            >
               {getDownloadPercent(downloadProgress).toFixed(0)}%
             </span>
           </div>
         )}
 
       {isGameCrashedStatus(gameStatus) && crashInfo !== undefined && (
-        <div className="flex items-center gap-2 rounded-md bg-red-50 px-3 py-2">
-          <AlertCircle size={14} className="text-red-500" />
-          <span className="text-xs text-red-600">{crashInfo.message}</span>
+        <div
+          className="flex items-center gap-2 rounded-md px-3 py-2"
+          style={{ background: "var(--color-accent-red-bg)" }}
+        >
+          <AlertCircle size={14} style={{ color: "var(--color-accent-red)" }} />
+          <span
+            className="text-xs"
+            style={{ color: "var(--color-accent-red)" }}
+          >
+            {crashInfo.message}
+          </span>
         </div>
       )}
 
@@ -649,12 +805,23 @@ export function InstanceDetail(): ReactNode {
       {activeTab === "settings" && <SettingsTab />}
 
       {/* Danger zone */}
-      <Card className="border border-red-100">
+      <Card
+        className="border"
+        style={{ borderColor: "var(--color-accent-red-bg)" }}
+      >
         <CardHeader>
-          <h3 className="font-semibold text-red-500">Danger Zone</h3>
+          <h3
+            className="font-semibold"
+            style={{ color: "var(--color-accent-red)" }}
+          >
+            Danger Zone
+          </h3>
         </CardHeader>
         <CardContent className="flex items-center justify-between">
-          <p className="text-sm text-gray-500">
+          <p
+            className="text-sm"
+            style={{ color: "var(--color-notion-text-tertiary)" }}
+          >
             Permanently delete this instance and all its data.
           </p>
           <Button
@@ -706,7 +873,10 @@ export function InstanceDetail(): ReactNode {
           </>
         }
       >
-        <p className="text-sm text-gray-600">
+        <p
+          className="text-sm"
+          style={{ color: "var(--color-notion-text-secondary)" }}
+        >
           Are you sure you want to delete <strong>{instance.name}</strong>? This
           will remove all files including installed mods. This action cannot be
           undone.

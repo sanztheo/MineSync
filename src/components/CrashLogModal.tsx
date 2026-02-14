@@ -264,12 +264,24 @@ function LogViewer({
   return (
     <div className="flex flex-col gap-1.5">
       <div className="flex items-center justify-between">
-        <span className="text-[11px] font-bold uppercase tracking-wider text-gray-400">
+        <span
+          className="text-[11px] font-bold uppercase tracking-wider"
+          style={{ color: "var(--color-notion-text-tertiary)" }}
+        >
           {label}
         </span>
         <button
           onClick={handleCopy}
-          className="flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-medium text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
+          className="flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-medium transition-colors duration-150"
+          style={{ color: "var(--color-notion-text-tertiary)" }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = "var(--color-notion-bg-hover)";
+            e.currentTarget.style.color = "var(--color-notion-text-secondary)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = "transparent";
+            e.currentTarget.style.color = "var(--color-notion-text-tertiary)";
+          }}
         >
           {copied ? (
             <>
@@ -286,10 +298,15 @@ function LogViewer({
       </div>
       <pre
         ref={preRef}
-        className="max-h-48 overflow-auto rounded-lg bg-[#1e1e2e] p-3 font-mono text-[11px] leading-relaxed text-[#cdd6f4]"
+        className="max-h-48 overflow-auto p-3 font-mono text-[11px] leading-relaxed"
         style={{
+          background: "var(--color-notion-bg-tertiary)",
+          color: "var(--color-notion-text-secondary)",
+          borderRadius: "8px",
+          border: "1px solid var(--color-notion-border-light)",
           scrollbarWidth: "thin",
-          scrollbarColor: "#45475a #1e1e2e",
+          scrollbarColor:
+            "var(--color-notion-border) var(--color-notion-bg-tertiary)",
         }}
       >
         {content}
@@ -318,15 +335,34 @@ function AnalysisView({ crashLog }: { crashLog: CrashLog }): ReactNode {
 
   if (analyzing) {
     return (
-      <div className="flex items-center gap-3 rounded-lg bg-gradient-to-r from-violet-50 to-blue-50 px-4 py-3">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-100">
-          <Loader2 size={14} className="animate-spin text-violet-600" />
+      <div
+        className="flex items-center gap-3 rounded-lg px-4 py-3"
+        style={{
+          background: "var(--color-accent-purple-bg)",
+          border: "1px solid var(--color-notion-border-light)",
+        }}
+      >
+        <div
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
+          style={{ background: "var(--color-notion-bg-hover)" }}
+        >
+          <Loader2
+            size={14}
+            className="animate-spin"
+            style={{ color: "var(--color-accent-purple)" }}
+          />
         </div>
-        <div className="flex flex-col">
-          <span className="text-xs font-semibold text-violet-800">
+        <div className="flex flex-col gap-0.5">
+          <span
+            className="text-xs font-semibold"
+            style={{ color: "var(--color-accent-purple)" }}
+          >
             Codex analyse le crash...
           </span>
-          <span className="text-[10px] text-violet-500">
+          <span
+            className="text-[10px]"
+            style={{ color: "var(--color-notion-text-tertiary)" }}
+          >
             Examen des logs et identification du probleme
           </span>
         </div>
@@ -335,23 +371,41 @@ function AnalysisView({ crashLog }: { crashLog: CrashLog }): ReactNode {
   }
 
   return (
-    <div className="flex flex-col gap-3 rounded-lg bg-gradient-to-r from-violet-50 to-blue-50 p-4">
+    <div
+      className="flex flex-col gap-3 rounded-lg p-4"
+      style={{
+        background: "var(--color-accent-purple-bg)",
+        border: "1px solid var(--color-notion-border-light)",
+      }}
+    >
       <div className="flex items-center gap-2">
-        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-violet-100">
-          <Cpu size={13} className="text-violet-600" />
+        <div
+          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg"
+          style={{ background: "var(--color-notion-bg-hover)" }}
+        >
+          <Cpu size={13} style={{ color: "var(--color-accent-purple)" }} />
         </div>
-        <span className="text-xs font-bold text-violet-800">
+        <span
+          className="text-xs font-bold"
+          style={{ color: "var(--color-accent-purple)" }}
+        >
           Diagnostic Codex
         </span>
       </div>
       {analysis.map((section, idx) => (
         <div key={idx} className="flex flex-col gap-1">
           {section.title !== "" && (
-            <span className="text-[11px] font-bold text-gray-700">
+            <span
+              className="text-[11px] font-bold"
+              style={{ color: "var(--color-notion-text)" }}
+            >
               {section.title}
             </span>
           )}
-          <p className="whitespace-pre-wrap text-[11px] leading-relaxed text-gray-600">
+          <p
+            className="whitespace-pre-wrap text-[11px] leading-relaxed"
+            style={{ color: "var(--color-notion-text-secondary)" }}
+          >
             {section.content}
           </p>
         </div>
@@ -393,27 +447,48 @@ export function CrashLogModal({
           <Loader2
             size={20}
             className="animate-spin"
-            style={{ color: "rgba(55, 53, 47, 0.45)" }}
+            style={{ color: "var(--color-notion-text-tertiary)" }}
           />
-          <span className="ml-2 text-sm text-gray-500">
+          <span
+            className="ml-2 text-sm"
+            style={{ color: "var(--color-notion-text-secondary)" }}
+          >
             Recuperation des logs...
           </span>
         </div>
       ) : (
         <div className="flex max-h-[70vh] flex-col gap-4 overflow-y-auto">
           {/* Crash summary header */}
-          <div className="flex items-center gap-3 rounded-lg bg-red-50 px-4 py-3">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-red-100">
-              <AlertCircle size={16} className="text-red-500" />
+          <div
+            className="flex items-center gap-3 rounded-lg px-4 py-3"
+            style={{
+              background: "var(--color-accent-red-bg)",
+              border: "1px solid var(--color-notion-border-light)",
+            }}
+          >
+            <div
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
+              style={{ background: "var(--color-notion-bg-hover)" }}
+            >
+              <AlertCircle
+                size={16}
+                style={{ color: "var(--color-accent-red)" }}
+              />
             </div>
             <div className="flex flex-col gap-0.5">
-              <span className="text-sm font-semibold text-red-700">
+              <span
+                className="text-sm font-semibold"
+                style={{ color: "var(--color-accent-red)" }}
+              >
                 Le jeu a crashe
                 {crashLog.exit_code !== null
                   ? " (code " + String(crashLog.exit_code) + ")"
                   : ""}
               </span>
-              <span className="text-[10px] text-red-400">
+              <span
+                className="text-[10px]"
+                style={{ color: "var(--color-notion-text-tertiary)" }}
+              >
                 {new Date(crashLog.timestamp).toLocaleString("fr-FR")}
               </span>
             </div>

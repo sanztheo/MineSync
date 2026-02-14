@@ -13,13 +13,25 @@ const VARIANT_STYLES: Record<
   { background: string; color: string }
 > = {
   default: {
-    background: "rgba(55, 53, 47, 0.08)",
-    color: "rgba(55, 53, 47, 0.65)",
+    background: "var(--color-notion-bg-hover)",
+    color: "var(--color-notion-text-secondary)",
   },
-  success: { background: "rgba(221, 237, 234, 1)", color: "#0F7B6C" },
-  warning: { background: "rgba(251, 243, 219, 1)", color: "#DFAB01" },
-  danger: { background: "rgba(251, 236, 221, 1)", color: "#E03E3E" },
-  info: { background: "rgba(35, 131, 226, 0.1)", color: "#2383E2" },
+  success: {
+    background: "var(--color-accent-green-bg)",
+    color: "var(--color-accent-green)",
+  },
+  warning: {
+    background: "var(--color-accent-yellow-bg)",
+    color: "var(--color-accent-yellow)",
+  },
+  danger: {
+    background: "var(--color-accent-red-bg)",
+    color: "var(--color-accent-red)",
+  },
+  info: {
+    background: "var(--color-accent-blue-bg)",
+    color: "var(--color-accent-blue)",
+  },
 };
 
 export function Badge({

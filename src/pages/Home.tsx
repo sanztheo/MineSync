@@ -164,7 +164,7 @@ function InstanceCard({
       <Link to={`/instance/${instance.id}`} className="block">
         <Card hoverable className="flex flex-col gap-3">
           {/* Icon area */}
-          <div className="relative flex h-28 items-center justify-center overflow-hidden rounded-lg bg-[rgba(242,241,238,1)]">
+          <div className="relative flex h-28 items-center justify-center overflow-hidden rounded-lg bg-[var(--color-notion-bg-tertiary)]">
             {instance.icon_url !== undefined ? (
               <img
                 src={instance.icon_url}
@@ -173,29 +173,44 @@ function InstanceCard({
                 loading="lazy"
               />
             ) : (
-              <Gamepad2 size={32} className="text-gray-300" />
+              <Gamepad2
+                size={32}
+                style={{ color: "var(--color-notion-text-disabled)" }}
+              />
             )}
 
             {/* Installing overlay */}
             {isInstalling && installProgress !== undefined && (
-              <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 rounded-lg bg-white/90 backdrop-blur-sm">
+              <div
+                className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 rounded-lg backdrop-blur-sm"
+                style={{ background: "var(--color-notion-bg-secondary)" }}
+              >
                 <Loader2
                   size={20}
                   className="animate-spin"
-                  style={{ color: "rgba(55, 53, 47, 0.45)" }}
+                  style={{ color: "var(--color-notion-text-tertiary)" }}
                 />
-                <span className="text-[10px] font-semibold text-gray-700">
+                <span
+                  className="text-[10px] font-semibold"
+                  style={{ color: "var(--color-notion-text-secondary)" }}
+                >
                   {shortStageLabel(installProgress.stage)}
                 </span>
-                <div className="mx-4 h-2 w-3/4 overflow-hidden rounded-full bg-gray-200">
+                <div
+                  className="mx-4 h-2 w-3/4 overflow-hidden rounded-full"
+                  style={{ background: "var(--color-notion-bg-hover)" }}
+                >
                   <div
-                    className="h-full rounded-full bg-[#222222] transition-all duration-300"
+                    className="h-full rounded-full bg-[var(--color-accent-blue)] transition-all duration-300"
                     style={{
                       width: `${String(Math.min(100, installProgress.overall_percent))}%`,
                     }}
                   />
                 </div>
-                <span className="text-[10px] font-medium text-gray-500">
+                <span
+                  className="text-[10px] font-medium"
+                  style={{ color: "var(--color-notion-text-tertiary)" }}
+                >
                   {installProgress.overall_percent.toFixed(0)}%
                 </span>
               </div>
@@ -204,21 +219,30 @@ function InstanceCard({
 
           {/* Info */}
           <div className="flex flex-col gap-1.5">
-            <h3 className="truncate text-sm font-bold text-gray-900">
+            <h3
+              className="truncate text-sm font-bold"
+              style={{ color: "var(--color-notion-text)" }}
+            >
               {instance.name}
             </h3>
             <div className="flex items-center gap-2">
               <Badge variant={LOADER_BADGE_VARIANT[instance.loader]}>
                 {instance.loader}
               </Badge>
-              <span className="text-xs font-medium text-gray-400">
+              <span
+                className="text-xs font-medium"
+                style={{ color: "var(--color-notion-text-tertiary)" }}
+              >
                 {instance.minecraft_version}
               </span>
               {status !== undefined && (
                 <Badge variant={status.variant}>{status.label}</Badge>
               )}
             </div>
-            <span className="text-[11px] text-gray-400">
+            <span
+              className="text-[11px]"
+              style={{ color: "var(--color-notion-text-tertiary)" }}
+            >
               {isInstalling
                 ? "Installing…"
                 : formatPlayTime(instance.total_play_time)}
@@ -244,15 +268,21 @@ function InstanceCard({
                 >
                   Preparing launch…
                 </Button>
-                <div className="h-2 w-full overflow-hidden rounded-full bg-gray-100">
+                <div
+                  className="h-2 w-full overflow-hidden rounded-full"
+                  style={{ background: "var(--color-notion-bg-tertiary)" }}
+                >
                   <div
-                    className="h-full rounded-full bg-[#222222] transition-all duration-300"
+                    className="h-full rounded-full bg-[var(--color-accent-blue)] transition-all duration-300"
                     style={{
                       width: `${String(getDownloadPercent(launchDownloadProgress))}%`,
                     }}
                   />
                 </div>
-                <span className="text-[10px] font-medium text-gray-400">
+                <span
+                  className="text-[10px] font-medium"
+                  style={{ color: "var(--color-notion-text-tertiary)" }}
+                >
                   {getDownloadPercent(launchDownloadProgress).toFixed(0)}%
                 </span>
               </>
@@ -294,16 +324,17 @@ function InstanceCard({
               setMenuOpen((prev) => !prev);
             }}
             aria-label="Instance options"
-            className="rounded-md p-1 text-gray-400 opacity-0 transition-all hover:bg-[rgba(55,53,47,0.06)] hover:text-gray-600 group-hover:opacity-100"
+            className="rounded-md p-1 opacity-0 transition-all hover:bg-[var(--color-notion-bg-hover)] hover:text-[var(--color-notion-text-secondary)] group-hover:opacity-100"
+            style={{ color: "var(--color-notion-text-tertiary)" }}
           >
             <MoreVertical size={14} />
           </button>
           {menuOpen && (
             <div
-              className="absolute right-0 top-9 z-10 w-36 rounded-md bg-white py-1"
+              className="absolute right-0 top-9 z-10 w-36 rounded-md py-1"
               style={{
-                boxShadow:
-                  "rgba(15,15,15,0.05) 0px 0px 0px 1px, rgba(15,15,15,0.1) 0px 3px 6px, rgba(15,15,15,0.2) 0px 9px 24px",
+                background: "var(--color-notion-bg-secondary)",
+                boxShadow: "var(--shadow-sm-theme)",
               }}
             >
               <button
@@ -311,7 +342,8 @@ function InstanceCard({
                   setMenuOpen(false);
                   onDelete(instance.id);
                 }}
-                className="flex w-full items-center gap-2 px-3 py-2 text-xs font-medium text-red-500 hover:bg-red-50"
+                className="flex w-full items-center gap-2 px-3 py-2 text-xs font-medium hover:bg-[var(--color-accent-red-bg)]"
+                style={{ color: "var(--color-accent-red)" }}
               >
                 <Trash2 size={12} />
                 Delete
@@ -415,22 +447,46 @@ function CreateInstanceModal({
         />
 
         <div className="flex flex-col gap-1.5">
-          <span className="text-sm font-medium text-gray-700">
+          <span
+            className="text-sm font-medium"
+            style={{ color: "var(--color-notion-text-secondary)" }}
+          >
             Minecraft version
           </span>
           {versionsLoading ? (
             <div className="flex items-center gap-2 py-2">
-              <Loader2 size={14} className="animate-spin text-gray-400" />
-              <span className="text-xs text-gray-500">Loading versions…</span>
+              <Loader2
+                size={14}
+                className="animate-spin"
+                style={{ color: "var(--color-notion-text-tertiary)" }}
+              />
+              <span
+                className="text-xs"
+                style={{ color: "var(--color-notion-text-tertiary)" }}
+              >
+                Loading versions…
+              </span>
             </div>
           ) : versionsError !== undefined ? (
-            <div className="flex items-center gap-2 rounded-lg bg-red-50 px-3 py-2">
-              <AlertCircle size={14} className="shrink-0 text-red-400" />
-              <span className="text-xs text-red-600">{versionsError}</span>
+            <div
+              className="flex items-center gap-2 rounded-lg px-3 py-2"
+              style={{ background: "var(--color-accent-red-bg)" }}
+            >
+              <AlertCircle
+                size={14}
+                className="shrink-0"
+                style={{ color: "var(--color-accent-red)" }}
+              />
+              <span
+                className="text-xs"
+                style={{ color: "var(--color-accent-red)" }}
+              >
+                {versionsError}
+              </span>
               <button
                 type="button"
                 onClick={refetchVersions}
-                className="ml-auto text-xs font-medium text-[#2383E2] hover:underline"
+                className="ml-auto text-xs font-medium text-[var(--color-accent-blue)] hover:underline"
               >
                 Retry
               </button>
@@ -441,10 +497,11 @@ function CreateInstanceModal({
               onChange={(e) => {
                 setMcVersion(e.target.value);
               }}
-              className="rounded-[5px] bg-white px-3 py-2 text-sm"
+              className="rounded-[5px] px-3 py-2 text-sm"
               style={{
-                border: "1px solid rgba(55, 53, 47, 0.16)",
-                color: "rgba(55, 53, 47, 0.85)",
+                background: "var(--color-notion-bg-secondary)",
+                border: "1px solid var(--color-notion-border)",
+                color: "var(--color-notion-text)",
               }}
             >
               <option value="">Select version…</option>
@@ -458,16 +515,22 @@ function CreateInstanceModal({
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <span className="text-sm font-medium text-gray-700">Mod loader</span>
+          <span
+            className="text-sm font-medium"
+            style={{ color: "var(--color-notion-text-secondary)" }}
+          >
+            Mod loader
+          </span>
           <select
             value={loader}
             onChange={(e) => {
               setLoader(e.target.value);
             }}
-            className="rounded-[5px] bg-white px-3 py-2 text-sm"
+            className="rounded-[5px] px-3 py-2 text-sm"
             style={{
-              border: "1px solid rgba(55, 53, 47, 0.16)",
-              color: "rgba(55, 53, 47, 0.85)",
+              background: "var(--color-notion-bg-secondary)",
+              border: "1px solid var(--color-notion-border)",
+              color: "var(--color-notion-text)",
             }}
           >
             {LOADER_OPTIONS.map((opt) => (
@@ -479,9 +542,20 @@ function CreateInstanceModal({
         </div>
 
         {error !== undefined && (
-          <div className="flex items-center gap-2 rounded-lg bg-red-50 px-3 py-2">
-            <AlertCircle size={14} className="text-red-400" />
-            <span className="text-xs text-red-600">{error}</span>
+          <div
+            className="flex items-center gap-2 rounded-lg px-3 py-2"
+            style={{ background: "var(--color-accent-red-bg)" }}
+          >
+            <AlertCircle
+              size={14}
+              style={{ color: "var(--color-accent-red)" }}
+            />
+            <span
+              className="text-xs"
+              style={{ color: "var(--color-accent-red)" }}
+            >
+              {error}
+            </span>
           </div>
         )}
       </div>
@@ -593,8 +667,16 @@ export function Home(): ReactNode {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">My Instances</h1>
-          <p className="mt-0.5 text-sm text-gray-500">
+          <h1
+            className="text-2xl font-bold"
+            style={{ color: "var(--color-notion-text)" }}
+          >
+            My Instances
+          </h1>
+          <p
+            className="mt-0.5 text-sm"
+            style={{ color: "var(--color-notion-text-tertiary)" }}
+          >
             Manage your Minecraft instances
           </p>
         </div>
@@ -614,9 +696,14 @@ export function Home(): ReactNode {
           <Loader2
             size={24}
             className="animate-spin"
-            style={{ color: "rgba(55, 53, 47, 0.45)" }}
+            style={{ color: "var(--color-notion-text-tertiary)" }}
           />
-          <span className="ml-3 text-sm text-gray-500">Loading instances…</span>
+          <span
+            className="ml-3 text-sm"
+            style={{ color: "var(--color-notion-text-tertiary)" }}
+          >
+            Loading instances…
+          </span>
         </div>
       )}
 
@@ -624,10 +711,21 @@ export function Home(): ReactNode {
       {error !== undefined && !loading && (
         <Card>
           <div className="flex items-center gap-3 p-1">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-red-50">
-              <AlertCircle size={18} className="text-red-500" />
+            <div
+              className="flex h-9 w-9 items-center justify-center rounded-lg"
+              style={{ background: "var(--color-accent-red-bg)" }}
+            >
+              <AlertCircle
+                size={18}
+                style={{ color: "var(--color-accent-red)" }}
+              />
             </div>
-            <span className="flex-1 text-sm text-red-600">{error}</span>
+            <span
+              className="flex-1 text-sm"
+              style={{ color: "var(--color-accent-red)" }}
+            >
+              {error}
+            </span>
             <Button size="sm" variant="secondary" onClick={refetch}>
               Retry
             </Button>
@@ -660,10 +758,15 @@ export function Home(): ReactNode {
             onClick={() => {
               setCreateOpen(true);
             }}
-            className="flex min-h-[220px] items-center justify-center rounded-lg border-2 border-dashed border-gray-200 bg-white/50 text-gray-400 transition-all duration-200 hover:border-[rgba(55,53,47,0.24)] hover:bg-[rgba(55,53,47,0.04)] hover:text-[rgba(55,53,47,0.65)]"
+            className="flex min-h-[220px] items-center justify-center rounded-lg border-2 border-dashed transition-all duration-200 hover:bg-[var(--color-notion-bg-hover)] hover:text-[var(--color-notion-text-secondary)]"
+            style={{
+              borderColor: "var(--color-notion-border)",
+              background: "var(--color-notion-bg-secondary)",
+              color: "var(--color-notion-text-tertiary)",
+            }}
           >
             <div className="flex flex-col items-center gap-2">
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[rgba(242,241,238,1)] transition-colors">
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[var(--color-notion-bg-tertiary)] transition-colors">
                 <Plus size={24} />
               </div>
               <span className="text-sm font-semibold">Add Instance</span>
@@ -675,10 +778,21 @@ export function Home(): ReactNode {
       {launchError !== undefined && (
         <Card>
           <div className="flex items-center gap-3 p-1">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-red-50">
-              <AlertCircle size={18} className="text-red-500" />
+            <div
+              className="flex h-9 w-9 items-center justify-center rounded-lg"
+              style={{ background: "var(--color-accent-red-bg)" }}
+            >
+              <AlertCircle
+                size={18}
+                style={{ color: "var(--color-accent-red)" }}
+              />
             </div>
-            <span className="text-sm text-red-600">{launchError}</span>
+            <span
+              className="text-sm"
+              style={{ color: "var(--color-accent-red)" }}
+            >
+              {launchError}
+            </span>
           </div>
         </Card>
       )}
@@ -686,10 +800,19 @@ export function Home(): ReactNode {
       {!isJavaReady && (
         <Card>
           <div className="flex items-center gap-3 p-1">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-50">
-              <AlertCircle size={18} className="text-amber-500" />
+            <div
+              className="flex h-9 w-9 items-center justify-center rounded-lg"
+              style={{ background: "var(--color-accent-yellow-bg)" }}
+            >
+              <AlertCircle
+                size={18}
+                style={{ color: "var(--color-accent-yellow)" }}
+              />
             </div>
-            <span className="text-sm text-amber-700">
+            <span
+              className="text-sm"
+              style={{ color: "var(--color-accent-yellow)" }}
+            >
               Java 21 n&apos;est pas prêt. Termine l&apos;installation via la
               popup avant de lancer une instance.
             </span>
@@ -704,21 +827,30 @@ export function Home(): ReactNode {
               <Loader2
                 size={16}
                 className="animate-spin"
-                style={{ color: "rgba(55, 53, 47, 0.45)" }}
+                style={{ color: "var(--color-notion-text-tertiary)" }}
               />
-              <span className="text-sm font-medium text-gray-700">
+              <span
+                className="text-sm font-medium"
+                style={{ color: "var(--color-notion-text-secondary)" }}
+              >
                 Téléchargement Minecraft en cours avant lancement…
               </span>
             </div>
-            <div className="h-2 w-full overflow-hidden rounded-full bg-gray-100">
+            <div
+              className="h-2 w-full overflow-hidden rounded-full"
+              style={{ background: "var(--color-notion-bg-tertiary)" }}
+            >
               <div
-                className="h-full rounded-full bg-[#222222] transition-all duration-300"
+                className="h-full rounded-full bg-[var(--color-accent-blue)] transition-all duration-300"
                 style={{
                   width: `${String(getDownloadPercent(downloadProgress))}%`,
                 }}
               />
             </div>
-            <span className="text-xs font-medium text-gray-400">
+            <span
+              className="text-xs font-medium"
+              style={{ color: "var(--color-notion-text-tertiary)" }}
+            >
               {getDownloadPercent(downloadProgress).toFixed(0)}%
             </span>
           </div>
@@ -728,17 +860,29 @@ export function Home(): ReactNode {
       {isGameCrashedStatus(gameStatus) && (
         <Card>
           <div className="flex items-center gap-3 p-1">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-red-50">
-              <AlertCircle size={18} className="text-red-500" />
+            <div
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
+              style={{ background: "var(--color-accent-red-bg)" }}
+            >
+              <AlertCircle
+                size={18}
+                style={{ color: "var(--color-accent-red)" }}
+              />
             </div>
             <div className="flex flex-1 flex-col gap-0.5">
-              <span className="text-sm font-medium text-red-600">
+              <span
+                className="text-sm font-medium"
+                style={{ color: "var(--color-accent-red)" }}
+              >
                 Crash au lancement
                 {gameStatus.crashed.exit_code !== null
                   ? ` (code ${String(gameStatus.crashed.exit_code)})`
                   : ""}
               </span>
-              <span className="text-xs text-red-400">
+              <span
+                className="text-xs"
+                style={{ color: "var(--color-accent-red)" }}
+              >
                 {gameStatus.crashed.message}
               </span>
             </div>
@@ -751,14 +895,29 @@ export function Home(): ReactNode {
 
       {/* Empty state */}
       {!loading && error === undefined && activeInstances.length === 0 && (
-        <div className="flex flex-col items-center justify-center py-16 text-gray-400">
-          <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-lg bg-gray-100">
-            <Gamepad2 size={36} className="text-gray-300" />
+        <div
+          className="flex flex-col items-center justify-center py-16"
+          style={{ color: "var(--color-notion-text-tertiary)" }}
+        >
+          <div
+            className="mb-4 flex h-20 w-20 items-center justify-center rounded-lg"
+            style={{ background: "var(--color-notion-bg-tertiary)" }}
+          >
+            <Gamepad2
+              size={36}
+              style={{ color: "var(--color-notion-text-disabled)" }}
+            />
           </div>
-          <p className="text-sm font-semibold text-gray-500">
+          <p
+            className="text-sm font-semibold"
+            style={{ color: "var(--color-notion-text-tertiary)" }}
+          >
             No instances yet
           </p>
-          <p className="mt-1 text-xs text-gray-400">
+          <p
+            className="mt-1 text-xs"
+            style={{ color: "var(--color-notion-text-tertiary)" }}
+          >
             Create your first modpack to get started!
           </p>
         </div>
@@ -809,7 +968,10 @@ export function Home(): ReactNode {
           </>
         }
       >
-        <p className="text-sm text-gray-600">
+        <p
+          className="text-sm"
+          style={{ color: "var(--color-notion-text-secondary)" }}
+        >
           Are you sure? This will permanently delete the instance and all its
           data. This action cannot be undone.
         </p>

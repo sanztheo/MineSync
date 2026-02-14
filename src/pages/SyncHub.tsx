@@ -59,20 +59,29 @@ function P2pStatusBar({
       <CardContent className="flex items-center justify-between py-3">
         <div className="flex items-center gap-3">
           {isRunning ? (
-            <div className="flex h-9 w-9 items-center justify-center rounded-md bg-[rgba(221,237,234,1)]">
-              <Wifi size={16} className="text-[#0F7B6C]" />
+            <div className="flex h-9 w-9 items-center justify-center rounded-md bg-[var(--color-accent-green-bg)]">
+              <Wifi size={16} className="text-[var(--color-accent-green)]" />
             </div>
           ) : (
-            <div className="flex h-9 w-9 items-center justify-center rounded-md bg-[rgba(55,53,47,0.04)]">
-              <WifiOff size={16} className="text-gray-400" />
+            <div className="flex h-9 w-9 items-center justify-center rounded-md bg-[var(--color-notion-bg-hover)]">
+              <WifiOff
+                size={16}
+                style={{ color: "var(--color-notion-text-tertiary)" }}
+              />
             </div>
           )}
           <div>
-            <p className="text-sm font-semibold text-gray-800">
+            <p
+              className="text-sm font-semibold"
+              style={{ color: "var(--color-notion-text)" }}
+            >
               {isRunning ? "P2P Connected" : "P2P Offline"}
             </p>
             {isRunning && status?.peer_id !== "" && (
-              <p className="font-mono text-[10px] text-gray-400">
+              <p
+                className="font-mono text-[10px]"
+                style={{ color: "var(--color-notion-text-tertiary)" }}
+              >
                 {status?.peer_id.slice(0, 16)}…
               </p>
             )}
@@ -145,20 +154,33 @@ function ShareSection({
     <Card>
       <CardHeader>
         <div className="flex items-center gap-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-md bg-[rgba(221,237,234,1)]">
-            <Share2 size={16} className="text-[#0F7B6C]" />
+          <div className="flex h-9 w-9 items-center justify-center rounded-md bg-[var(--color-accent-green-bg)]">
+            <Share2 size={16} className="text-[var(--color-accent-green)]" />
           </div>
-          <h3 className="font-semibold text-gray-800">Share Modpack</h3>
+          <h3
+            className="font-semibold"
+            style={{ color: "var(--color-notion-text)" }}
+          >
+            Share Modpack
+          </h3>
         </div>
       </CardHeader>
       <CardContent className="flex flex-col gap-3">
-        <p className="text-sm text-gray-500">
+        <p
+          className="text-sm"
+          style={{ color: "var(--color-notion-text-tertiary)" }}
+        >
           Share your mod setup with friends. They&apos;ll get a code to join and
           sync.
         </p>
 
         <div className="flex flex-col gap-1.5">
-          <span className="text-xs font-medium text-gray-600">Instance</span>
+          <span
+            className="text-xs font-medium"
+            style={{ color: "var(--color-notion-text-secondary)" }}
+          >
+            Instance
+          </span>
           <select
             value={selectedInstance}
             onChange={(e) => {
@@ -166,10 +188,11 @@ function ShareSection({
               setShareCode(undefined);
             }}
             disabled={!p2pRunning}
-            className="rounded-[5px] bg-white px-3.5 py-2.5 text-sm disabled:opacity-50"
+            className="rounded-[5px] px-3.5 py-2.5 text-sm disabled:opacity-50"
             style={{
-              border: "1px solid rgba(55, 53, 47, 0.16)",
-              color: "rgba(55, 53, 47, 0.85)",
+              background: "var(--color-notion-bg-secondary)",
+              border: "1px solid var(--color-notion-border)",
+              color: "var(--color-notion-text)",
             }}
           >
             <option value="">Select an instance…</option>
@@ -185,21 +208,21 @@ function ShareSection({
           <div
             className="flex items-center gap-2 rounded-lg px-4 py-3"
             style={{
-              border: "1px solid rgba(55, 53, 47, 0.16)",
-              background: "rgba(55, 53, 47, 0.04)",
+              border: "1px solid var(--color-notion-border)",
+              background: "var(--color-notion-bg-hover)",
             }}
           >
             <span
               className="flex-1 text-center font-mono text-lg font-bold tracking-widest"
-              style={{ color: "rgba(55, 53, 47, 1)" }}
+              style={{ color: "var(--color-notion-text)" }}
             >
               {shareCode}
             </span>
             <button
               onClick={handleCopy}
               aria-label="Copy share code"
-              className="rounded-lg p-1.5 transition-colors hover:bg-[rgba(55,53,47,0.08)]"
-              style={{ color: "rgba(55, 53, 47, 0.65)" }}
+              className="rounded-lg p-1.5 transition-colors hover:bg-[var(--color-notion-bg-hover)]"
+              style={{ color: "var(--color-notion-text-secondary)" }}
             >
               {copied ? <Check size={16} /> : <Copy size={16} />}
             </button>
@@ -222,9 +245,20 @@ function ShareSection({
         )}
 
         {error !== undefined && (
-          <div className="flex items-center gap-2 rounded-md bg-red-50 px-3 py-2">
-            <AlertCircle size={14} className="text-red-500" />
-            <span className="text-xs text-red-600">{error}</span>
+          <div
+            className="flex items-center gap-2 rounded-md px-3 py-2"
+            style={{ background: "var(--color-accent-red-bg)" }}
+          >
+            <AlertCircle
+              size={14}
+              style={{ color: "var(--color-accent-red)" }}
+            />
+            <span
+              className="text-xs"
+              style={{ color: "var(--color-accent-red)" }}
+            >
+              {error}
+            </span>
           </div>
         )}
       </CardContent>
@@ -260,14 +294,25 @@ function JoinSection({ p2pRunning }: { p2pRunning: boolean }): ReactNode {
     <Card>
       <CardHeader>
         <div className="flex items-center gap-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-md bg-[rgba(55,53,47,0.04)]">
-            <ArrowDownToLine size={16} className="text-[#222222]" />
+          <div className="flex h-9 w-9 items-center justify-center rounded-md bg-[var(--color-notion-bg-hover)]">
+            <ArrowDownToLine
+              size={16}
+              style={{ color: "var(--color-notion-text)" }}
+            />
           </div>
-          <h3 className="font-semibold text-gray-800">Join Session</h3>
+          <h3
+            className="font-semibold"
+            style={{ color: "var(--color-notion-text)" }}
+          >
+            Join Session
+          </h3>
         </div>
       </CardHeader>
       <CardContent className="flex flex-col gap-3">
-        <p className="text-sm text-gray-500">
+        <p
+          className="text-sm"
+          style={{ color: "var(--color-notion-text-tertiary)" }}
+        >
           Enter a share code from a friend to download their mod setup.
         </p>
 
@@ -301,18 +346,29 @@ function JoinSection({ p2pRunning }: { p2pRunning: boolean }): ReactNode {
         </div>
 
         {success && (
-          <div className="flex items-center gap-2 rounded-md bg-[rgba(221,237,234,1)] px-3 py-2">
-            <Check size={14} className="text-[#0F7B6C]" />
-            <span className="text-xs text-[#0F7B6C]">
+          <div className="flex items-center gap-2 rounded-md bg-[var(--color-accent-green-bg)] px-3 py-2">
+            <Check size={14} className="text-[var(--color-accent-green)]" />
+            <span className="text-xs text-[var(--color-accent-green)]">
               Connected! Waiting for sync data…
             </span>
           </div>
         )}
 
         {error !== undefined && (
-          <div className="flex items-center gap-2 rounded-md bg-red-50 px-3 py-2">
-            <AlertCircle size={14} className="text-red-500" />
-            <span className="text-xs text-red-600">{error}</span>
+          <div
+            className="flex items-center gap-2 rounded-md px-3 py-2"
+            style={{ background: "var(--color-accent-red-bg)" }}
+          >
+            <AlertCircle
+              size={14}
+              style={{ color: "var(--color-accent-red)" }}
+            />
+            <span
+              className="text-xs"
+              style={{ color: "var(--color-accent-red)" }}
+            >
+              {error}
+            </span>
           </div>
         )}
       </CardContent>
@@ -371,12 +427,19 @@ function DiffPreviewModal({
     >
       <div className="flex flex-col gap-4">
         {diff.version_mismatch !== undefined && (
-          <div className="flex items-start gap-2 rounded-md bg-amber-50 px-3 py-2">
+          <div
+            className="flex items-start gap-2 rounded-md px-3 py-2"
+            style={{ background: "var(--color-accent-yellow-bg)" }}
+          >
             <AlertTriangle
               size={14}
-              className="mt-0.5 shrink-0 text-amber-500"
+              className="mt-0.5 shrink-0"
+              style={{ color: "var(--color-accent-yellow)" }}
             />
-            <div className="text-xs text-amber-700">
+            <div
+              className="text-xs"
+              style={{ color: "var(--color-accent-yellow)" }}
+            >
               <p className="font-semibold">Version mismatch</p>
               <p>
                 Local: {diff.version_mismatch.local_mc_version}
@@ -393,7 +456,10 @@ function DiffPreviewModal({
         )}
 
         {!hasChanges && (
-          <p className="text-center text-sm text-gray-500">
+          <p
+            className="text-center text-sm"
+            style={{ color: "var(--color-notion-text-tertiary)" }}
+          >
             Everything is already in sync!
           </p>
         )}
@@ -401,7 +467,9 @@ function DiffPreviewModal({
         {addCount > 0 && (
           <DiffSection
             title={`${String(addCount)} mod${addCount > 1 ? "s" : ""} to add`}
-            icon={<Plus size={14} className="text-[#0F7B6C]" />}
+            icon={
+              <Plus size={14} className="text-[var(--color-accent-green)]" />
+            }
             items={diff.to_add.map((m) => m.mod_name)}
             variant="add"
           />
@@ -410,7 +478,9 @@ function DiffPreviewModal({
         {removeCount > 0 && (
           <DiffSection
             title={`${String(removeCount)} mod${removeCount > 1 ? "s" : ""} to remove`}
-            icon={<Minus size={14} className="text-red-500" />}
+            icon={
+              <Minus size={14} style={{ color: "var(--color-accent-red)" }} />
+            }
             items={diff.to_remove.map((m) => m.mod_name)}
             variant="remove"
           />
@@ -434,12 +504,12 @@ function DiffSection({
   variant: "add" | "remove";
 }): ReactNode {
   const addStyles = {
-    background: "rgba(221,237,234,0.7)",
-    color: "#0F7B6C",
+    background: "var(--color-accent-green-bg)",
+    color: "var(--color-accent-green)",
   };
   const removeStyles = {
-    background: "rgba(253, 231, 233, 0.7)",
-    color: "#dc2626",
+    background: "var(--color-accent-red-bg)",
+    color: "var(--color-accent-red)",
   };
   const style = variant === "add" ? addStyles : removeStyles;
 
@@ -456,7 +526,11 @@ function DiffSection({
       </div>
       <ul className="flex flex-col gap-0.5">
         {items.map((name) => (
-          <li key={name} className="text-xs text-gray-600">
+          <li
+            key={name}
+            className="text-xs"
+            style={{ color: "var(--color-notion-text-secondary)" }}
+          >
             {name}
           </li>
         ))}
@@ -467,18 +541,31 @@ function DiffSection({
 
 function UpdateSection({ updates }: { updates: ModUpdate[] }): ReactNode {
   return (
-    <div className="rounded-md bg-amber-50/70 px-3 py-2">
+    <div
+      className="rounded-md px-3 py-2"
+      style={{ background: "var(--color-accent-yellow-bg)" }}
+    >
       <div className="mb-1 flex items-center gap-1.5">
-        <ArrowUpDown size={14} className="text-amber-500" />
-        <span className="text-xs font-semibold text-amber-600">
+        <ArrowUpDown
+          size={14}
+          style={{ color: "var(--color-accent-yellow)" }}
+        />
+        <span
+          className="text-xs font-semibold"
+          style={{ color: "var(--color-accent-yellow)" }}
+        >
           {updates.length} mod{updates.length > 1 ? "s" : ""} to update
         </span>
       </div>
       <ul className="flex flex-col gap-0.5">
         {updates.map((u) => (
-          <li key={u.mod_name} className="text-xs text-gray-600">
+          <li
+            key={u.mod_name}
+            className="text-xs"
+            style={{ color: "var(--color-notion-text-secondary)" }}
+          >
             {u.mod_name}{" "}
-            <span className="text-gray-400">
+            <span style={{ color: "var(--color-notion-text-tertiary)" }}>
               {u.local_version} → {u.remote_version}
             </span>
           </li>
@@ -492,15 +579,43 @@ function SyncHistoryPlaceholder(): ReactNode {
   return (
     <div>
       <div className="mb-3 flex items-center gap-2">
-        <History size={16} className="text-gray-500" />
-        <h2 className="text-lg font-bold text-gray-800">Sync History</h2>
+        <History
+          size={16}
+          style={{ color: "var(--color-notion-text-tertiary)" }}
+        />
+        <h2
+          className="text-lg font-bold"
+          style={{ color: "var(--color-notion-text)" }}
+        >
+          Sync History
+        </h2>
       </div>
-      <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-200 py-10 text-gray-400">
-        <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-md bg-gray-100">
-          <History size={24} className="text-gray-300" />
+      <div
+        className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed py-10"
+        style={{
+          borderColor: "var(--color-notion-border)",
+          color: "var(--color-notion-text-tertiary)",
+        }}
+      >
+        <div
+          className="mb-3 flex h-14 w-14 items-center justify-center rounded-md"
+          style={{ background: "var(--color-notion-bg-tertiary)" }}
+        >
+          <History
+            size={24}
+            style={{ color: "var(--color-notion-text-disabled)" }}
+          />
         </div>
-        <p className="text-sm font-medium text-gray-500">No sync history yet</p>
-        <p className="text-xs text-gray-400">
+        <p
+          className="text-sm font-medium"
+          style={{ color: "var(--color-notion-text-tertiary)" }}
+        >
+          No sync history yet
+        </p>
+        <p
+          className="text-xs"
+          style={{ color: "var(--color-notion-text-tertiary)" }}
+        >
           Share or join a session to get started
         </p>
       </div>
@@ -583,8 +698,16 @@ export function SyncHub(): ReactNode {
     <div className="flex flex-1 flex-col gap-6 p-7">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Sync Hub</h1>
-        <p className="mt-0.5 text-sm text-gray-500">
+        <h1
+          className="text-2xl font-bold"
+          style={{ color: "var(--color-notion-text)" }}
+        >
+          Sync Hub
+        </h1>
+        <p
+          className="mt-0.5 text-sm"
+          style={{ color: "var(--color-notion-text-tertiary)" }}
+        >
           Synchronize mods with friends via P2P
         </p>
       </div>
@@ -599,9 +722,19 @@ export function SyncHub(): ReactNode {
 
       {/* P2P not running hint */}
       {!p2pRunning && !toggling && (
-        <div className="flex items-center gap-2 rounded-md bg-amber-50 px-4 py-3">
-          <AlertTriangle size={14} className="shrink-0 text-amber-500" />
-          <span className="text-xs font-medium text-amber-700">
+        <div
+          className="flex items-center gap-2 rounded-md px-4 py-3"
+          style={{ background: "var(--color-accent-yellow-bg)" }}
+        >
+          <AlertTriangle
+            size={14}
+            className="shrink-0"
+            style={{ color: "var(--color-accent-yellow)" }}
+          />
+          <span
+            className="text-xs font-medium"
+            style={{ color: "var(--color-accent-yellow)" }}
+          >
             Connect to P2P network to share or join sync sessions.
           </span>
         </div>

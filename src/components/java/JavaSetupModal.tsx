@@ -25,22 +25,28 @@ export function JavaSetupModal(): ReactNode {
   const stage = status.status === "installing" ? status.stage : undefined;
 
   return (
-    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/20 px-4 backdrop-blur-[2px]">
+    <div
+      className="fixed inset-0 z-[70] flex items-center justify-center px-4 backdrop-blur-[2px]"
+      style={{ background: "rgba(0, 0, 0, 0.2)" }}
+    >
       <div
-        className="w-full max-w-lg bg-white p-6"
+        className="w-full max-w-lg p-6"
         style={{
+          background: "var(--color-notion-bg)",
           borderRadius: "12px",
-          boxShadow:
-            "rgba(15, 15, 15, 0.05) 0px 0px 0px 1px, rgba(15, 15, 15, 0.1) 0px 5px 10px, rgba(15, 15, 15, 0.2) 0px 15px 40px",
+          boxShadow: "var(--shadow-md-theme)",
         }}
       >
         <h2
           className="text-lg font-bold"
-          style={{ color: "rgba(55, 53, 47, 1)" }}
+          style={{ color: "var(--color-notion-text)" }}
         >
           Java requis
         </h2>
-        <p className="mt-2 text-sm" style={{ color: "rgba(55, 53, 47, 0.65)" }}>
+        <p
+          className="mt-2 text-sm"
+          style={{ color: "var(--color-notion-text-secondary)" }}
+        >
           MineSync a besoin de Java 21 pour lancer Minecraft. Clique sur le
           bouton pour installer automatiquement le runtime portable.
         </p>
@@ -48,7 +54,10 @@ export function JavaSetupModal(): ReactNode {
         {errorMessage !== undefined && (
           <div
             className="mt-4 flex items-start gap-2 rounded-md px-3 py-2"
-            style={{ background: "rgba(251, 236, 221, 1)", color: "#E03E3E" }}
+            style={{
+              background: "var(--color-accent-red-bg)",
+              color: "var(--color-accent-red)",
+            }}
           >
             <AlertCircle size={16} className="mt-0.5 shrink-0" />
             <span className="text-xs">{errorMessage}</span>
@@ -59,35 +68,38 @@ export function JavaSetupModal(): ReactNode {
           <div
             className="mt-4 flex flex-col gap-2 rounded-md px-3 py-3"
             style={{
-              background: "rgba(247, 246, 243, 1)",
-              border: "1px solid rgba(55, 53, 47, 0.09)",
+              background: "var(--color-notion-bg-secondary)",
+              border: "1px solid var(--color-notion-border-light)",
             }}
           >
             <div className="flex items-center gap-2">
               <Loader2
                 size={14}
                 className="animate-spin"
-                style={{ color: "rgba(55, 53, 47, 0.45)" }}
+                style={{ color: "var(--color-notion-text-tertiary)" }}
               />
               <span
                 className="text-sm"
-                style={{ color: "rgba(55, 53, 47, 0.65)" }}
+                style={{ color: "var(--color-notion-text-secondary)" }}
               >
                 Installation Java ({stage ?? "working"})…
               </span>
             </div>
             <div
               className="h-1.5 overflow-hidden rounded-full"
-              style={{ background: "rgba(55, 53, 47, 0.08)" }}
+              style={{ background: "var(--color-notion-bg-hover)" }}
             >
               <div
-                className="h-full rounded-full bg-[#222222] transition-all duration-300"
-                style={{ width: `${String(Math.min(100, progress))}%` }}
+                className="h-full rounded-full transition-all duration-300"
+                style={{
+                  width: `${String(Math.min(100, progress))}%`,
+                  background: "var(--color-accent-blue)",
+                }}
               />
             </div>
             <div
               className="flex items-center justify-between text-[11px]"
-              style={{ color: "rgba(55, 53, 47, 0.45)" }}
+              style={{ color: "var(--color-notion-text-tertiary)" }}
             >
               <span>{progress.toFixed(0)}%</span>
               <span>

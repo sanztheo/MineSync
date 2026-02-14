@@ -77,7 +77,7 @@ export function TitleBar(): ReactNode {
           onClick={() => {
             appWindow.close();
           }}
-          hoverClass="hover:bg-red-50 hover:text-red-500"
+          hoverClass="hover:bg-[var(--color-accent-red-bg)] hover:text-[var(--color-accent-red)]"
           ariaLabel="Close window"
         >
           <X size={14} />
