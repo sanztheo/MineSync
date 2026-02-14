@@ -17,10 +17,12 @@ export function Input({
   const hasError = error !== undefined;
 
   const borderStyle = hasError
-    ? "1px solid #E03E3E"
-    : "1px solid rgba(55, 53, 47, 0.16)";
+    ? "1px solid var(--color-accent-red)"
+    : "1px solid var(--color-notion-border)";
 
-  const focusBorderColor = hasError ? "#E03E3E" : "rgba(35, 131, 226, 0.5)";
+  const focusBorderColor = hasError
+    ? "var(--color-accent-red)"
+    : "var(--color-accent-blue)";
 
   return (
     <div className="flex flex-col gap-1.5">
@@ -28,7 +30,7 @@ export function Input({
         <label
           htmlFor={id}
           className="text-sm font-medium"
-          style={{ color: "rgba(55, 53, 47, 0.85)" }}
+          style={{ color: "var(--color-notion-text)" }}
         >
           {label}
         </label>
@@ -37,21 +39,22 @@ export function Input({
         {icon !== undefined && (
           <span
             className="absolute left-3 top-1/2 -translate-y-1/2"
-            style={{ color: "rgba(55, 53, 47, 0.45)" }}
+            style={{ color: "var(--color-notion-text-tertiary)" }}
           >
             {icon}
           </span>
         )}
         <input
           id={id}
-          className={`w-full rounded-[5px] bg-white px-3 py-2 text-sm transition-shadow duration-150 placeholder:text-[rgba(55,53,47,0.35)] focus:outline-none ${icon !== undefined ? "pl-10" : ""} ${className}`}
+          className={`w-full rounded-[5px] bg-[var(--color-notion-bg-secondary)] px-3 py-2 text-sm transition-shadow duration-150 placeholder:text-[var(--color-notion-text-tertiary)] focus:outline-none ${icon !== undefined ? "pl-10" : ""} ${className}`}
           style={{
             border: borderStyle,
-            color: "rgba(55, 53, 47, 1)",
+            color: "var(--color-notion-text)",
           }}
           onFocus={(e) => {
             e.currentTarget.style.border = `1px solid ${focusBorderColor}`;
-            e.currentTarget.style.boxShadow = `0 0 0 3px rgba(35, 131, 226, 0.1)`;
+            e.currentTarget.style.boxShadow =
+              "0 0 0 3px var(--focus-ring-strong)";
           }}
           onBlur={(e) => {
             e.currentTarget.style.border = borderStyle;
@@ -61,7 +64,7 @@ export function Input({
         />
       </div>
       {hasError && (
-        <span className="text-xs" style={{ color: "#E03E3E" }}>
+        <span className="text-xs" style={{ color: "var(--color-accent-red)" }}>
           {error}
         </span>
       )}

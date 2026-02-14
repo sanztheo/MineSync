@@ -24,7 +24,7 @@ export function Toggle({
           {label !== undefined && (
             <span
               className="text-sm font-medium"
-              style={{ color: "rgba(55, 53, 47, 0.85)" }}
+              style={{ color: "var(--color-notion-text)" }}
             >
               {label}
             </span>
@@ -32,7 +32,7 @@ export function Toggle({
           {description !== undefined && (
             <span
               className="text-xs"
-              style={{ color: "rgba(55, 53, 47, 0.45)" }}
+              style={{ color: "var(--color-notion-text-tertiary)" }}
             >
               {description}
             </span>
@@ -47,13 +47,15 @@ export function Toggle({
         onClick={() => {
           onChange(!checked);
         }}
-        className="relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(35,131,226,0.3)] focus-visible:ring-offset-2"
+        className="relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-notion-bg)]"
         style={{
-          background: checked ? "#222222" : "rgba(55, 53, 47, 0.16)",
+          background: checked
+            ? "var(--color-accent-blue)"
+            : "var(--color-notion-border)",
         }}
       >
         <span
-          className={`inline-block h-3.5 w-3.5 rounded-full bg-white transition-transform duration-200 ${
+          className={`inline-block h-3.5 w-3.5 rounded-full bg-[var(--color-notion-bg)] transition-transform duration-200 ${
             checked ? "translate-x-[18px]" : "translate-x-[3px]"
           }`}
           style={{

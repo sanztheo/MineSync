@@ -1,7 +1,8 @@
 import type { ReactNode } from "react";
-import { Minus, Square, X } from "@/components/ui/PixelIcon";
+import { Minus, Square, Sun, Moon, X } from "@/components/ui/PixelIcon";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import logoSvg from "@/assets/logo.svg";
+import { useTheme } from "@/hooks/use-theme";
 
 function WindowButton({
   onClick,
@@ -19,7 +20,7 @@ function WindowButton({
       onClick={onClick}
       aria-label={ariaLabel}
       className={`flex h-[45px] w-11 items-center justify-center transition-colors duration-150 ${hoverClass}`}
-      style={{ color: "rgba(55, 53, 47, 0.45)" }}
+      style={{ color: "var(--color-notion-text-tertiary)" }}
     >
       {children}
     </button>
@@ -28,28 +29,37 @@ function WindowButton({
 
 export function TitleBar(): ReactNode {
   const appWindow = getCurrentWindow();
+  const { theme, toggleTheme } = useTheme();
 
   return (
     <header
       data-tauri-drag-region
-      className="flex shrink-0 items-center justify-between bg-white select-none"
+      className="flex shrink-0 items-center justify-between select-none"
       style={{
         height: "45px",
-        borderBottom: "1px solid rgba(55, 53, 47, 0.09)",
+        background: "var(--color-notion-bg)",
+        borderBottom: "1px solid var(--color-notion-border-light)",
       }}
     >
-      {/* Brand */}
-      <div data-tauri-drag-region className="flex items-center pl-4">
+      <div data-tauri-drag-region className="flex items-center gap-2 pl-4">
         <img src={logoSvg} alt="MineSync" className="h-5 w-auto" />
       </div>
 
-      {/* Window controls */}
-      <div className="flex items-center">
+      <div className="ml-auto flex items-center">
+        <button
+          onClick={toggleTheme}
+          aria-label="Toggle theme"
+          className="mr-2 rounded-md p-1.5 transition-colors duration-150 hover:bg-[var(--color-notion-bg-hover)]"
+          style={{ color: "var(--color-notion-text-secondary)" }}
+        >
+          {theme === "dark" ? <Sun size={14} /> : <Moon size={14} />}
+        </button>
+
         <WindowButton
           onClick={() => {
             appWindow.minimize();
           }}
-          hoverClass="hover:bg-[rgba(55,53,47,0.06)]"
+          hoverClass="hover:bg-[var(--color-notion-bg-hover)]"
           ariaLabel="Minimize window"
         >
           <Minus size={14} />
@@ -58,7 +68,7 @@ export function TitleBar(): ReactNode {
           onClick={() => {
             appWindow.toggleMaximize();
           }}
-          hoverClass="hover:bg-[rgba(55,53,47,0.06)]"
+          hoverClass="hover:bg-[var(--color-notion-bg-hover)]"
           ariaLabel="Maximize window"
         >
           <Square size={10} />

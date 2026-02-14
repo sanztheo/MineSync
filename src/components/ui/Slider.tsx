@@ -29,15 +29,15 @@ export function Slider({
         <div className="flex items-center justify-between">
           <span
             className="text-sm font-medium"
-            style={{ color: "rgba(55, 53, 47, 0.65)" }}
+            style={{ color: "var(--color-notion-text-secondary)" }}
           >
             {label}
           </span>
           <span
             className="rounded px-2 py-0.5 text-sm font-semibold"
             style={{
-              background: "rgba(55, 53, 47, 0.08)",
-              color: "rgba(55, 53, 47, 1)",
+              background: "var(--color-notion-bg-tertiary)",
+              color: "var(--color-notion-text)",
             }}
           >
             {value}
@@ -57,12 +57,12 @@ export function Slider({
         }}
         className="h-1.5 w-full cursor-pointer appearance-none rounded-full"
         style={{
-          background: `linear-gradient(to right, #222222 0%, #222222 ${String(percentage)}%, rgba(55,53,47,0.16) ${String(percentage)}%, rgba(55,53,47,0.16) 100%)`,
+          background: `linear-gradient(to right, var(--color-btn-primary) 0%, var(--color-btn-primary) ${String(percentage)}%, var(--color-notion-border) ${String(percentage)}%, var(--color-notion-border) 100%)`,
         }}
       />
       <div
         className="flex justify-between text-[11px]"
-        style={{ color: "rgba(55, 53, 47, 0.45)" }}
+        style={{ color: "var(--color-notion-text-tertiary)" }}
       >
         <span>
           {min}

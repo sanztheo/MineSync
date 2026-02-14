@@ -11,36 +11,33 @@ import { InstanceDetail } from "@/pages/InstanceDetail";
 import { Auth } from "@/pages/Auth";
 import { JavaRuntimeProvider } from "@/hooks/use-java-runtime";
 import { JavaSetupModal } from "@/components/java/JavaSetupModal";
+import { ThemeProvider } from "@/components/layout/ThemeProvider";
 
 export function App(): ReactNode {
   return (
-    <JavaRuntimeProvider>
-      <BrowserRouter>
-        <div
-          className="flex h-screen flex-col"
-          style={{ background: "#FFFFFF", color: "rgba(55, 53, 47, 1)" }}
-        >
-          <TitleBar />
-          <div className="flex flex-1 overflow-hidden">
-            <Sidebar />
-            <main
-              className="flex-1 overflow-y-auto"
-              style={{ background: "rgba(247, 246, 243, 1)" }}
-            >
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/mods" element={<BrowseMods />} />
-                <Route path="/modpacks" element={<BrowseModpacks />} />
-                <Route path="/sync" element={<SyncHub />} />
-                <Route path="/settings" element={<Settings />} />
-                <Route path="/auth" element={<Auth />} />
-                <Route path="/instance/:id" element={<InstanceDetail />} />
-              </Routes>
-            </main>
+    <ThemeProvider>
+      <JavaRuntimeProvider>
+        <BrowserRouter>
+          <div className="flex h-screen flex-col bg-[var(--color-notion-bg)] text-[var(--color-notion-text)]">
+            <TitleBar />
+            <div className="flex flex-1 overflow-hidden">
+              <Sidebar />
+              <main className="flex-1 overflow-y-auto bg-[var(--color-notion-bg-secondary)]">
+                <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/mods" element={<BrowseMods />} />
+                  <Route path="/modpacks" element={<BrowseModpacks />} />
+                  <Route path="/sync" element={<SyncHub />} />
+                  <Route path="/settings" element={<Settings />} />
+                  <Route path="/auth" element={<Auth />} />
+                  <Route path="/instance/:id" element={<InstanceDetail />} />
+                </Routes>
+              </main>
+            </div>
+            <JavaSetupModal />
           </div>
-          <JavaSetupModal />
-        </div>
-      </BrowserRouter>
-    </JavaRuntimeProvider>
+        </BrowserRouter>
+      </JavaRuntimeProvider>
+    </ThemeProvider>
   );
 }

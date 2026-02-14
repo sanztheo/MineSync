@@ -13,9 +13,9 @@ export function Card({
 }: CardProps): ReactNode {
   return (
     <div
-      className={`rounded-lg bg-white p-4 ${hoverable ? "cursor-pointer hover:bg-[rgba(55,53,47,0.02)]" : ""} ${className}`}
+      className={`rounded-lg bg-[var(--color-notion-bg)] p-4 ${hoverable ? "cursor-pointer hover:bg-[var(--color-notion-bg-hover)]" : ""} ${className}`}
       style={{
-        border: "1px solid rgba(55, 53, 47, 0.09)",
+        border: "1px solid var(--color-notion-border-light)",
       }}
       {...props}
     >
@@ -60,7 +60,7 @@ export function CardFooter({
   return (
     <div
       className={`mt-3 flex items-center gap-2 pt-3 ${className}`}
-      style={{ borderTop: "1px solid rgba(55, 53, 47, 0.09)" }}
+      style={{ borderTop: "1px solid var(--color-notion-border-light)" }}
       {...props}
     >
       {children}
